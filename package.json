@@ -1,0 +1,39 @@
+{
+  "name": "data.js",
+  "version": "0.0.1",
+  "description": "",
+  "main": "lib/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "ava -v",
+    "watch:test": "npm t -- --watch",
+    "lint": "xo --quiet"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/datahq/data.js.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/datahq/data.js/issues"
+  },
+  "homepage": "https://github.com/datahq/data.js#readme",
+  "devDependencies": {
+    "ava": "^0.21.0",
+    "xo": "^0.18.2"
+  },
+  "dependencies": {
+    "chardet": "^0.1.0",
+    "csv-parse": "^1.2.1",
+    "lodash": "^4.17.4",
+    "mime-types": "^2.1.16",
+    "node-fetch": "^1.7.2",
+    "stream-to-array": "^2.3.0",
+    "tableschema": "^1.0.0-alpha.12",
+    "url-join": "^2.0.2",
+    "xlsx": "^0.11.2"
+  }
+}
