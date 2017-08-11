@@ -2,7 +2,7 @@ const test = require('ava')
 
 const toArray = require('stream-to-array')
 
-const data = require('../lib/index.js')
+const data = require('../lib/index')
 
 // ====================================
 // isUrl
@@ -136,14 +136,14 @@ test('File with path and basePath', t => {
 })
 
 test('File with inline JS data', async t => {
-  const descriptor = {
+  const inlineData = {
     name: 'abc'
   }
-  const resource = data.File.load({data:descriptor})
+  const resource = data.File.load({data:inlineData})
   t.is(resource.size, 14)
   const stream = await resource.stream()
   const out = await toArray(stream)
-  t.is(out.toString(), JSON.stringify(descriptor))
+  t.is(out.toString(), JSON.stringify(inlineData))
 })
 
 test('File with inline text (CSV) data', async t => {
