@@ -2,7 +2,7 @@ const test = require('ava')
 const toArray = require('stream-to-array')
 
 const {xlsxParser} = require('../lib/parser/xlsx')
-const {File} = require('../lib/data')
+const {File} = require('../lib/index')
 
 test('xlsxParser works with XLSX files', async t => {
   const path_ = 'test/fixtures/sample.xlsx'

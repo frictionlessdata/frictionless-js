@@ -2,29 +2,29 @@ const test = require('ava')
 
 const toArray = require('stream-to-array')
 
-const utils = require('../lib/data.js')
+const data = require('../lib/index')
 
 // ====================================
 // isUrl
 
 test('Tests if given path is url or not', t => {
   let notUrl = 'not/url/path'
-  let res = utils.isUrl(notUrl)
+  let res = data.isUrl(notUrl)
   t.false(res)
   notUrl = '/not/url/path/'
-  res = utils.isUrl(notUrl)
+  res = data.isUrl(notUrl)
   t.false(res)
   let url = 'https://test.com'
-  res = utils.isUrl(url)
+  res = data.isUrl(url)
   t.true(res)
   url = 'http://test.com'
-  res = utils.isUrl(url)
+  res = data.isUrl(url)
   t.true(res)
   url = 'HTTP://TEST.COM'
-  res = utils.isUrl(url)
+  res = data.isUrl(url)
   t.true(res)
   url = '//test.com'
-  res = utils.isUrl(url)
+  res = data.isUrl(url)
   t.true(res)
 })
 
@@ -33,28 +33,28 @@ test('Tests if given path is url or not', t => {
 
 test('isPackage function works', t => {
   let pathToPkg = 'test/fixtures/co2-ppm'
-  let res = utils.isPackage(pathToPkg)
+  let res = data.isPackage(pathToPkg)
   t.true(res)
   pathToPkg = 'test/fixtures/co2-ppm/datapackage.json'
-  res = utils.isPackage(pathToPkg)
+  res = data.isPackage(pathToPkg)
   t.true(res)
   const pathToFile = 'test/fixtures/sample.csv'
-  res = utils.isPackage(pathToFile)
+  res = data.isPackage(pathToFile)
   t.false(res)
   let urlToPkg = 'http://test.com/'
-  res = utils.isPackage(urlToPkg)
+  res = data.isPackage(urlToPkg)
   t.true(res)
   urlToPkg = 'http://test.com/dir'
-  res = utils.isPackage(urlToPkg)
+  res = data.isPackage(urlToPkg)
   t.true(res)
   urlToPkg = 'http://test.com/dir/datapackage.json'
-  res = utils.isPackage(urlToPkg)
+  res = data.isPackage(urlToPkg)
   t.true(res)
   let urlToFile = 'http://test.com/dir/file.csv'
-  res = utils.isPackage(urlToFile)
+  res = data.isPackage(urlToFile)
   t.false(res)
   urlToFile = 'http://test.com/file.csv'
-  res = utils.isPackage(urlToFile)
+  res = data.isPackage(urlToFile)
   t.false(res)
 })
 
@@ -63,7 +63,7 @@ test('isPackage function works', t => {
 
 test('parsePath function with local path', t => {
   const path_ = 'test/fixtures/sample.csv'
-  const res = utils.parsePath(path_)
+  const res = data.parsePath(path_)
   t.is(res.path, path_)
   t.is(res.pathType, 'local')
   t.is(res.name, 'sample')
@@ -73,7 +73,7 @@ test('parsePath function with local path', t => {
 
 test('parsePath function with remote url', t => {
   const path_ = 'https://raw.githubusercontent.com/datasets/finance-vix/master/data/vix-daily.csv'
-  const res = utils.parsePath(path_)
+  const res = data.parsePath(path_)
   t.is(res.path, path_)
   t.is(res.pathType, 'remote')
   t.is(res.name, 'vix-daily')
@@ -120,81 +120,81 @@ const testResourceStream = async (t, resource) => {
 test('File class with path', async t => {
   // With path
   const path_ = 'test/fixtures/sample.csv'
-  const res = utils.File.load(path_)
+  const res = data.File.load(path_)
   await testFile(t, res)
 })
 
 test('File class with descriptor', async t => {
   const descriptor = {path: 'test/fixtures/sample.csv'}
-  const obj2 = utils.File.load(descriptor)
+  const obj2 = data.File.load(descriptor)
   await testFile(t, obj2)
 })
 
 test('File with path and basePath', t => {
-  const obj3 = utils.File.load('sample.csv', {basePath: 'test/fixtures'})
+  const obj3 = data.File.load('sample.csv', {basePath: 'test/fixtures'})
   testFile(t, obj3)
 })
 
 test('File with inline JS data', async t => {
-  const data = {
+  const inlineData = {
     name: 'abc'
   }
-  const resource = utils.File.load({data})
+  const resource = data.File.load({data:inlineData})
   t.is(resource.size, 14)
   const stream = await resource.stream()
   const out = await toArray(stream)
-  t.is(out.toString(), JSON.stringify(data))
+  t.is(out.toString(), JSON.stringify(inlineData))
 })
 
 test('File with inline text (CSV) data', async t => {
-  const data = `number,string,boolean
+  const inlineData = `number,string,boolean
 1,two,true
 3,four,false
 `
   // To make it testable with testFile we add the path but it is not needed
-  const resource = utils.File.load({
+  const resource = data.File.load({
     path: 'test/fixtures/sample.csv',
     format: 'csv',
-    data
+    inlineData
   })
   await testFile(t, resource)
 })
 
 test('File with inline array data', async t => {
-  const data = [
+  const inlineData = [
     ['number', 'string', 'boolean'],
     [1, 'two', true],
     [3, 'four', false]
   ]
   // To make it testable with testFile we add the path but it is not needed
-  const resource = utils.File.load({
-    data
+  const resource = data.File.load({
+    data:inlineData
   })
   t.is(resource.size, 63)
   const stream = await resource.stream()
   const out = await toArray(stream)
-  t.is(out.toString(), JSON.stringify(data))
+  t.is(out.toString(), JSON.stringify(inlineData))
 
   const rows = await resource.rows()
   const out2 = await toArray(rows)
   t.is(out2.length, 3)
-  t.is(out2[0][0], data[0][0])
+  t.is(out2[0][0], inlineData[0][0])
   // For some reason this fails with no difference
   // t.is(out2, data)
   // but this works ...
-  t.is(JSON.stringify(out2), JSON.stringify(data))
+  t.is(JSON.stringify(out2), JSON.stringify(inlineData))
 })
 
 test.serial('File class stream with url', async t => {
   // TODO: mock this out
   const url = 'https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv'
-  const res = utils.File.load(url)
+  const res = data.File.load(url)
   await testResourceStream(t, res)
 })
 
 test.serial('File class for addSchema method', async t => {
   const path_ = 'test/fixtures/sample.csv'
-  const resource = utils.File.load(path_)
+  const resource = data.File.load(path_)
   t.is(resource.descriptor.schema, undefined)
   await resource.addSchema()
   t.is(resource.descriptor.schema.fields[1].type, 'string')
@@ -207,7 +207,7 @@ test.serial('File class for addSchema method', async t => {
 // ====================================
 
 test('Dataset constructor works', t => {
-  const pkg = new utils.Dataset()
+  const pkg = new data.Dataset()
   t.deepEqual(pkg.identifier, {
     path: null,
     owner: null
@@ -219,7 +219,7 @@ test('Dataset constructor works', t => {
 
 test('Dataset.load works with co2-ppm', async t => {
   const path = 'test/fixtures/co2-ppm'
-  const pkg2 = await utils.Dataset.load(path)
+  const pkg2 = await data.Dataset.load(path)
   t.deepEqual(pkg2.identifier, {
     path,
     type: 'local'
@@ -235,7 +235,7 @@ test('Dataset.load works with co2-ppm', async t => {
 
 test('Dataset.load with dir/datapckage.json', async t => {
   const path = 'test/fixtures/co2-ppm/datapackage.json'
-  const pkg = await utils.Dataset.load(path)
+  const pkg = await data.Dataset.load(path)
   t.is(pkg.descriptor.name, 'co2-ppm')
   t.is(pkg.identifier.type, 'local')
   t.is(pkg.resources.length, 6)
@@ -244,7 +244,7 @@ test('Dataset.load with dir/datapckage.json', async t => {
 
 test('Dataset.load with url-directory', async t => {
   const url = 'https://raw.githubusercontent.com/datasets/co2-ppm/master/'
-  const pkg = await utils.Dataset.load(url)
+  const pkg = await data.Dataset.load(url)
   t.is(pkg.descriptor.name, 'co2-ppm')
   t.is(pkg.identifier.type, 'remote')
   t.is(pkg.resources.length, 6)
@@ -253,7 +253,7 @@ test('Dataset.load with url-directory', async t => {
 
 test('Dataset.load with url/datapackage.json', async t => {
   const url = 'https://raw.githubusercontent.com/datasets/co2-ppm/master/datapackage.json'
-  const pkg = await utils.Dataset.load(url)
+  const pkg = await data.Dataset.load(url)
   t.is(pkg.descriptor.name, 'co2-ppm')
   t.is(pkg.identifier.type, 'remote')
   t.is(pkg.resources.length, 6)
@@ -266,8 +266,8 @@ test('Dataset.addResource method works', t => {
     path: 'test/fixtures/sample.csv',
     format: 'csv'
   }
-  const resourceAsResourceObj = utils.File.load(resourceAsPlainObj)
-  const pkg = new utils.Dataset({
+  const resourceAsResourceObj = data.File.load(resourceAsPlainObj)
+  const pkg = new data.Dataset({
     resources: []
   })
   t.is(pkg.resources.length, 0)
