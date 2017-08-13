@@ -6,33 +6,33 @@ const {File} = require('../lib/index')
 
 test('xlsxParser works with XLSX files', async t => {
   const path_ = 'test/fixtures/sample.xlsx'
-  const resource = await File.load(path_)
-  const rows = await toArray(await xlsxParser(resource))
+  const file = await File.load(path_)
+  const rows = await toArray(await xlsxParser(file))
   t.deepEqual(rows[0], ['number', 'string', 'boolean'])
 })
 
 test('xlsxParser works with XLS files', async t => {
   const path_ = 'test/fixtures/sample.xls'
-  const resource = await File.load(path_)
-  const rows = await toArray(await xlsxParser(resource))
+  const file = await File.load(path_)
+  const rows = await toArray(await xlsxParser(file))
   t.deepEqual(rows[0], ['number', 'string', 'boolean'])
 })
 
 test('xlsxParser works with keyed option', async t => {
   const path_ = 'test/fixtures/sample.xls'
-  const resource = await File.load(path_)
+  const file = await File.load(path_)
   const keyed = true
-  const rows = await toArray(await xlsxParser(resource, keyed))
+  const rows = await toArray(await xlsxParser(file, keyed))
   t.deepEqual(rows[0], {number: '1', string: 'two', boolean: 'TRUE'})
 })
 
 test('xlsxParser works with semicolon delimeter', async t => {
   const path_ = 'test/fixtures/semicolon-delimited.csv'
-  const resource = await File.load(path_)
-  resource.descriptor.dialect = {
+  const file = await File.load(path_)
+  file.descriptor.dialect = {
     delimiter: ';'
   }
-  const rows = await toArray(await xlsxParser(resource))
+  const rows = await toArray(await xlsxParser(file))
   t.deepEqual(rows[0], ['id', 'name'])
   t.deepEqual(rows[1], ['1', 'John'])
 })

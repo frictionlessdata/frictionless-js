@@ -29,32 +29,32 @@ test('Tests if given path is url or not', t => {
 })
 
 // ====================================
-// isPackage
+// isDataset
 
-test('isPackage function works', t => {
-  let pathToPkg = 'test/fixtures/co2-ppm'
-  let res = data.isPackage(pathToPkg)
+test('isDataset function works', t => {
+  let pathToDataset = 'test/fixtures/co2-ppm'
+  let res = data.isDataset(pathToDataset)
   t.true(res)
-  pathToPkg = 'test/fixtures/co2-ppm/datapackage.json'
-  res = data.isPackage(pathToPkg)
+  pathToDataset = 'test/fixtures/co2-ppm/datapackage.json'
+  res = data.isDataset(pathToDataset)
   t.true(res)
   const pathToFile = 'test/fixtures/sample.csv'
-  res = data.isPackage(pathToFile)
+  res = data.isDataset(pathToFile)
   t.false(res)
-  let urlToPkg = 'http://test.com/'
-  res = data.isPackage(urlToPkg)
+  let urlToDataset = 'http://test.com/'
+  res = data.isDataset(urlToDataset)
   t.true(res)
-  urlToPkg = 'http://test.com/dir'
-  res = data.isPackage(urlToPkg)
+  urlToDataset = 'http://test.com/dir'
+  res = data.isDataset(urlToDataset)
   t.true(res)
-  urlToPkg = 'http://test.com/dir/datapackage.json'
-  res = data.isPackage(urlToPkg)
+  urlToDataset = 'http://test.com/dir/datapackage.json'
+  res = data.isDataset(urlToDataset)
   t.true(res)
   let urlToFile = 'http://test.com/dir/file.csv'
-  res = data.isPackage(urlToFile)
+  res = data.isDataset(urlToFile)
   t.false(res)
   urlToFile = 'http://test.com/file.csv'
-  res = data.isPackage(urlToFile)
+  res = data.isDataset(urlToFile)
   t.false(res)
 })
 
@@ -86,32 +86,32 @@ test('parsePath function with remote url', t => {
 // ====================================
 
 // common method to test all the functionality which we can use for all types
-// of resources
-const testFile = async (t, resource) => {
-  t.is(resource.path, 'test/fixtures/sample.csv')
-  t.is(resource.size, 46)
-  t.is(resource.hash, 'sGYdlWZJioAPv5U2XOKHRw==')
-  await testResourceStream(t, resource)
+// of files
+const testFile = async (t, file) => {
+  t.is(file.path, 'test/fixtures/sample.csv')
+  t.is(file.size, 46)
+  t.is(file.hash, 'sGYdlWZJioAPv5U2XOKHRw==')
+  await testFileStream(t, file)
 }
 
-const testResourceStream = async (t, resource) => {
+const testFileStream = async (t, file) => {
   // Test stream
-  const stream = await resource.stream()
+  const stream = await file.stream()
   const out = await toArray(stream)
   t.true(out.toString().includes('number,string,boolean'))
 
   // Test buffer
-  const buffer = await resource.buffer
+  const buffer = await file.buffer
   t.is(buffer.toString().slice(0, 21), 'number,string,boolean')
 
   // Test rows
-  const rowStream = await resource.rows()
+  const rowStream = await file.rows()
   const rows = await toArray(rowStream)
   t.deepEqual(rows[0], ['number', 'string', 'boolean'])
   t.deepEqual(rows[1], ['1', 'two', 'true'])
 
   // Test rows with keyed option (rows as objects)
-  const rowStreamKeyed = await resource.rows({keyed: true})
+  const rowStreamKeyed = await file.rows({keyed: true})
   const rowsAsObjects = await toArray(rowStreamKeyed)
   t.deepEqual(rowsAsObjects[0], {number: '1', string: 'two', boolean: 'true'})
   t.deepEqual(rowsAsObjects[1], {number: '3', string: 'four', boolean: 'false'})
@@ -139,9 +139,9 @@ test('File with inline JS data', async t => {
   const inlineData = {
     name: 'abc'
   }
-  const resource = data.File.load({data:inlineData})
-  t.is(resource.size, 14)
-  const stream = await resource.stream()
+  const file = data.File.load({data:inlineData})
+  t.is(file.size, 14)
+  const stream = await file.stream()
   const out = await toArray(stream)
   t.is(out.toString(), JSON.stringify(inlineData))
 })
@@ -152,12 +152,12 @@ test('File with inline text (CSV) data', async t => {
 3,four,false
 `
   // To make it testable with testFile we add the path but it is not needed
-  const resource = data.File.load({
+  const file = data.File.load({
     path: 'test/fixtures/sample.csv',
     format: 'csv',
     inlineData
   })
-  await testFile(t, resource)
+  await testFile(t, file)
 })
 
 test('File with inline array data', async t => {
@@ -167,15 +167,15 @@ test('File with inline array data', async t => {
     [3, 'four', false]
   ]
   // To make it testable with testFile we add the path but it is not needed
-  const resource = data.File.load({
+  const file = data.File.load({
     data:inlineData
   })
-  t.is(resource.size, 63)
-  const stream = await resource.stream()
+  t.is(file.size, 63)
+  const stream = await file.stream()
   const out = await toArray(stream)
   t.is(out.toString(), JSON.stringify(inlineData))
 
-  const rows = await resource.rows()
+  const rows = await file.rows()
   const out2 = await toArray(rows)
   t.is(out2.length, 3)
   t.is(out2[0][0], inlineData[0][0])
@@ -189,16 +189,16 @@ test.serial('File class stream with url', async t => {
   // TODO: mock this out
   const url = 'https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv'
   const res = data.File.load(url)
-  await testResourceStream(t, res)
+  await testFileStream(t, res)
 })
 
 test.serial('File class for addSchema method', async t => {
   const path_ = 'test/fixtures/sample.csv'
-  const resource = data.File.load(path_)
-  t.is(resource.descriptor.schema, undefined)
-  await resource.addSchema()
-  t.is(resource.descriptor.schema.fields[1].type, 'string')
-  const headers = resource.descriptor.schema.fields.map(field => field.name)
+  const file = data.File.load(path_)
+  t.is(file.descriptor.schema, undefined)
+  await file.addSchema()
+  t.is(file.descriptor.schema.fields[1].type, 'string')
+  const headers = file.descriptor.schema.fields.map(field => field.name)
   t.deepEqual(headers, ['number', 'string', 'boolean'])
 })
 
@@ -207,57 +207,57 @@ test.serial('File class for addSchema method', async t => {
 // ====================================
 
 test('Dataset constructor works', t => {
-  const pkg = new data.Dataset()
-  t.deepEqual(pkg.identifier, {
+  const dataset = new data.Dataset()
+  t.deepEqual(dataset.identifier, {
     path: null,
     owner: null
   })
-  t.deepEqual(pkg.descriptor, {})
-  t.deepEqual(pkg.path, null)
-  t.is(pkg.readme, null)
+  t.deepEqual(dataset.descriptor, {})
+  t.deepEqual(dataset.path, null)
+  t.is(dataset.readme, null)
 })
 
 test('Dataset.load works with co2-ppm', async t => {
   const path = 'test/fixtures/co2-ppm'
-  const pkg2 = await data.Dataset.load(path)
-  t.deepEqual(pkg2.identifier, {
+  const dataset2 = await data.Dataset.load(path)
+  t.deepEqual(dataset2.identifier, {
     path,
     type: 'local'
   })
-  t.deepEqual(pkg2.path, path)
+  t.deepEqual(dataset2.path, path)
 
-  t.is(pkg2.descriptor.name, 'co2-ppm')
-  t.is(pkg2.resources.length, 6)
-  t.is(pkg2.resources[0].descriptor.name, 'co2-mm-mlo')
-  t.is(pkg2.resources[0].path, 'test/fixtures/co2-ppm/data/co2-mm-mlo.csv')
-  t.true(pkg2.readme.includes('CO2 PPM - Trends in Atmospheric Carbon Dioxide.'))
+  t.is(dataset2.descriptor.name, 'co2-ppm')
+  t.is(dataset2.resources.length, 6)
+  t.is(dataset2.resources[0].descriptor.name, 'co2-mm-mlo')
+  t.is(dataset2.resources[0].path, 'test/fixtures/co2-ppm/data/co2-mm-mlo.csv')
+  t.true(dataset2.readme.includes('CO2 PPM - Trends in Atmospheric Carbon Dioxide.'))
 })
 
 test('Dataset.load with dir/datapckage.json', async t => {
   const path = 'test/fixtures/co2-ppm/datapackage.json'
-  const pkg = await data.Dataset.load(path)
-  t.is(pkg.descriptor.name, 'co2-ppm')
-  t.is(pkg.identifier.type, 'local')
-  t.is(pkg.resources.length, 6)
-  t.true(pkg.readme.includes('CO2 PPM - Trends in Atmospheric Carbon Dioxide.'))
+  const dataset = await data.Dataset.load(path)
+  t.is(dataset.descriptor.name, 'co2-ppm')
+  t.is(dataset.identifier.type, 'local')
+  t.is(dataset.resources.length, 6)
+  t.true(dataset.readme.includes('CO2 PPM - Trends in Atmospheric Carbon Dioxide.'))
 })
 
 test('Dataset.load with url-directory', async t => {
   const url = 'https://raw.githubusercontent.com/datasets/co2-ppm/master/'
-  const pkg = await data.Dataset.load(url)
-  t.is(pkg.descriptor.name, 'co2-ppm')
-  t.is(pkg.identifier.type, 'remote')
-  t.is(pkg.resources.length, 6)
-  t.true(pkg.readme.includes('CO2 PPM - Trends in Atmospheric Carbon Dioxide.'))
+  const dataset = await data.Dataset.load(url)
+  t.is(dataset.descriptor.name, 'co2-ppm')
+  t.is(dataset.identifier.type, 'remote')
+  t.is(dataset.resources.length, 6)
+  t.true(dataset.readme.includes('CO2 PPM - Trends in Atmospheric Carbon Dioxide.'))
 })
 
 test('Dataset.load with url/datapackage.json', async t => {
   const url = 'https://raw.githubusercontent.com/datasets/co2-ppm/master/datapackage.json'
-  const pkg = await data.Dataset.load(url)
-  t.is(pkg.descriptor.name, 'co2-ppm')
-  t.is(pkg.identifier.type, 'remote')
-  t.is(pkg.resources.length, 6)
-  t.true(pkg.readme.includes('CO2 PPM - Trends in Atmospheric Carbon Dioxide.'))
+  const dataset = await data.Dataset.load(url)
+  t.is(dataset.descriptor.name, 'co2-ppm')
+  t.is(dataset.identifier.type, 'remote')
+  t.is(dataset.resources.length, 6)
+  t.true(dataset.readme.includes('CO2 PPM - Trends in Atmospheric Carbon Dioxide.'))
 })
 
 test('Dataset.addResource method works', t => {
@@ -266,16 +266,16 @@ test('Dataset.addResource method works', t => {
     path: 'test/fixtures/sample.csv',
     format: 'csv'
   }
-  const resourceAsResourceObj = data.File.load(resourceAsPlainObj)
-  const pkg = new data.Dataset({
+  const resourceAsFileObj = data.File.load(resourceAsPlainObj)
+  const dataset = new data.Dataset({
     resources: []
   })
-  t.is(pkg.resources.length, 0)
-  t.is(pkg.descriptor.resources.length, 0)
-  pkg.addResource(resourceAsPlainObj)
-  t.is(pkg.resources.length, 1)
-  t.is(pkg.descriptor.resources.length, 1)
-  pkg.addResource(resourceAsResourceObj)
-  t.is(pkg.resources.length, 2)
-  t.is(pkg.descriptor.resources.length, 2)
+  t.is(dataset.resources.length, 0)
+  t.is(dataset.descriptor.resources.length, 0)
+  dataset.addResource(resourceAsPlainObj)
+  t.is(dataset.resources.length, 1)
+  t.is(dataset.descriptor.resources.length, 1)
+  dataset.addResource(resourceAsFileObj)
+  t.is(dataset.resources.length, 2)
+  t.is(dataset.descriptor.resources.length, 2)
 })
