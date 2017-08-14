@@ -1,6 +1,6 @@
 {
   "name": "data.js",
-  "version": "0.0.1",
+  "version": "0.9.0",
   "description": "",
   "main": "lib/index.js",
   "directories": {
@@ -15,7 +15,7 @@
     "type": "git",
     "url": "git+https://github.com/datahq/data.js.git"
   },
-  "author": "",
+  "author": "datopian",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/datahq/data.js/issues"
