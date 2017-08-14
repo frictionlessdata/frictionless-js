@@ -1,4 +1,6 @@
+const path = require('path')
 const test = require('ava')
+const nock = require('nock')
 
 const toArray = require('stream-to-array')
 
@@ -188,6 +190,10 @@ test('File with inline array data', async t => {
 test.serial('File class stream with url', async t => {
   // TODO: mock this out
   const url = 'https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv'
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datahq/datahub-cli/master/test/fixtures/sample.csv')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/sample.csv'))
   const res = data.File.load(url)
   await testFileStream(t, res)
 })
@@ -244,6 +250,14 @@ test('Dataset.load with dir/datapckage.json', async t => {
 
 test('Dataset.load with url-directory', async t => {
   const url = 'https://raw.githubusercontent.com/datasets/co2-ppm/master/'
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/datapackage.json')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/datapackage.json'))
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/README.md')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/README.md'))
   const dataset = await data.Dataset.load(url)
   t.is(dataset.descriptor.name, 'co2-ppm')
   t.is(dataset.identifier.type, 'remote')
@@ -253,6 +267,14 @@ test('Dataset.load with url-directory', async t => {
 
 test('Dataset.load with url/datapackage.json', async t => {
   const url = 'https://raw.githubusercontent.com/datasets/co2-ppm/master/datapackage.json'
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/datapackage.json')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/datapackage.json'))
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/README.md')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/README.md'))
   const dataset = await data.Dataset.load(url)
   t.is(dataset.descriptor.name, 'co2-ppm')
   t.is(dataset.identifier.type, 'remote')
