@@ -61,6 +61,65 @@ test('isDataset function works', t => {
 })
 
 // ====================================
+// parseDatasetIdentifier
+
+test('parseDatasetIdentifier function with local path', t => {
+  const path_ = '../dir/dataset/'
+  const res = data.parseDatasetIdentifier(path_)
+  const exp = {
+    name: 'dataset',
+    owner: null,
+    path: path.posix.resolve(path_),
+    type: 'local',
+    original: path_,
+    version: ''
+  }
+  t.deepEqual(res, exp)
+})
+
+test('parseDatasetIdentifier function with random url', t => {
+  const url_ = 'https://example.com/datasets/co2-ppm/'
+  const res = data.parseDatasetIdentifier(url_)
+  const exp = {
+    name: 'co2-ppm',
+    owner: null,
+    path: 'https://example.com/datasets/co2-ppm/',
+    type: 'url',
+    original: url_,
+    version: ''
+  }
+  t.deepEqual(res, exp)
+})
+
+test('parseDatasetIdentifier function with github url', t => {
+  const url_ = 'https://github.com/datasets/co2-ppm'
+  const res = data.parseDatasetIdentifier(url_)
+  const exp = {
+    name: 'co2-ppm',
+    owner: 'datasets',
+    path: 'https://raw.githubusercontent.com/datasets/co2-ppm/master/',
+    type: 'github',
+    original: url_,
+    version: 'master'
+  }
+  t.deepEqual(res, exp)
+})
+
+test('parseDatasetIdentifier function with datahub url', t => {
+  const url_ = 'https://datahub.io/core/co2-ppm'
+  const res = data.parseDatasetIdentifier(url_)
+  const exp = {
+    name: 'co2-ppm',
+    owner: 'core',
+    path: 'https://pkgstore.datahub.io/core/co2-ppm/latest/',
+    type: 'datahub',
+    original: url_,
+    version: 'latest'
+  }
+  t.deepEqual(res, exp)
+})
+
+// ====================================
 // parsePath
 
 test('parsePath function with local path', t => {
@@ -188,7 +247,6 @@ test('File with inline array data', async t => {
 })
 
 test.serial('File class stream with url', async t => {
-  // TODO: mock this out
   const url = 'https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv'
   nock('https://raw.githubusercontent.com')
     .persist()
@@ -226,16 +284,12 @@ test('Dataset constructor works', t => {
 test('Dataset.load works with co2-ppm', async t => {
   const path = 'test/fixtures/co2-ppm'
   const dataset2 = await data.Dataset.load(path)
-  t.deepEqual(dataset2.identifier, {
-    path,
-    type: 'local'
-  })
-  t.deepEqual(dataset2.path, path)
+  t.deepEqual(dataset2.identifier.type, 'local')
 
   t.is(dataset2.descriptor.name, 'co2-ppm')
   t.is(dataset2.resources.length, 6)
   t.is(dataset2.resources[0].descriptor.name, 'co2-mm-mlo')
-  t.is(dataset2.resources[0].path, 'test/fixtures/co2-ppm/data/co2-mm-mlo.csv')
+  t.true(dataset2.resources[0].path.includes('test/fixtures/co2-ppm/data/co2-mm-mlo.csv'))
   t.true(dataset2.readme.includes('CO2 PPM - Trends in Atmospheric Carbon Dioxide.'))
 })
 
@@ -260,7 +314,7 @@ test('Dataset.load with url-directory', async t => {
     .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/README.md'))
   const dataset = await data.Dataset.load(url)
   t.is(dataset.descriptor.name, 'co2-ppm')
-  t.is(dataset.identifier.type, 'remote')
+  t.is(dataset.identifier.type, 'url')
   t.is(dataset.resources.length, 6)
   t.true(dataset.readme.includes('CO2 PPM - Trends in Atmospheric Carbon Dioxide.'))
 })
@@ -277,7 +331,7 @@ test('Dataset.load with url/datapackage.json', async t => {
     .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/README.md'))
   const dataset = await data.Dataset.load(url)
   t.is(dataset.descriptor.name, 'co2-ppm')
-  t.is(dataset.identifier.type, 'remote')
+  t.is(dataset.identifier.type, 'url')
   t.is(dataset.resources.length, 6)
   t.true(dataset.readme.includes('CO2 PPM - Trends in Atmospheric Carbon Dioxide.'))
 })
