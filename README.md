@@ -1,4 +1,4 @@
-## Data.js
+# Data.js
 <p align="center">
   <a href="https://datahub.io/">
     <img alt="datahub" src="http://datahub.io/static/img/logo-cube.png" width="146">
@@ -11,26 +11,22 @@
 
 [![Build Status](https://travis-ci.org/datahq/data.js.svg?branch=master)](https://travis-ci.org/datahq/data.js) [![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/datahubio/chat) [![Dependency Status](https://david-dm.org/datahq/data.js/status.svg)](https://david-dm.org/datahq/data.js) [![devDependency Status](https://david-dm.org/datahq/data.js/dev-status.svg)](https://david-dm.org/datahq/data.js?type=dev)
 
-### Usage
+## Usage
 
 `npm install data.js`
 
 
-##### Dataset class
+### Dataset objects
 
-To create a new Dataset instance please use Dataset.load.
-It takes descriptor Object or identifier string:
-
-```javascript
-load(pathOrDescriptor, {path = null, owner = null} = {})
-```
-
-Let's create a simple dataset:
+To create a new Dataset object please use `Dataset.load` method. It takes descriptor Object or identifier string:
 
 ```javascript
 const data = require('data.js')
-const path = 'co2-ppm'
-const dataset = await data.Dataset.load(path)
+const pathOrDescriptor = 'https://raw.githubusercontent.com/datasets/co2-ppm/master/datapackage.json'
+const dataset = await data.Dataset.load(pathOrDescriptor)
 ```
 
-##### File class 
+* `pathOrDescriptor` - can be one of:
+  * local path to Dataset
+  * remote url to Dataset
+  * descriptor object
