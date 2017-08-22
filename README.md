@@ -2,6 +2,29 @@
 
 data.js is a lightweight library providing a standardized interface for accessing data files and datasets.
 
+[![Build Status](https://travis-ci.org/datahq/data.js.svg?branch=master)](https://travis-ci.org/datahq/data.js) [![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/datahubio/chat)
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [API](#api)
+  - [Files](#files)
+    - [load](#load)
+    - [Metadata](#metadata)
+    - [stream](#stream)
+    - [buffer](#buffer)
+    - [rows](#rows)
+  - [Datasets](#datasets)
+    - [load](#load-1)
+    - [addResource](#addresource)
+  - [Utilities](#utilities)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Features
 
 * Easy: a single common API for local, online and inline data
@@ -10,8 +33,6 @@ data.js is a lightweight library providing a standardized interface for accessin
 * Explicit: No hidden behaviours, no extra magic
 * Frictionlesss: uses and supports (but does not require) Frictionless Data Package specs so you can leverage Frictionless tooling
 * Minimal glue: Use on its own or as a building block for more complex data tooling (thanks to its common miminal metadata)
-
-[![Build Status](https://travis-ci.org/datahq/data.js.svg?branch=master)](https://travis-ci.org/datahq/data.js) [![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/datahubio/chat)
 
 ## Installation
 
@@ -60,11 +81,13 @@ const data = file.stream()
 
 ## API
 
-### File objects
+### Files
 
 A single data file - local or remote.
 
-#### `File.load(pathOrDescriptor, {basePath}={})`
+#### load
+
+`File.load(pathOrDescriptor, {basePath}={})`
 
 To instantiate a data file you use the static `load` method. We use this rather than a constructor as it allows us to dispatch to the appropriate subinstance based on `pathOrDescriptor`. There are 3 types of file source we support:
 
@@ -154,19 +177,25 @@ const encoding = file.encoding
 **Note**: size, hash are not available for remote Files (those created from urls).
 
 
-#### `File.stream()`
+#### stream
+
+`stream()`
 
 Get readable stream
 
 @returns Promise with readable stream object on resolve
 
-#### `File.buffer()`
+#### buffer
+
+`File.buffer()`
 
 Get this file as a buffer (async)
 
 @returns: promise which resolves to the buffer
 
-#### `File.rows({keyed}={})`
+#### rows
+
+`rows({keyed}={})`
 
 Get the rows for this file as a node object stream (assumes underlying data is tabular!)
 
@@ -208,7 +237,7 @@ const file = data.File.load({
 ```
 
 
-### Dataset
+### Datasets
 
 A collection of data files with optional metadata.
 
@@ -226,7 +255,7 @@ In addition we provide the convenience functions:
 * `path`: the path (remote or local) to
 * `dataPackageJsonPath`: the path to the `datapackage.json` for this Dataset (if it exists)
 
-#### Dataset.load
+#### load
 
 To create a new Dataset object use `Dataset.load`. It takes descriptor Object or identifier string:
 
