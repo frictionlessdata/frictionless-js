@@ -257,12 +257,21 @@ test.serial('File class stream with url', async t => {
 })
 
 test.serial('File class for addSchema method', async t => {
-  const path_ = 'test/fixtures/sample.csv'
-  const file = data.File.load(path_)
+  let path_ = 'test/fixtures/sample.csv'
+  let file = data.File.load(path_)
   t.is(file.descriptor.schema, undefined)
   await file.addSchema()
   t.is(file.descriptor.schema.fields[1].type, 'string')
-  const headers = file.descriptor.schema.fields.map(field => field.name)
+  let headers = file.descriptor.schema.fields.map(field => field.name)
+  t.deepEqual(headers, ['number', 'string', 'boolean'])
+
+  // with xlsx file
+  path_ = 'test/fixtures/sample.xlsx'
+  file = data.File.load(path_)
+  t.is(file.descriptor.schema, undefined)
+  await file.addSchema()
+  t.is(file.descriptor.schema.fields[1].type, 'string')
+  headers = file.descriptor.schema.fields.map(field => field.name)
   t.deepEqual(headers, ['number', 'string', 'boolean'])
 })
 
