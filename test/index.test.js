@@ -178,6 +178,14 @@ const testFileStream = async (t, file) => {
   t.deepEqual(rowsAsObjects[1], {number: '3', string: 'four', boolean: 'false'})
 }
 
+test.skip('non utf-8 encoding', async t => {
+  const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
+  const file = await data.File.load(path_)
+  const buffer = await file.buffer
+  t.is(buffer.toString().slice(0, 12), 'номер, город')
+})
+
+
 test('File class with path', async t => {
   // With path
   const path_ = 'test/fixtures/sample.csv'
