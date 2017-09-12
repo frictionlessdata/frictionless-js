@@ -23,6 +23,7 @@
   "homepage": "https://github.com/datahq/data.js#readme",
   "devDependencies": {
     "ava": "^0.21.0",
+    "nock": "^9.0.14",
     "xo": "^0.18.2"
   },
   "dependencies": {
@@ -31,7 +32,6 @@
     "inquirer": "^3.2.3",
     "lodash": "^4.17.4",
     "mime-types": "^2.1.16",
-    "nock": "^9.0.14",
     "node-fetch": "^1.7.2",
     "stream-to-array": "^2.3.0",
     "tableschema": "^1.0.0-alpha.12",
