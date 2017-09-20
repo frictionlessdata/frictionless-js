@@ -36,3 +36,14 @@ test('xlsxParser works with semicolon delimeter', async t => {
   t.deepEqual(rows[0], ['id', 'name'])
   t.deepEqual(rows[1], ['1', 'John'])
 })
+
+test('xlsxParser works with specified sheet index', async t => {
+  const path_ = 'test/fixtures/sample-multi-sheet.xlsx'
+  const file = await File.load(path_)
+  let sheetIdx = 0
+  let rows = await toArray(await xlsxParser(file, false, sheetIdx))
+  t.deepEqual(rows[0], ['a', 'b', 'c'])
+  sheetIdx = 1
+  rows = await toArray(await xlsxParser(file, false, sheetIdx))
+  t.deepEqual(rows[0], ['d', 'e', 'f'])
+})
