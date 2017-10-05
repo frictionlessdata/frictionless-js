@@ -264,7 +264,7 @@ test.serial('File class stream with url', async t => {
   await testFileStream(t, res)
 })
 
-test.serial('File class for addSchema method', async t => {
+test('File class for addSchema method', async t => {
   let path_ = 'test/fixtures/sample.csv'
   let file = data.File.load(path_)
   t.is(file.descriptor.schema, undefined)
@@ -273,8 +273,7 @@ test.serial('File class for addSchema method', async t => {
   let headers = file.descriptor.schema.fields.map(field => field.name)
   t.deepEqual(headers, ['number', 'string', 'boolean'])
 
-  // with xlsx file
-  path_ = 'test/fixtures/sample.xlsx'
+  path_ = 'https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv'
   file = data.File.load(path_)
   t.is(file.descriptor.schema, undefined)
   await file.addSchema()
