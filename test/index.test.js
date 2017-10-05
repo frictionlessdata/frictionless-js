@@ -295,7 +295,15 @@ test('Dataset constructor works', t => {
   })
   t.deepEqual(dataset.descriptor, {})
   t.deepEqual(dataset.path, null)
-  t.is(dataset.readme, null)
+  console.log(dataset.readme)
+  t.is(dataset.readme, undefined)
+})
+
+test('Dataset with inline README works', async t => {
+  const path = 'test/fixtures/dp-with-inline-readme'
+  const dataset = await data.Dataset.load(path)
+  t.deepEqual(dataset.identifier.type, 'local')
+  t.deepEqual(dataset.readme, 'This is the README')
 })
 
 test('Dataset.load works with co2-ppm', async t => {

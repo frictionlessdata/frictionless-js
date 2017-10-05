@@ -247,12 +247,12 @@ A Dataset has four primary properties:
 
 * `descriptor`: key metadata. The descriptor follows the Data Package spec
 * `resources`: an array of the Files contained in this Dataset
-* `identifier`: the identifier encapsulates the location of this Dataset
-* `readme`: the README for this Dataset (if it exists)
+* `identifier`: the identifier encapsulates the location (or origin) of this Dataset
+* `readme`: the README for this Dataset (if it exists). The readme content is taken from the README.md file located in the Dataset root directory, or, if that does not exist from the `readme` property on the descriptor. If neither of those exist the readme will be undefined or null.
 
-In addition we provide the convenience functions:
+In addition we provide the convenience attributes:
 
-* `path`: the path (remote or local) to
+* `path`: the path (remote or local) to this dataset
 * `dataPackageJsonPath`: the path to the `datapackage.json` for this Dataset (if it exists)
 
 #### load
