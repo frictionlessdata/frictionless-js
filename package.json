@@ -1,6 +1,6 @@
 {
   "name": "data.js",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "description": "",
   "main": "lib/index.js",
   "directories": {
@@ -34,7 +34,7 @@
     "mime-types": "^2.1.16",
     "node-fetch": "^1.7.2",
     "stream-to-array": "^2.3.0",
-    "tableschema": "^1.0.0-alpha.12",
+    "tableschema": "^1.2.0",
     "url-join": "^2.0.2",
     "xlsx": "^0.11.2"
   }
