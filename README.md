@@ -292,9 +292,34 @@ addResource(resource)
 
 ### Utilities
 
-```javascript
+#### isDataset
 
+```javascript
 // seeks to guess whether a given path is the path to a Dataset or a File
 // (i.e. a directory or datapackage.json)
 data.isDataset(path)
+```
+
+#### parseDatasetIdentifier
+
+```javascript
+// parses dataset path and returns identifier dictionary
+// handles local paths, remote URLs as well as DataHub and GitHub specific URLs
+// (e.g., https://datahub.io/core/finance-vix or https://github.com/datasets/finance-vix
+const identifier = data.parseDatasetIdentifier(path)
+
+console.log(identifier)
+```
+
+and it prints out:
+
+```json
+{
+    name: <name>,
+    owner: <owner>,
+    path: <path>,
+    type: <type>,
+    original: <path>,
+    version: <version>
+}
 ```
