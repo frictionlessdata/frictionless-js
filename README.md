@@ -313,7 +313,7 @@ console.log(identifier)
 
 and it prints out:
 
-```json
+```
 {
     name: <name>,
     owner: <owner>,
