@@ -142,6 +142,16 @@ test('parsePath function with remote url', t => {
   t.is(res.mediatype, 'text/csv')
 })
 
+test('parsePath function with remote url without conventional filename', t => {
+  const path_ = 'http://api.worldbank.org/indicator/NY.GDP.MKTP.CD?format=csv'
+  const res = data.parsePath(path_)
+  t.is(res.path, path_)
+  t.is(res.pathType, 'remote')
+  t.is(res.name, 'NY.GDP.MKTP')
+  t.is(res.format, 'csv')
+  t.is(res.mediatype, '')
+})
+
 // ====================================
 // File class
 // ====================================
