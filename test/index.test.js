@@ -149,7 +149,7 @@ test('parsePath function with remote url without conventional filename', t => {
   t.is(res.pathType, 'remote')
   t.is(res.name, 'NY.GDP.MKTP')
   t.is(res.format, 'csv')
-  t.is(res.mediatype, '')
+  t.is(res.mediatype, undefined)
 })
 
 // ====================================
