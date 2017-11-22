@@ -35,6 +35,6 @@
     "stream-to-array": "^2.3.0",
     "tableschema": "^1.2.0",
     "url-join": "^2.0.2",
-    "xlsx": "^0.11.2"
+    "xlsx": "0.11.8"
   }
 }
