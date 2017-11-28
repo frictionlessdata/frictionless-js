@@ -45,10 +45,10 @@ test('isDataset function works', t => {
   t.false(res)
   let urlToDataset = 'http://test.com/'
   res = data.isDataset(urlToDataset)
-  t.true(res)
+  t.false(res)
   urlToDataset = 'http://test.com/dir'
   res = data.isDataset(urlToDataset)
-  t.true(res)
+  t.false(res)
   urlToDataset = 'http://test.com/dir/datapackage.json'
   res = data.isDataset(urlToDataset)
   t.true(res)
@@ -304,7 +304,6 @@ test('Dataset constructor works', t => {
   })
   t.deepEqual(dataset.descriptor, {})
   t.deepEqual(dataset.path, null)
-  console.log(dataset.readme)
   t.is(dataset.readme, undefined)
 })
 
