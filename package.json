@@ -1,6 +1,6 @@
 {
   "name": "data.js",
-  "version": "0.9.11",
+  "version": "0.9.12",
   "description": "",
   "main": "lib/index.js",
   "directories": {
