@@ -27,17 +27,6 @@ test('xlsxParser works with keyed option', async t => {
   t.deepEqual(rows[0], {number: '1', string: 'two', boolean: 'TRUE'})
 })
 
-test('xlsxParser works with semicolon delimeter', async t => {
-  const path_ = 'test/fixtures/semicolon-delimited.csv'
-  const file = await File.load(path_)
-  file.descriptor.dialect = {
-    delimiter: ';'
-  }
-  const rows = await toArray(await xlsxParser(file))
-  t.deepEqual(rows[0], ['id', 'name'])
-  t.deepEqual(rows[1], ['1', 'John'])
-})
-
 test('xlsxParser works with specified sheet index', async t => {
   const path_ = 'test/fixtures/sample-multi-sheet.xlsx'
   const file = await File.load(path_)
