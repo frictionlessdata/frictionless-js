@@ -3,6 +3,7 @@ const toArray = require('stream-to-array')
 
 const {xlsxParser} = require('../lib/parser/xlsx')
 const {File} = require('../lib/index')
+const {guessParseOptions} = require('../lib/parser/csv')
 
 test('xlsxParser works with XLSX files', async t => {
   const path_ = 'test/fixtures/sample.xlsx'
@@ -46,4 +47,11 @@ test('xlsxParser works with specified sheet index', async t => {
   sheetIdx = 1
   rows = await toArray(await xlsxParser(file, false, sheetIdx))
   t.deepEqual(rows[0], ['d', 'e', 'f'])
+})
+
+test('guessParseOptions function', async t => {
+  const path_ = 'test/fixtures/semicolon-delimited.csv'
+  const file = await File.load(path_)
+  const parseOptions = await guessParseOptions(file)
+  t.is(parseOptions.delimiter, ';')
 })
