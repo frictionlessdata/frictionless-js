@@ -63,9 +63,9 @@ test('isDataset function works', t => {
 // ====================================
 // parseDatasetIdentifier
 
-test('parseDatasetIdentifier function with local path', t => {
+test('parseDatasetIdentifier function with local path', async t => {
   const path_ = '../dir/dataset/'
-  const res = data.parseDatasetIdentifier(path_)
+  const res = await data.parseDatasetIdentifier(path_)
   const exp = {
     name: 'dataset',
     owner: null,
@@ -77,9 +77,9 @@ test('parseDatasetIdentifier function with local path', t => {
   t.deepEqual(res, exp)
 })
 
-test('parseDatasetIdentifier function with random url', t => {
+test('parseDatasetIdentifier function with random url', async t => {
   const url_ = 'https://example.com/datasets/co2-ppm/'
-  const res = data.parseDatasetIdentifier(url_)
+  const res = await data.parseDatasetIdentifier(url_)
   const exp = {
     name: 'co2-ppm',
     owner: null,
@@ -91,9 +91,9 @@ test('parseDatasetIdentifier function with random url', t => {
   t.deepEqual(res, exp)
 })
 
-test('parseDatasetIdentifier function with github url', t => {
+test('parseDatasetIdentifier function with github url', async t => {
   const url_ = 'https://github.com/datasets/co2-ppm'
-  const res = data.parseDatasetIdentifier(url_)
+  const res = await data.parseDatasetIdentifier(url_)
   const exp = {
     name: 'co2-ppm',
     owner: 'datasets',
@@ -105,13 +105,31 @@ test('parseDatasetIdentifier function with github url', t => {
   t.deepEqual(res, exp)
 })
 
-test('parseDatasetIdentifier function with datahub url', t => {
+test('parseDatasetIdentifier function with datahub url', async t => {
   const url_ = 'https://datahub.io/core/co2-ppm'
-  const res = data.parseDatasetIdentifier(url_)
+  const res = await data.parseDatasetIdentifier(url_)
   const exp = {
     name: 'co2-ppm',
     owner: 'core',
     path: 'https://pkgstore.datahub.io/core/co2-ppm/latest/',
+    type: 'datahub',
+    original: url_,
+    version: 'latest'
+  }
+  t.deepEqual(res, exp)
+})
+
+test('parseDatasetIdentifier function with datahub url and id different from username', async t => {
+  nock('https://api.datahub.io')
+    .persist()
+    .get('/resolver/resolve?path=username/dataset')
+    .reply(200, {packageid: 'dataset', userid: 'userid'})
+  const url_ = 'https://datahub.io/username/dataset'
+  const res = await data.parseDatasetIdentifier(url_)
+  const exp = {
+    name: 'dataset',
+    owner: 'username',
+    path: 'https://pkgstore.datahub.io/userid/dataset/latest/',
     type: 'datahub',
     original: url_,
     version: 'latest'
