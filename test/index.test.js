@@ -111,10 +111,10 @@ test('parseDatasetIdentifier function with datahub url', async t => {
   const exp = {
     name: 'co2-ppm',
     owner: 'core',
-    path: 'https://pkgstore.datahub.io/core/co2-ppm/latest/',
+    path: 'https://pkgstore.datahub.io/core/co2-ppm/3/',
     type: 'datahub',
     original: url_,
-    version: 'latest'
+    version: 3
   }
   t.deepEqual(res, exp)
 })
