@@ -106,6 +106,12 @@ test('parseDatasetIdentifier function with github url', async t => {
 })
 
 test('parseDatasetIdentifier function with datahub url', async t => {
+  nock('https://api.datahub.io')
+    .persist()
+    .get('/resolver/resolve?path=core/co2-ppm')
+    .reply(200, {packageid: 'co2-ppm', userid: 'core'})
+    .get('/source/core/co2-ppm/successful')
+    .reply(200, {id: 'core/co2-ppm/3'})
   const url_ = 'https://datahub.io/core/co2-ppm'
   const res = await data.parseDatasetIdentifier(url_)
   const exp = {
@@ -124,15 +130,17 @@ test('parseDatasetIdentifier function with datahub url and id different from use
     .persist()
     .get('/resolver/resolve?path=username/dataset')
     .reply(200, {packageid: 'dataset', userid: 'userid'})
+    .get('/source/userid/dataset/successful')
+    .reply(200, {id: 'userid/dataset/2'})
   const url_ = 'https://datahub.io/username/dataset'
   const res = await data.parseDatasetIdentifier(url_)
   const exp = {
     name: 'dataset',
     owner: 'username',
-    path: 'https://pkgstore.datahub.io/userid/dataset/latest/',
+    path: 'https://pkgstore.datahub.io/userid/dataset/2/',
     type: 'datahub',
     original: url_,
-    version: 'latest'
+    version: 2
   }
   t.deepEqual(res, exp)
 })
