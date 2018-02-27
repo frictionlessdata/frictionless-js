@@ -30,6 +30,7 @@
     "chardet": "^0.1.0",
     "csv-parse": "^1.2.1",
     "csv-sniffer": "^0.1.1",
+    "iconv-lite": "^0.4.19",
     "lodash": "^4.17.4",
     "mime-types": "^2.1.16",
     "node-fetch": "^1.7.2",
