@@ -38,6 +38,17 @@ test('xlsxParser works with specified sheet index', async t => {
   t.deepEqual(rows[0], ['d', 'e', 'f'])
 })
 
+test('xlsxParser works with specified sheet name', async t => {
+  const path_ = 'test/fixtures/sample-multi-sheet.xlsx'
+  const file = await File.load(path_)
+  let sheetName = 'Sheet1'
+  let rows = await toArray(await xlsxParser(file, false, sheetName))
+  t.deepEqual(rows[0], ['a', 'b', 'c'])
+  sheetName = 'Sheet2'
+  rows = await toArray(await xlsxParser(file, false, sheetName))
+  t.deepEqual(rows[0], ['d', 'e', 'f'])
+})
+
 test('guessParseOptions function', async t => {
   const path_ = 'test/fixtures/semicolon-delimited.csv'
   const file = await File.load(path_)
