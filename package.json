@@ -33,7 +33,7 @@
     "iconv-lite": "^0.4.19",
     "lodash": "^4.17.4",
     "mime-types": "^2.1.16",
-    "node-fetch": "^1.7.2",
+    "node-fetch": "^2.0.0",
     "stream-to-array": "^2.3.0",
     "stream-to-string": "^1.1.0",
     "tableschema": "^1.6.0",
