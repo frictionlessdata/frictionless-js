@@ -51,7 +51,12 @@ test('xlsxParser works with specified sheet name', async t => {
 
 test('guessParseOptions function', async t => {
   const path_ = 'test/fixtures/semicolon-delimited.csv'
-  const file = await File.load(path_)
-  const parseOptions = await guessParseOptions(file)
+  let file = await File.load(path_)
+  let parseOptions = await guessParseOptions(file)
+  t.is(parseOptions.delimiter, ';')
+
+  const url_ = 'https://raw.githubusercontent.com/frictionlessdata/test-data/master/files/csv/separators/semicolon.csv'
+  file = await File.load(url_)
+  parseOptions = await guessParseOptions(file)
   t.is(parseOptions.delimiter, ';')
 })
