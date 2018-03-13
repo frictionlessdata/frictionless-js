@@ -1,12 +1,9 @@
 const test = require('ava')
-const nock = require('nock')
-const path = require('path')
 const toArray = require('stream-to-array')
 
 const {xlsxParser} = require('../lib/parser/xlsx')
-const {csvParser} = require('../lib/parser/csv')
+const {csvParser, guessParseOptions} = require('../lib/parser/csv')
 const {File} = require('../lib/index')
-const {guessParseOptions} = require('../lib/parser/csv')
 
 test('xlsxParser works with XLSX files', async t => {
   const path_ = 'test/fixtures/sample.xlsx'
@@ -22,11 +19,11 @@ test('csvParser iso8859 file encoding', async t => {
   t.deepEqual(rows[1], ['Réunion','ECS','1989','838462813'])
 })
 
-test('csvParser western-macos-roman file encoding', async t => {
+test.failing('csvParser western-macos-roman file encoding', async t => {
   const path_ = 'test/fixtures/encodings/western-macos-roman.csv'
   const file = await File.load(path_)
   const rows = await toArray(await csvParser(file))
-  t.deepEqual(rows[1], ['RŽunion','ECS','1989','838462813'])
+  t.deepEqual(rows[1], ['Réunion','ECS','1989','838462813'])
 })
 
 test('csvParser iso8859 remote file encoding', async t => {
@@ -36,11 +33,11 @@ test('csvParser iso8859 remote file encoding', async t => {
   t.deepEqual(rows[1], ['Réunion','ECS','1989','838462813'])
 })
 
-test('csvParser western-macos-roman remote file encoding', async t => {
+test.failing('csvParser western-macos-roman remote file encoding', async t => {
   const url = 'https://raw.githubusercontent.com/frictionlessdata/test-data/master/files/csv/encodings/western-macos-roman.csv'
   const file = await File.load(url)
   const rows = await toArray(await csvParser(file))
-  t.deepEqual(rows[1], ['RŽunion','ECS','1989','838462813'])
+  t.deepEqual(rows[1], ['Réunion','ECS','1989','838462813'])
 })
 
 test('xlsxParser works with XLS files', async t => {

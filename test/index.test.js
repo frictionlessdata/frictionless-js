@@ -214,11 +214,15 @@ const testFileStream = async (t, file) => {
   t.deepEqual(rowsAsObjects[1], {number: '3', string: 'four', boolean: 'false'})
 }
 
-test.failing('non utf-8 encoding', async t => {
+// testing the stream or the buffer for non-utf8 encoding will not work,
+// as we moved the stream decoding from the data.js lib,
+// so here we now testing if File.encoding property is correct
+test('cyrillic encoding', async t => {
   const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
   const file = await data.File.load(path_)
-  const buffer = await file.buffer
-  t.is(buffer.toString().slice(0, 12), 'номер, город')
+  //const buffer = await file.buffer
+  //t.is(buffer.toString().slice(0, 12), 'номер, город')
+  t.is(file.encoding, 'windows-1251')
 })
 
 
