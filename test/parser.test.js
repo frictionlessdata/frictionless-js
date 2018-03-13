@@ -26,7 +26,8 @@ test.failing('csvParser western-macos-roman file encoding', async t => {
   t.deepEqual(rows[1], ['Réunion','ECS','1989','838462813'])
 })
 
-test('csvParser iso8859 remote file encoding', async t => {
+// this test works well, but is switched off, coz we froze remote encoding function.
+test.failing('csvParser iso8859 remote file encoding', async t => {
   const url = 'https://raw.githubusercontent.com/frictionlessdata/test-data/master/files/csv/encodings/iso8859.csv'
   const file = await File.load(url)
   const rows = await toArray(await csvParser(file))
