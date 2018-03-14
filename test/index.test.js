@@ -214,11 +214,15 @@ const testFileStream = async (t, file) => {
   t.deepEqual(rowsAsObjects[1], {number: '3', string: 'four', boolean: 'false'})
 }
 
-test.failing('non utf-8 encoding', async t => {
+// testing the stream or the buffer for non-utf8 encoding will not work,
+// as we moved the stream decoding from the data.js lib,
+// so here we now testing if File.encoding property is correct
+test('cyrillic encoding', async t => {
   const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
   const file = await data.File.load(path_)
-  const buffer = await file.buffer
-  t.is(buffer.toString().slice(0, 12), 'номер, город')
+  //const buffer = await file.buffer
+  //t.is(buffer.toString().slice(0, 12), 'номер, город')
+  t.is(file.encoding, 'windows-1251')
 })
 
 
@@ -371,6 +375,39 @@ test('Dataset.load with url-directory', async t => {
     .persist()
     .get('/datasets/co2-ppm/master/README.md')
     .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/README.md'))
+
+  // Added mocking for all remote files in the test dataset
+  // Reason: FileRemote is now probing the remote resource to define its encoding
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/data/co2-mm-mlo.csv')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/data/co2-mm-mlo.csv'))
+
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/data/co2-annmean-mlo.csv')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/data/co2-annmean-mlo.csv'))
+
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/data/co2-gr-mlo.csv')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/data/co2-gr-mlo.csv'))
+
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/data/co2-mm-gl.csv')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/data/co2-mm-gl.csv'))
+
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/data/co2-annmean-gl.csv')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/data/co2-annmean-gl.csv'))
+
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/data/co2-gr-gl.csv')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/data/co2-gr-gl.csv'))
+
   const dataset = await data.Dataset.load(url)
   t.is(dataset.descriptor.name, 'co2-ppm')
   t.is(dataset.identifier.type, 'url')
