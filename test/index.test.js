@@ -64,17 +64,26 @@ test('isDataset function works', t => {
 // parseDatasetIdentifier
 
 test('parseDatasetIdentifier function with local path', async t => {
-  const path_ = '../dir/dataset/'
-  const res = await data.parseDatasetIdentifier(path_)
-  const exp = {
-    name: 'dataset',
-    owner: null,
-    path: path.posix.resolve(path_),
-    type: 'local',
-    original: path_,
-    version: ''
-  }
-  t.deepEqual(res, exp)
+  const paths = [
+    '../dir/dataset/',
+    './',
+    './datapackage.json',
+    '../datapackage.json',
+    'datapackage.json'
+  ]
+  paths.forEach(async path_ => {
+    const res = await data.parseDatasetIdentifier(path_)
+    const normalizedPath = path.posix.resolve(path_).replace(/\/?datapackage\.json/, '')
+    const exp = {
+      name: path.basename(normalizedPath),
+      owner: null,
+      path: normalizedPath,
+      type: 'local',
+      original: path_,
+      version: ''
+    }
+    t.deepEqual(res, exp)
+  })
 })
 
 test('parseDatasetIdentifier function with random url', async t => {
