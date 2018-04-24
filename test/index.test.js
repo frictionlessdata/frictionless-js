@@ -182,7 +182,7 @@ test('parsePath function with remote url without conventional filename', t => {
   const res = data.parsePath(path_)
   t.is(res.path, path_)
   t.is(res.pathType, 'remote')
-  t.is(res.name, 'NY.GDP.MKTP')
+  t.is(res.name, 'ny.gdp.mktp')
   t.is(res.format, 'csv')
   t.is(res.mediatype, undefined)
 })
@@ -329,6 +329,12 @@ test('File class for addSchema method', async t => {
   t.is(file.descriptor.schema.fields[1].type, 'string')
   headers = file.descriptor.schema.fields.map(field => field.name)
   t.deepEqual(headers, ['number', 'string', 'boolean'])
+})
+
+test('File name has spaces and dots', async t => {
+  let path_ = 'test/fixtures/some file.name.ext'
+  let file = data.File.load(path_)
+  t.is(file.descriptor.name, 'some-file.name')
 })
 
 // ====================================
