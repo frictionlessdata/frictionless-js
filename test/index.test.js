@@ -216,7 +216,7 @@ const testFileStream = async (t, file) => {
 
 test.failing('non utf-8 encoding', async t => {
   const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
-  const file = await data.File.load(path_)
+  const file = await data.open(path_)
   const buffer = await file.buffer
   t.is(buffer.toString().slice(0, 12), 'номер, город')
 })
@@ -225,18 +225,18 @@ test.failing('non utf-8 encoding', async t => {
 test('File class with path', async t => {
   // With path
   const path_ = 'test/fixtures/sample.csv'
-  const res = data.File.load(path_)
+  const res = data.open(path_)
   await testFile(t, res)
 })
 
 test('File class with descriptor', async t => {
   const descriptor = {path: 'test/fixtures/sample.csv'}
-  const obj2 = data.File.load(descriptor)
+  const obj2 = data.open(descriptor)
   await testFile(t, obj2)
 })
 
 test('File with path and basePath', t => {
-  const obj3 = data.File.load('sample.csv', {basePath: 'test/fixtures'})
+  const obj3 = data.open('sample.csv', {basePath: 'test/fixtures'})
   testFile(t, obj3)
 })
 
@@ -244,7 +244,7 @@ test('File with inline JS data', async t => {
   const inlineData = {
     name: 'abc'
   }
-  const file = data.File.load({data:inlineData})
+  const file = data.open({data:inlineData})
   t.is(file.size, 14)
   const stream = await file.stream()
   const out = await toArray(stream)
@@ -257,7 +257,7 @@ test('File with inline text (CSV) data', async t => {
 3,four,false
 `
   // To make it testable with testFile we add the path but it is not needed
-  const file = data.File.load({
+  const file = data.open({
     path: 'test/fixtures/sample.csv',
     format: 'csv',
     inlineData
@@ -272,7 +272,7 @@ test('File with inline array data', async t => {
     [3, 'four', false]
   ]
   // To make it testable with testFile we add the path but it is not needed
-  const file = data.File.load({
+  const file = data.open({
     data:inlineData
   })
   t.is(file.size, 63)
@@ -296,13 +296,13 @@ test.serial('File class stream with url', async t => {
     .persist()
     .get('/datahq/datahub-cli/master/test/fixtures/sample.csv')
     .replyWithFile(200, path.join(__dirname, '/fixtures/sample.csv'))
-  const res = data.File.load(url)
+  const res = data.open(url)
   await testFileStream(t, res)
 })
 
 test('File class for addSchema method', async t => {
   let path_ = 'test/fixtures/sample.csv'
-  let file = data.File.load(path_)
+  let file = data.open(path_)
   t.is(file.descriptor.schema, undefined)
   await file.addSchema()
   t.is(file.descriptor.schema.fields[1].type, 'string')
@@ -310,7 +310,7 @@ test('File class for addSchema method', async t => {
   t.deepEqual(headers, ['number', 'string', 'boolean'])
 
   path_ = 'https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv'
-  file = data.File.load(path_)
+  file = data.open(path_)
   t.is(file.descriptor.schema, undefined)
   await file.addSchema()
   t.is(file.descriptor.schema.fields[1].type, 'string')
@@ -401,7 +401,7 @@ test('Dataset.addResource method works', t => {
     path: 'test/fixtures/sample.csv',
     format: 'csv'
   }
-  const resourceAsFileObj = data.File.load(resourceAsPlainObj)
+  const resourceAsFileObj = data.open(resourceAsPlainObj)
   const dataset = new data.Dataset({
     resources: []
   })

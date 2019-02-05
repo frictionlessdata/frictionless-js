@@ -1,8 +1,43 @@
-# data.js
+`data.js` is a lightweight, standardized "stream-plus-metadata" interface for accessing files and datasets, especially tabular ones (CSV, Excel).
 
-data.js is a lightweight library providing a standardized interface for accessing data files and datasets.
+`data.js` follows the ["Frictionless Data Lib Pattern"][fd-pattern].
+
+[fd-pattern]: http://okfnlabs.org/blog/2018/02/15/design-pattern-for-a-core-data-library.html#dataset
+
+* **Open it fast**: simple `open` method for data on disk, online and inline
+* **Data plus**: data plus metadata (size, path, etc) in standardized way
+* **Stream it**: raw streams and object streams
+* **Tabular**: open CSV, Excel or arrays and get a row stream
+* **Frictionless**: compatible with [Frictionless Data standards][fd]
 
 [![Build Status](https://travis-ci.org/datahq/data.js.svg?branch=master)](https://travis-ci.org/datahq/data.js) [![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/datahubio/chat)
+
+A line of code is worth a thousand words ...
+
+```javascript
+const {open} = require('data.js')
+
+var file = open(path/to/ons-mye-population-totals.xls')
+
+file.descriptor
+  { 
+    path: '/path/to/ons-mye-population-totals.xls',
+    pathType: 'local',
+    name: 'ons-mye-population-totals',
+    format: 'xls',
+    mediatype: 'application/vnd.ms-excel',
+    encoding: 'windows-1252'
+  }
+
+file.size
+  67584
+
+file.rows() => stream object for rows
+  // keyed by header row by default ...
+  { 'col1': 1, 'col2': 2, ... }
+  { 'col1': 10, 'col2': 20, ... }
+```
+
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -25,14 +60,26 @@ data.js is a lightweight library providing a standardized interface for accessin
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+## Motivation
+
+`data.js` is motivated by the following use cases:
+
+* **Data "plus"**: when you work with data you always find yourself needing the data itself plus a little bit more -- things like where the data came from on disk (or is going to), or how large it is. This library gives you that information in a standardized way.
+* **Convenient open**: the same simple `open` method whether you are accessing data on disk, from a URL or inline data from a string, buffer or array.
+* **Streams (or strings)**: standardized iterator / object stream interface to data wherever you've loaded from online, on disk or inline
+* **Building block for data pipelines**: provides a standardized building block for more complex data processing. For example, suppose you want to load a csv file then write to JSON. That's simple enough. But then suppose you want to delete the first 3 rows, delete the 2nd column. Now you have a more complex processing pipeline. This library provides a simple set of "data plus metadata" objects that you can pass along your pipeline.
+
 ## Features
 
 * Easy: a single common API for local, online and inline data
 * Micro: The whole project is ~400 lines of code
 * Simple: Oriented for single purpose
 * Explicit: No hidden behaviours, no extra magic
-* Frictionlesss: uses and supports (but does not require) Frictionless Data Package specs so you can leverage Frictionless tooling
+* Frictionlesss: uses and supports (but does not require) [Frictionless Data][fd] specs such as [Data Package][dp] so you can leverage Frictionless tooling
 * Minimal glue: Use on its own or as a building block for more complex data tooling (thanks to its common miminal metadata)
+
+[fd]: https://frictionlessdata.io/
+[dp]: https://frictionlessdata.io/data-packages/
 
 ## Installation
 
@@ -46,7 +93,7 @@ With a simple file:
 const data = require('data.js')
 
 // path can be local or remote
-const file = data.File.load(path)
+const file = data.open(path)
 
 // descriptor with metadata e.g. name, path, format, (guessed) mimetype etc
 console.log(file.descriptor)
@@ -64,7 +111,7 @@ const buffer = await resource.buffer()
 
 With a Dataset:
 
-```
+```javascript
 const data = require('data.js')
 
 const path = '/path/to/directory/' // must have datapackage.json in the directory atm
@@ -81,15 +128,15 @@ const data = file.stream()
 
 ## API
 
-### Files
+### open
 
-A single data file - local or remote.
+Load a file from a path or descriptor.
 
-#### load
+`
+load(pathOrDescriptor, {basePath, format}={})
+`
 
-`File.load(pathOrDescriptor, {basePath}={})`
-
-To instantiate a data file you use the static `load` method. We use this rather than a constructor as it allows us to dispatch to the appropriate subinstance based on `pathOrDescriptor`. There are 3 types of file source we support:
+There are 3 types of file source we support:
 
 * Local path
 * Remote url
@@ -98,12 +145,12 @@ To instantiate a data file you use the static `load` method. We use this rather 
 ```javascript
 const data = require('data.js')
 
-const file = data.File.load('/path/to/file.csv')
+const file = data.open('/path/to/file.csv')
 
-const file = data.File.load('https://example.com/data.xls')
+const file = data.open('https://example.com/data.xls')
 
 // loading raw data
-const file = data.File.load({
+const file = data.open({
   name: 'mydata',
   data: { // can be any javascript - an object, an array or a string or ...
     a: 1,
@@ -114,7 +161,7 @@ const file = data.File.load({
 // Loading with a descriptor - this allows more fine-grained configuration
 // The descriptor should follow the Frictionless Data Resource model
 // http://specs.frictionlessdata.io/data-resource/
-const file = data.File.load({
+const file = data.open({
   // file or url path
   path: 'https://example.com/data.csv',
   // a Table Schema - https://specs.frictionlessdata.io/table-schema/
@@ -134,12 +181,21 @@ const file = data.File.load({
 `basePath`: use in cases where you want to create a File with a path that is relative to a base directory / path e.g.
 
 ```
-const file = data.File.load('data.csv', {basePath: '/my/base/path'})
+const file = data.open('data.csv', {basePath: '/my/base/path'})
 ```
 
 Will open the file: `/my/base/path/data.csv`
 
 This functionality is primarily useful when using Files as part of Datasets where it can be convenient for a  File to have a path relative to the directory of the Dataset. (See also Data Package and Data Resource in the Frictionless Data specs).
+
+
+### Files
+
+A single data file - local or remote.
+
+#### load
+
+*DEPRECATED*. Use simple `open`.
 
 #### Metadata
 
@@ -212,7 +268,7 @@ The rows functionality is currently available for CSV and Excel files. The Tabul
 ```javascript
 
 // load a CSV with a non-standard dialect e.g. tab separated or semi-colon separated
-const file = data.File.load({
+const file = data.open({
   path: 'mydata.tsv'
   // Full support for http://specs.frictionlessdata.io/csv-dialect/
   dialect: {
@@ -221,7 +277,7 @@ const file = data.File.load({
 })
 
 // open a CSV with a Table Schema
-const file = data.File.load({
+const file = data.open({
   path: 'mydata.csv'
   // Full support for Table Schema https://specs.frictionlessdata.io/table-schema/
   schema: {
