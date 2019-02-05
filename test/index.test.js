@@ -64,17 +64,26 @@ test('isDataset function works', t => {
 // parseDatasetIdentifier
 
 test('parseDatasetIdentifier function with local path', async t => {
-  const path_ = '../dir/dataset/'
-  const res = await data.parseDatasetIdentifier(path_)
-  const exp = {
-    name: 'dataset',
-    owner: null,
-    path: path.posix.resolve(path_),
-    type: 'local',
-    original: path_,
-    version: ''
-  }
-  t.deepEqual(res, exp)
+  const paths = [
+    '../dir/dataset/',
+    './',
+    './datapackage.json',
+    '../datapackage.json',
+    'datapackage.json'
+  ]
+  await paths.forEach(async path_ => {
+    const res = await data.parseDatasetIdentifier(path_)
+    const normalizedPath = path.posix.resolve(path_).replace(/\/?datapackage\.json/, '')
+    const exp = {
+      name: path.basename(normalizedPath),
+      owner: null,
+      path: normalizedPath,
+      type: 'local',
+      original: path_,
+      version: ''
+    }
+    t.deepEqual(res, exp)
+  })
 })
 
 test('parseDatasetIdentifier function with random url', async t => {
@@ -173,7 +182,7 @@ test('parsePath function with remote url without conventional filename', t => {
   const res = data.parsePath(path_)
   t.is(res.path, path_)
   t.is(res.pathType, 'remote')
-  t.is(res.name, 'NY.GDP.MKTP')
+  t.is(res.name, 'ny.gdp.mktp')
   t.is(res.format, 'csv')
   t.is(res.mediatype, undefined)
 })
@@ -214,11 +223,15 @@ const testFileStream = async (t, file) => {
   t.deepEqual(rowsAsObjects[1], {number: '3', string: 'four', boolean: 'false'})
 }
 
-test.failing('non utf-8 encoding', async t => {
+// testing the stream or the buffer for non-utf8 encoding will not work,
+// as we moved the stream decoding from the data.js lib,
+// so here we now testing if File.encoding property is correct
+test('cyrillic encoding', async t => {
   const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
   const file = await data.open(path_)
-  const buffer = await file.buffer
-  t.is(buffer.toString().slice(0, 12), 'номер, город')
+  //const buffer = await file.buffer
+  //t.is(buffer.toString().slice(0, 12), 'номер, город')
+  t.is(file.encoding, 'windows-1251')
 })
 
 
@@ -318,6 +331,12 @@ test('File class for addSchema method', async t => {
   t.deepEqual(headers, ['number', 'string', 'boolean'])
 })
 
+test('File name has spaces and dots', async t => {
+  let path_ = 'test/fixtures/some file.name.ext'
+  let file = data.File.load(path_)
+  t.is(file.descriptor.name, 'some-file.name')
+})
+
 // ====================================
 // Dataset class
 // ====================================
@@ -371,6 +390,39 @@ test('Dataset.load with url-directory', async t => {
     .persist()
     .get('/datasets/co2-ppm/master/README.md')
     .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/README.md'))
+
+  // Added mocking for all remote files in the test dataset
+  // Reason: FileRemote is now probing the remote resource to define its encoding
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/data/co2-mm-mlo.csv')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/data/co2-mm-mlo.csv'))
+
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/data/co2-annmean-mlo.csv')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/data/co2-annmean-mlo.csv'))
+
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/data/co2-gr-mlo.csv')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/data/co2-gr-mlo.csv'))
+
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/data/co2-mm-gl.csv')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/data/co2-mm-gl.csv'))
+
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/data/co2-annmean-gl.csv')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/data/co2-annmean-gl.csv'))
+
+  nock('https://raw.githubusercontent.com')
+    .persist()
+    .get('/datasets/co2-ppm/master/data/co2-gr-gl.csv')
+    .replyWithFile(200, path.join(__dirname, '/fixtures/co2-ppm/data/co2-gr-gl.csv'))
+
   const dataset = await data.Dataset.load(url)
   t.is(dataset.descriptor.name, 'co2-ppm')
   t.is(dataset.identifier.type, 'url')
