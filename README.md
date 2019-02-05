@@ -14,10 +14,10 @@
 
 A line of code is worth a thousand words ...
 
-```javascript
+```
 const {open} = require('data.js')
 
-var file = open(path/to/ons-mye-population-totals.xls')
+var file = open('path/to/ons-mye-population-totals.xls')
 
 file.descriptor
   { 
@@ -43,10 +43,12 @@ file.rows() => stream object for rows
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
+- [Motivation](#motivation)
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
 - [API](#api)
+  - [open](#open)
   - [Files](#files)
     - [load](#load)
     - [Metadata](#metadata)
@@ -57,6 +59,8 @@ file.rows() => stream object for rows
     - [load](#load-1)
     - [addResource](#addresource)
   - [Utilities](#utilities)
+    - [isDataset](#isdataset)
+    - [parseDatasetIdentifier](#parsedatasetidentifier)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
