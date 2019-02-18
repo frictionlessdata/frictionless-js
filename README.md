@@ -20,7 +20,7 @@ const {open} = require('data.js')
 var file = open('path/to/ons-mye-population-totals.xls')
 
 file.descriptor
-  { 
+  {
     path: '/path/to/ons-mye-population-totals.xls',
     pathType: 'local',
     name: 'ons-mye-population-totals',
@@ -61,6 +61,7 @@ file.rows() => stream object for rows
   - [Utilities](#utilities)
     - [isDataset](#isdataset)
     - [parseDatasetIdentifier](#parsedatasetidentifier)
+- [Developers](#developers)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -383,3 +384,13 @@ and it prints out:
     version: <version>
 }
 ```
+
+## Developers
+
+### Deployment
+
+1. Update version number in `package.json`.
+2. Git commit: `git commit -m "some message, eg, version"`.
+3. Release: `git tag -a v0.12.0 -m "some message"`.
+4. Push: `git push origin master --tags`
+5. Publish to NPM: `npm publish`
