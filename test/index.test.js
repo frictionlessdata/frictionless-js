@@ -337,6 +337,14 @@ test('File name has spaces and dots', async t => {
   t.is(file.descriptor.name, 'some-file.name')
 })
 
+test('File... classes have displayName method', t => {
+  const fileLocal = data.open('test/fixtures/sample.csv')
+  t.is(fileLocal.displayName, 'FileLocal')
+
+  const fileRemote = data.open('https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv')
+  t.is(fileRemote.displayName, 'FileRemote')
+})
+
 // ====================================
 // Dataset class
 // ====================================
