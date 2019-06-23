@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "ava",
+    "test": "nyc ava",
     "test:watch": "ava --watch",
     "lint": "xo --quiet",
     "compile": "npx babel src --out-dir lib"
@@ -28,6 +28,7 @@
     "@babel/preset-env": "^7.4.5",
     "ava": "^0.21.0",
     "nock": "^9.0.14",
+    "nyc": "^14.1.1",
     "xo": "^0.18.2"
   },
   "dependencies": {

@@ -18,3 +18,6 @@ npm-debug.log
 package-lock.json
 
 sandbox/*
+
+.nyc_output
+coverage
