@@ -387,6 +387,22 @@ and it prints out:
 
 ## Developers
 
+Requirements:
+
+* NodeJS >= v8.10.0
+* NPM >= v5.2.0
+
+### Setup
+
+1. Git clone the repo
+2. Install dependencies: `yarn`
+3. Run tests: `yarn test`
+4. Do some dev work
+  * While doing dev, you can run tests in a watch mode: `yarn test:watch`
+5. Once done, make sure tests are passing
+6. Compile ES2015+ syntax so that the code works in current browsers: `yarn compile`
+7. Now proceed to "Deployment" stage
+
 ### Deployment
 
 1. Update version number in `package.json`.

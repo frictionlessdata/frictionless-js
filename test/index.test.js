@@ -4,7 +4,7 @@ const nock = require('nock')
 
 const toArray = require('stream-to-array')
 
-const data = require('../lib/index')
+const data = require('../src/index')
 
 // ====================================
 // isUrl
