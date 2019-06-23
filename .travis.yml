@@ -4,6 +4,6 @@ node_js:
   - "8"
 
 install:
-  - npm install
+  - yarn
 
-script: npm test
+script: yarn test

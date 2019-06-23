@@ -10,7 +10,7 @@
 * **Tabular**: open CSV, Excel or arrays and get a row stream
 * **Frictionless**: compatible with [Frictionless Data standards][fd]
 
-[![Build Status](https://travis-ci.org/datahq/data.js.svg?branch=master)](https://travis-ci.org/datahq/data.js) [![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/datahubio/chat)
+[![Build Status](https://travis-ci.org/datopian/data.js.svg?branch=master)](https://travis-ci.org/datopian/data.js) [![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/datahubio/chat)
 
 A line of code is worth a thousand words ...
 

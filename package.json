@@ -14,14 +14,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/datahq/data.js.git"
+    "url": "git+https://github.com/datopian/data.js.git"
   },
   "author": "datopian",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/datahq/data.js/issues"
+    "url": "https://github.com/datopian/data.js/issues"
   },
-  "homepage": "https://github.com/datahq/data.js#readme",
+  "homepage": "https://github.com/datopian/data.js#readme",
   "devDependencies": {
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.5",
