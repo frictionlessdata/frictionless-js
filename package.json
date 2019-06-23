@@ -9,7 +9,8 @@
   "scripts": {
     "test": "ava",
     "test:watch": "ava --watch",
-    "lint": "xo --quiet"
+    "lint": "xo --quiet",
+    "compile": "npx babel src --out-dir lib"
   },
   "repository": {
     "type": "git",
@@ -22,11 +23,15 @@
   },
   "homepage": "https://github.com/datahq/data.js#readme",
   "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
     "ava": "^0.21.0",
     "nock": "^9.0.14",
     "xo": "^0.18.2"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.4.4",
     "chardet": "^0.4.2",
     "csv-parse": "^1.2.1",
     "csv-sniffer": "^0.1.1",
