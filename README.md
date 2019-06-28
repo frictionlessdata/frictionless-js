@@ -117,16 +117,16 @@ const buffer = await resource.buffer()
 With a Dataset:
 
 ```javascript
-const data = require('data.js')
+const { Dataset } = require('data.js')
 
 const path = '/path/to/directory/' // must have datapackage.json in the directory atm
 
-const dataset = Dataset.load(path)
+Dataset.load(path).then(dataset => {
+  // get a data file in this dataset
+  const file = dataset.resources[0]
 
-// get a data file in this dataset
-const file = dataset.resources[0]
-
-const data = file.stream()
+  const data = file.stream()
+})
 ```
 
 ---
