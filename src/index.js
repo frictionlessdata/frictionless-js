@@ -86,14 +86,14 @@ class File {
     })()
   }
 
-  rows({keyed, sheet} = {}) {
-    return this._rows({keyed, sheet})
+  rows({keyed, sheet, size} = {}) {
+    return this._rows({keyed, sheet, size})
   }
 
-  _rows({keyed, sheet} = {}) {
+  _rows({keyed, sheet, size} = {}) {
     if (this.descriptor.format in parserDatabase) {
       const parser = parserDatabase[this.descriptor.format]
-      return parser(this, keyed, sheet)
+      return parser(this, {keyed, sheet, size})
     }
     throw new Error(`We do not have a parser for that format: ${this.descriptor.format}`)
   }
@@ -225,7 +225,7 @@ class FileInline extends File {
       rowStream.end()
       return rowStream
     }
-    return this._rows({keyed})
+    return this._rows({keyed, size})
   }
 }
 

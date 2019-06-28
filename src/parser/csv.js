@@ -4,7 +4,7 @@ const CSVSniffer = require('csv-sniffer')()
 const toString = require('stream-to-string')
 const iconv = require('iconv-lite')
 
-const csvParser = async (file, keyed = false) => {
+const csvParser = async (file, {keyed = false, size = 100}={}) => {
   const parseOptions = await getParseOptions(file, keyed)
   let stream = await file.stream()
   if (!(typeof window === 'undefined')) {
@@ -17,9 +17,11 @@ const csvParser = async (file, keyed = false) => {
     const lineStream = stream.pipeThrough(ts)
     // Read the stream of strings
     const reader = lineStream.getReader()
+    let lineCounter = 0
     while (true) {
       const { done, value } = await reader.read()
-      if (done) {
+      lineCounter += 1
+      if (done || lineCounter > size) {
         break
       }
       // Write each string line to our nodejs stream

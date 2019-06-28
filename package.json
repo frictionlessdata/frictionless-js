@@ -34,7 +34,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
     "chardet": "^0.4.2",
-    "csv-parse": "^1.2.1",
+    "csv-parse": "^4.4.3",
     "csv-sniffer": "^0.1.1",
     "iconv-lite": "^0.4.19",
     "lodash": "^4.17.4",
