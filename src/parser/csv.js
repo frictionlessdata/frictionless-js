@@ -39,9 +39,9 @@ const guessParseOptions = async (file) => {
   const possibleDelimiters = [',', ';', ':', '|', '\t', '^', '*', '&']
   const sniffer = new CSVSniffer(possibleDelimiters)
   let text = ''
-  // We assume that reading first 1M bytes is enough to detect delimiter, line terminator etc.:
+  // We assume that reading first 50K bytes is enough to detect delimiter, line terminator etc.:
   if (file.displayName === 'FileLocal') {
-    const stream = await file.stream({end: 1000000})
+    const stream = await file.stream({end: 50000})
     text = await toString(stream)
   } else if (file.displayName === 'FileRemote') {
     const stream = await file.stream()
@@ -53,7 +53,7 @@ const guessParseOptions = async (file) => {
         stream
           .on('data', (chunk) => {
             bytes += chunk.length
-            if (bytes > 1000000) {
+            if (bytes > 50000) {
               stream.pause()
               resolve()
             } else {
@@ -72,7 +72,7 @@ const guessParseOptions = async (file) => {
       const lineStream = stream.pipeThrough(ts)
       // Read the stream of strings
       const reader = lineStream.getReader()
-      while (Buffer.byteLength(text, 'utf8') < 1000000) {
+      while (Buffer.byteLength(text, 'utf8') < 50000) {
         const { done, value } = await reader.read()
         if (done) {
           break
