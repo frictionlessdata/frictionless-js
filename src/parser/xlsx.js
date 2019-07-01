@@ -5,7 +5,14 @@ const parse = require('csv-parse')
 const {getParseOptions} = require('./csv')
 
 const xlsxParser = async (file, keyed = false, sheetIdxOrName = 0) => {
-  const buffer = await file.buffer
+  let buffer
+  if (typeof window === 'undefined') {
+    // Not in browser so 'buffer' is available
+    buffer = await file.buffer
+  } else {
+    // Running in browser
+    buffer = await file.browserBuffer
+  }
   const workbook = XLSX.read(buffer, {type: 'buffer'})
   let selectedSheetName = sheetIdxOrName
   if (sheetIdxOrName.constructor.name === 'Number') {

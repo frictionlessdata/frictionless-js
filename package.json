@@ -44,6 +44,6 @@
     "stream-to-string": "^1.1.0",
     "tableschema": "^1.9.0",
     "url-join": "^2.0.2",
-    "xlsx": "0.11.8"
+    "xlsx": "^0.14.3"
   }
 }
