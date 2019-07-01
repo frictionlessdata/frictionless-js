@@ -163,6 +163,13 @@ class FileRemote extends File {
     }
   }
 
+  get browserBuffer() {
+    return (async () => {
+      const res = await fetch(this.path)
+      return (await res.arrayBuffer())
+    })()
+  }
+
   stream() {
     return (async () => {
       const res = await fetch(this.path)
