@@ -4,7 +4,7 @@ const CSVSniffer = require('csv-sniffer')()
 const toString = require('stream-to-string')
 const iconv = require('iconv-lite')
 
-const csvParser = async (file, {keyed = false, size = 100}={}) => {
+const csvParser = async (file, {keyed = false, size = 0}={}) => {
   const parseOptions = await getParseOptions(file, keyed)
   let stream = await file.stream()
   if (!(typeof window === 'undefined')) {
