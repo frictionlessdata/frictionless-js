@@ -21,7 +21,7 @@ const csvParser = async (file, {keyed = false, size = 0}={}) => {
     while (true) {
       const { done, value } = await reader.read()
       lineCounter += 1
-      if (done || lineCounter > size) {
+      if (done || (lineCounter > size && size !== 0)) {
         break
       }
       // Write each string line to our nodejs stream
