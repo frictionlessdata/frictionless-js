@@ -6,30 +6,7 @@ const iconv = require('iconv-lite')
 
 const csvParser = async (file, {keyed = false, size = 0}={}) => {
   const parseOptions = await getParseOptions(file, keyed)
-  let stream = await file.stream()
-  if (!(typeof window === 'undefined')) {
-    // Running in browser: transform browser's ReadableStream to string, then
-    // create a nodejs stream from it:
-    const s = new Readable
-    // Create a transform stream with our transformer
-    const ts = new TransformStream(new Uint8ArrayToStringsTransformer())
-    // Apply our Transformer on the ReadableStream to create a stream of strings
-    const lineStream = stream.pipeThrough(ts)
-    // Read the stream of strings
-    const reader = lineStream.getReader()
-    let lineCounter = 0
-    while (true) {
-      const { done, value } = await reader.read()
-      lineCounter += 1
-      if (done || (lineCounter > size && size !== 0)) {
-        break
-      }
-      // Write each string line to our nodejs stream
-      s.push(value + '\r\n')
-    }
-    s.push(null)
-    stream = s
-  }
+  let stream = await file.stream({size})
   if (file.descriptor.encoding.toLowerCase().replace('-', '') === 'utf8') {
     return stream.pipe(parse(parseOptions))
   } else { // non utf-8 files are decoded by iconv-lite module
@@ -46,42 +23,23 @@ const guessParseOptions = async (file) => {
     const stream = await file.stream({end: 50000})
     text = await toString(stream)
   } else if (file.displayName === 'FileRemote') {
-    const stream = await file.stream()
+    const stream = await file.stream({size: 100})
     let bytes = 0
-    // Check if it is running on nodejs or browser:
-    if (typeof window === 'undefined') {
-      // Running on nodejs
-      await new Promise((resolve, reject) => {
-        stream
-          .on('data', (chunk) => {
-            bytes += chunk.length
-            if (bytes > 50000) {
-              stream.pause()
-              resolve()
-            } else {
-              text += chunk.toString()
-            }
-          })
-          .on('end', () => {
+    await new Promise((resolve, reject) => {
+      stream
+        .on('data', (chunk) => {
+          bytes += chunk.length
+          if (bytes > 50000) {
+            stream.pause()
             resolve()
-          })
-      })
-    } else {
-      // Running in browser:
-      // Create a transform stream with our transformer
-      const ts = new TransformStream(new Uint8ArrayToStringsTransformer())
-      // Apply our Transformer on the ReadableStream to create a stream of strings
-      const lineStream = stream.pipeThrough(ts)
-      // Read the stream of strings
-      const reader = lineStream.getReader()
-      while (Buffer.byteLength(text, 'utf8') < 50000) {
-        const { done, value } = await reader.read()
-        if (done) {
-          break
-        }
-        text += value + '\r\n'
-      }
-    }
+          } else {
+            text += chunk.toString()
+          }
+        })
+        .on('end', () => {
+          resolve()
+        })
+    })
   }
   const results = sniffer.sniff(text)
   return {
@@ -162,5 +120,6 @@ class Uint8ArrayToStringsTransformer {
 module.exports = {
   csvParser,
   getParseOptions,
-  guessParseOptions
+  guessParseOptions,
+  Uint8ArrayToStringsTransformer
 }
