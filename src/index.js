@@ -103,6 +103,10 @@ class File {
     if (knownTabularFormats.indexOf(this.descriptor.format) === -1) {
       throw new Error('File is not in known tabular format.')
     }
+    if (this.displayName === 'FileInline') {
+      this.descriptor.schema = await infer(this.descriptor.data)
+      return
+    }
     // Get parserOptions so we can use it when "infering" schema:
     const parserOptions = await guessParseOptions(this)
     // We also need to include parserOptions in "dialect" property of descriptor:

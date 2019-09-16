@@ -314,6 +314,7 @@ test.serial('File class stream with url', async t => {
 })
 
 test('File class for addSchema method', async t => {
+  // with FileLocal
   let path_ = 'test/fixtures/sample.csv'
   let file = data.open(path_)
   t.is(file.descriptor.schema, undefined)
@@ -321,9 +322,24 @@ test('File class for addSchema method', async t => {
   t.is(file.descriptor.schema.fields[1].type, 'string')
   let headers = file.descriptor.schema.fields.map(field => field.name)
   t.deepEqual(headers, ['number', 'string', 'boolean'])
-
+  // with FileRemote
   path_ = 'https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv'
   file = data.open(path_)
+  t.is(file.descriptor.schema, undefined)
+  await file.addSchema()
+  t.is(file.descriptor.schema.fields[1].type, 'string')
+  headers = file.descriptor.schema.fields.map(field => field.name)
+  t.deepEqual(headers, ['number', 'string', 'boolean'])
+  // with FileInline
+  const inlineData = [
+    ['number', 'string', 'boolean'],
+    [1, 'two', true],
+    [3, 'four', false]
+  ]
+  file = data.open({
+    data: inlineData,
+    format: 'csv'
+  })
   t.is(file.descriptor.schema, undefined)
   await file.addSchema()
   t.is(file.descriptor.schema.fields[1].type, 'string')
