@@ -46,6 +46,7 @@ file.rows() => stream object for rows
 - [Motivation](#motivation)
 - [Features](#features)
 - [Installation](#installation)
+- [Browser](#browser)
 - [Usage](#usage)
 - [API](#api)
   - [open](#open)
@@ -99,7 +100,7 @@ Run the following command to generate the bundle for the necessary JS targets
 
 `yarn build` 
 
-This will creates bundles in `./dist` folder. In a simple html file you can use it like this:
+This will create bundles in `./dist` folder. In a simple html file you can use it like this:
 ```html
 <head>
   <script src="./dist/datajs.var.js"></script>
