@@ -90,6 +90,29 @@ file.rows() => stream object for rows
 
 `npm install data.js`
 
+
+## Browser
+
+If you want to use the it in the browser, first you need to build the bundle.
+
+Run the following command to generate the bundle for the necessary JS targets
+
+`yarn build` 
+
+This will creates bundles in `./dist` folder. In a simple html file you can use it like this:
+```html
+<head>
+  <script src="./dist/datajs.var.js"></script>
+  <script>
+    // Global data lib is available here...
+    
+    const file = data.open('path/to/file')
+    ...
+  </script>
+</head>
+<body></body>
+```  
+
 ## Usage
 
 With a simple file:

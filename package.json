@@ -10,6 +10,8 @@
     "test": "nyc ava",
     "test:watch": "ava --watch",
     "lint": "xo --quiet",
+    "build": "rm -rf dist/ && webpack",
+    "build:watch": "webpack --watch",
     "compile": "npx babel src --out-dir lib"
   },
   "repository": {
@@ -23,13 +25,15 @@
   },
   "homepage": "https://github.com/datopian/data.js#readme",
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.5",
-    "@babel/preset-env": "^7.4.5",
     "ava": "^0.21.0",
     "nock": "^9.0.14",
     "nyc": "^14.1.1",
-    "xo": "^0.18.2"
+    "xo": "^0.18.2",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "@babel/core": "^7.7.2",
+    "@babel/preset-env": "^7.7.1",
+    "babel-loader": "^8.0.6"
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
