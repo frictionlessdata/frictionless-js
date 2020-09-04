@@ -15,7 +15,7 @@ const urljoin = require('url-join')
 const toArray = require('stream-to-array')
 const infer = require('tableschema').infer
 
-const {csvParser, guessParseOptions, Uint8ArrayToStringsTransformer} = require('./parser/csv')
+const {csvParser, guessParseOptions, Uint8ArrayToStringsReadableStream} = require('./parser/csv')
 const {xlsxParser} = require('./parser/xlsx')
 
 const DEFAULT_ENCODING = 'utf-8'
@@ -185,12 +185,13 @@ class FileRemote extends File {
           // Running in browser: transform browser's ReadableStream to string, then
           // create a nodejs stream from it:
           const s = new stream.Readable
-          // Create a transform stream with our transformer
-          const ts = new TransformStream(new Uint8ArrayToStringsTransformer())
-          // Apply our Transformer on the ReadableStream to create a stream of strings
-          const lineStream = res.body.pipeThrough(ts)
+          
+          // Get Uint8ArrayToStringsReadableStream from ReadableStream
+          const stringsStream = new Uint8ArrayToStringsReadableStream(res.body.getReader())
+
           // Read the stream of strings
-          const reader = lineStream.getReader()
+          const reader = stringsStream.getReader()
+
           let lineCounter = 0
           while (true) {
             const { done, value } = await reader.read()

@@ -1,4 +1,3 @@
-const Readable = require('stream').Readable
 const parse = require('csv-parse')
 const CSVSniffer = require('csv-sniffer')()
 const toString = require('stream-to-string')
@@ -117,9 +116,60 @@ class Uint8ArrayToStringsTransformer {
 }
 
 
+/**
+ * The following class takes binary Uint8Array chunks from
+ * original reader and translates them to chunks of strings during
+ * the read process.
+ */
+class Uint8ArrayToStringsReadableStream extends ReadableStream {
+  constructor(reader) {
+    const decoder = new TextDecoder();
+    let lastString = "";
+
+    super({
+      start(controller) {
+        // The following function handles each data chunk
+        async function push() {
+          /**
+           * "done" is a Boolean and value a "Uint8Array"
+           */
+          const { done, value } = await reader.read();
+          // Is there no more data to read?
+          if (done) {
+            if (this.lastString) {
+              controller.enqueue(this.lastString);
+            }
+            controller.close();
+            return;
+          }
+
+          // Decode the current value (chunk) to string and prepend the last string
+          const string = `${lastString}${decoder.decode(value)}`;
+
+          // Extract lines from chunk
+          const lines = string.split(/\r\n|[\r\n]/g);
+
+          // Save last line, as it might be incomplete
+          lastString = lines.pop() || "";
+
+          // Enqueue each line in the next chunk
+          for (const line of lines) {
+            controller.enqueue(line);
+          }
+
+          push();
+        }
+
+        push();
+      },
+    });
+  }
+}
+
 module.exports = {
   csvParser,
   getParseOptions,
   guessParseOptions,
-  Uint8ArrayToStringsTransformer
+  Uint8ArrayToStringsTransformer,
+  Uint8ArrayToStringsReadableStream
 }
