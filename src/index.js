@@ -120,6 +120,67 @@ class File {
   }
 }
 
+class FileInterface extends File {
+
+  get displayName() {
+    return "FileInterface";
+  }
+
+  // create and return a path url
+  get path() {
+    return  URL.createObjectURL(this.descriptor);
+  }
+
+  get encoding() {
+    return DEFAULT_ENCODING;
+  }
+
+  get size() {
+    return this.descriptor.size;
+  }
+
+  get fileName() {
+    return this.descriptor.name;
+  }
+
+  // call content function and generate MD5 hash from this content
+  async hash() {
+    const content = await this.contentArrayBuffer()
+    const wordArray = CryptoJS.lib.WordArray.create(content);
+
+    const hash = CryptoJS.MD5(wordArray).toString()
+    return hash;
+  }
+
+  // return the content as an array buffer
+  async contentArrayBuffer() {
+    return new Promise((resolve, reject) => {
+      let reader = new FileReader();
+
+      reader.onload = (event) => {
+        resolve(event.target.result);
+      };
+      reader.onerror = reject;
+
+      reader.readAsArrayBuffer(this.descriptor);
+    });
+  }
+
+  // return the content as a text
+  contentAsText() {
+      
+    let reader = new FileReader();
+    
+    reader.readAsText(this.descriptor);
+  
+    reader.onerror = function() {
+      throw new Error(`${reader.error}`);
+    };
+
+    return reader.result;
+  }
+}
+
 class FileLocal extends File {
   get displayName() {
     return 'FileLocal'
