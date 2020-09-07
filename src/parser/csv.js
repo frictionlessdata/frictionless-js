@@ -3,13 +3,16 @@ const CSVSniffer = require('csv-sniffer')()
 const toString = require('stream-to-string')
 const iconv = require('iconv-lite')
 
-const csvParser = async (file, {keyed = false, size = 0}={}) => {
+const csvParser = async (file, { keyed = false, size = 0 } = {}) => {
   const parseOptions = await getParseOptions(file, keyed)
-  let stream = await file.stream({size})
+  let stream = await file.stream({ size })
   if (file.descriptor.encoding.toLowerCase().replace('-', '') === 'utf8') {
     return stream.pipe(parse(parseOptions))
-  } else { // non utf-8 files are decoded by iconv-lite module
-    return stream.pipe(iconv.decodeStream(file.descriptor.encoding)).pipe(parse(parseOptions))
+  } else {
+    // non utf-8 files are decoded by iconv-lite module
+    return stream
+      .pipe(iconv.decodeStream(file.descriptor.encoding))
+      .pipe(parse(parseOptions))
   }
 }
 
@@ -19,10 +22,10 @@ const guessParseOptions = async (file) => {
   let text = ''
   // We assume that reading first 50K bytes is enough to detect delimiter, line terminator etc.:
   if (file.displayName === 'FileLocal') {
-    const stream = await file.stream({end: 50000})
+    const stream = await file.stream({ end: 50000 })
     text = await toString(stream)
   } else if (file.displayName === 'FileRemote') {
-    const stream = await file.stream({size: 100})
+    const stream = await file.stream({ size: 100 })
     let bytes = 0
     await new Promise((resolve, reject) => {
       stream
@@ -43,20 +46,23 @@ const guessParseOptions = async (file) => {
   const results = sniffer.sniff(text)
   return {
     delimiter: results.delimiter,
-    quote: results.quoteChar || '"'
+    quote: results.quoteChar || '"',
   }
 }
 
 const getParseOptions = async (file, keyed) => {
   let parseOptions = {
     columns: keyed ? true : null,
-    ltrim: true
+    ltrim: true,
   }
   if (file.descriptor.dialect) {
     parseOptions.delimiter = file.descriptor.dialect.delimiter || ','
     parseOptions.rowDelimiter = file.descriptor.dialect.lineTerminator
     parseOptions.quote = file.descriptor.dialect.quoteChar || '"'
-    if (file.descriptor.dialect.doubleQuote !== undefined && file.descriptor.dialect.doubleQuote === false) {
+    if (
+      file.descriptor.dialect.doubleQuote !== undefined &&
+      file.descriptor.dialect.doubleQuote === false
+    ) {
       parseOptions.escape = ''
     }
   } else {
@@ -115,7 +121,6 @@ class Uint8ArrayToStringsTransformer {
   }
 }
 
-
 /**
  * The following class takes binary Uint8Array chunks from
  * original reader and translates them to chunks of strings during
@@ -123,8 +128,8 @@ class Uint8ArrayToStringsTransformer {
  */
 class Uint8ArrayToStringsReadableStream extends ReadableStream {
   constructor(reader) {
-    const decoder = new TextDecoder();
-    let lastString = "";
+    const decoder = new TextDecoder()
+    let lastString = ''
 
     super({
       start(controller) {
@@ -133,36 +138,36 @@ class Uint8ArrayToStringsReadableStream extends ReadableStream {
           /**
            * "done" is a Boolean and value a "Uint8Array"
            */
-          const { done, value } = await reader.read();
+          const { done, value } = await reader.read()
           // Is there no more data to read?
           if (done) {
             if (this.lastString) {
-              controller.enqueue(this.lastString);
+              controller.enqueue(this.lastString)
             }
-            controller.close();
-            return;
+            controller.close()
+            return
           }
 
           // Decode the current value (chunk) to string and prepend the last string
-          const string = `${lastString}${decoder.decode(value)}`;
+          const string = `${lastString}${decoder.decode(value)}`
 
           // Extract lines from chunk
-          const lines = string.split(/\r\n|[\r\n]/g);
+          const lines = string.split(/\r\n|[\r\n]/g)
 
           // Save last line, as it might be incomplete
-          lastString = lines.pop() || "";
+          lastString = lines.pop() || ''
 
           // Enqueue each line in the next chunk
           for (const line of lines) {
-            controller.enqueue(line);
+            controller.enqueue(line)
           }
 
-          push();
+          push()
         }
 
-        push();
+        push()
       },
-    });
+    })
   }
 }
 
@@ -171,5 +176,5 @@ module.exports = {
   getParseOptions,
   guessParseOptions,
   Uint8ArrayToStringsTransformer,
-  Uint8ArrayToStringsReadableStream
+  Uint8ArrayToStringsReadableStream,
 }

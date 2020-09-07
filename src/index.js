@@ -15,26 +15,31 @@ const urljoin = require('url-join')
 const toArray = require('stream-to-array')
 const infer = require('tableschema').infer
 
-const {csvParser, guessParseOptions, Uint8ArrayToStringsReadableStream} = require('./parser/csv')
-const {xlsxParser} = require('./parser/xlsx')
+const {
+  csvParser,
+  guessParseOptions,
+  Uint8ArrayToStringsReadableStream,
+} = require('./parser/csv')
+const { xlsxParser } = require('./parser/xlsx')
 
 const DEFAULT_ENCODING = 'utf-8'
 
-
-
 // create a File from a pathOrDescriptor
-function open(pathOrDescriptor, {basePath, format} = {}) {
+function open(pathOrDescriptor, { basePath, format } = {}) {
   let descriptor = null
   if (lodash.isPlainObject(pathOrDescriptor)) {
     descriptor = lodash.cloneDeep(pathOrDescriptor)
     // NB: data must come first - we could have data and path in which path
     // is not used (data comes from data)
     if (descriptor.data) {
-      return new FileInline(descriptor, {basePath})
+      return new FileInline(descriptor, { basePath })
     } else if (descriptor.path) {
       // We want properties already in our descriptor to take priority over
       // those inferred from path so we assign in this order
-      descriptor = Object.assign(parsePath(descriptor.path, basePath), descriptor)
+      descriptor = Object.assign(
+        parsePath(descriptor.path, basePath),
+        descriptor
+      )
     }
   } else if (lodash.isString(pathOrDescriptor)) {
     descriptor = parsePath(pathOrDescriptor, basePath, format)
@@ -42,25 +47,23 @@ function open(pathOrDescriptor, {basePath, format} = {}) {
     throw new TypeError(`Cannot create File with ${pathOrDescriptor}`)
   }
 
-  const isRemote = (descriptor.pathType === 'remote' || isUrl(basePath))
+  const isRemote = descriptor.pathType === 'remote' || isUrl(basePath)
 
   if (isRemote) {
-    return new FileRemote(descriptor, {basePath})
+    return new FileRemote(descriptor, { basePath })
   }
-  return new FileLocal(descriptor, {basePath})
+  return new FileLocal(descriptor, { basePath })
 }
-
 
 // Abstract Base instance of File
 class File {
-
   // 2019-02-05 kept for backwards compatibility (we factored method out as open)
   // TODO: deprecate this ...
-  static load(pathOrDescriptor, {basePath, format} = {}) {
-    return open(pathOrDescriptor, {basePath, format})
+  static load(pathOrDescriptor, { basePath, format } = {}) {
+    return open(pathOrDescriptor, { basePath, format })
   }
 
-  constructor(descriptor, {basePath} = {}) {
+  constructor(descriptor, { basePath } = {}) {
     this._descriptor = descriptor
     this._basePath = basePath
     this._descriptor.encoding = this.encoding || DEFAULT_ENCODING
@@ -71,7 +74,9 @@ class File {
   }
 
   get path() {
-    throw new Error('This is an abstract base class which you should not instantiate. Use open() instead')
+    throw new Error(
+      'This is an abstract base class which you should not instantiate. Use open() instead'
+    )
   }
 
   stream() {
@@ -86,16 +91,18 @@ class File {
     })()
   }
 
-  rows({keyed, sheet, size} = {}) {
-    return this._rows({keyed, sheet, size})
+  rows({ keyed, sheet, size } = {}) {
+    return this._rows({ keyed, sheet, size })
   }
 
-  _rows({keyed, sheet, size} = {}) {
+  _rows({ keyed, sheet, size } = {}) {
     if (this.descriptor.format in parserDatabase) {
       const parser = parserDatabase[this.descriptor.format]
-      return parser(this, {keyed, sheet, size})
+      return parser(this, { keyed, sheet, size })
     }
-    throw new Error(`We do not have a parser for that format: ${this.descriptor.format}`)
+    throw new Error(
+      `We do not have a parser for that format: ${this.descriptor.format}`
+    )
   }
 
   async addSchema() {
@@ -112,10 +119,10 @@ class File {
     // We also need to include parserOptions in "dialect" property of descriptor:
     this.descriptor.dialect = {
       delimiter: parserOptions.delimiter,
-      quoteChar: parserOptions.quote
+      quoteChar: parserOptions.quote,
     }
     // Now let's get a stream from file and infer schema:
-    let thisFileStream = await this.stream({size: 100})
+    let thisFileStream = await this.stream({ size: 100 })
     this.descriptor.schema = await infer(thisFileStream, parserOptions)
   }
 }
@@ -126,11 +133,13 @@ class FileLocal extends File {
   }
 
   get path() {
-    return this._basePath ? path.join(this._basePath, this.descriptor.path) : this.descriptor.path
+    return this._basePath
+      ? path.join(this._basePath, this.descriptor.path)
+      : this.descriptor.path
   }
 
-  stream({end}={}) {
-    return fs.createReadStream(this.path, {start:0, end})
+  stream({ end } = {}) {
+    return fs.createReadStream(this.path, { start: 0, end })
   }
 
   get size() {
@@ -138,7 +147,8 @@ class FileLocal extends File {
   }
 
   get hash() {
-    return crypto.createHash('md5')
+    return crypto
+      .createHash('md5')
       .update(fs.readFileSync(this.path))
       .digest('base64')
   }
@@ -147,7 +157,7 @@ class FileLocal extends File {
     // When data is huge, we want to optimize performace (in tradeoff of less accuracy):
     // So we are using sample of first 100K bytes here:
     if (this.size > 1000000) {
-      return chardet.detectFileSync(this.path, {sampleSize: 1000000})
+      return chardet.detectFileSync(this.path, { sampleSize: 1000000 })
     }
     return chardet.detectFileSync(this.path)
   }
@@ -163,18 +173,20 @@ class FileRemote extends File {
     if (isItUrl) {
       return this.descriptor.path
     } else {
-      return this._basePath ? urljoin(this._basePath, this.descriptor.path) : this.descriptor.path
+      return this._basePath
+        ? urljoin(this._basePath, this.descriptor.path)
+        : this.descriptor.path
     }
   }
 
   get browserBuffer() {
     return (async () => {
       const res = await fetch(this.path)
-      return (await res.arrayBuffer())
+      return await res.arrayBuffer()
     })()
   }
 
-  stream({size = 0}={}) {
+  stream({ size = 0 } = {}) {
     return (async () => {
       const res = await fetch(this.path)
       if (res.status === 200) {
@@ -184,10 +196,12 @@ class FileRemote extends File {
           // if in browser, return node like stream so that parsers work
           // Running in browser: transform browser's ReadableStream to string, then
           // create a nodejs stream from it:
-          const s = new stream.Readable
-          
+          const s = new stream.Readable()
+
           // Get Uint8ArrayToStringsReadableStream from ReadableStream
-          const stringsStream = new Uint8ArrayToStringsReadableStream(res.body.getReader())
+          const stringsStream = new Uint8ArrayToStringsReadableStream(
+            res.body.getReader()
+          )
 
           // Read the stream of strings
           const reader = stringsStream.getReader()
@@ -207,7 +221,9 @@ class FileRemote extends File {
           return s
         }
       } else {
-        throw new Error(`${res.status}: ${res.statusText}. Requested URL: ${this.path}`)
+        throw new Error(
+          `${res.status}: ${res.statusText}. Requested URL: ${this.path}`
+        )
       }
     })()
   }
@@ -218,13 +234,14 @@ class FileRemote extends File {
 }
 
 class FileInline extends File {
-  constructor(descriptor, {basePath} = {}) {
-    super(descriptor, {basePath})
+  constructor(descriptor, { basePath } = {}) {
+    super(descriptor, { basePath })
 
     // JSON is special case ...
     if (lodash.isString(this.descriptor.data)) {
       this._buffer = Buffer.from(this.descriptor.data)
-    } else { // It is json/javascript
+    } else {
+      // It is json/javascript
       this._buffer = Buffer.from(JSON.stringify(this.descriptor.data))
     }
   }
@@ -243,9 +260,7 @@ class FileInline extends File {
   }
 
   get hash() {
-    return crypto.createHash('md5')
-      .update(this._buffer)
-      .digest('base64')
+    return crypto.createHash('md5').update(this._buffer).digest('base64')
   }
 
   stream() {
@@ -254,16 +269,16 @@ class FileInline extends File {
     return bufferStream
   }
 
-  rows({keyed} = {}) {
+  rows({ keyed } = {}) {
     if (lodash.isArray(this.descriptor.data)) {
-      const rowStream = new stream.PassThrough({objectMode: true})
-      this.descriptor.data.forEach(row => {
+      const rowStream = new stream.PassThrough({ objectMode: true })
+      this.descriptor.data.forEach((row) => {
         rowStream.write(row)
       })
       rowStream.end()
       return rowStream
     }
-    return this._rows({keyed, size})
+    return this._rows({ keyed, size })
   }
 }
 
@@ -272,7 +287,7 @@ const parserDatabase = {
   csv: csvParser,
   tsv: csvParser,
   xlsx: xlsxParser,
-  xls: xlsxParser
+  xls: xlsxParser,
 }
 
 // List of formats that are known as tabular
@@ -296,7 +311,8 @@ const parsePath = (path_, basePath = null, format = null) => {
   }
 
   const extension = path.extname(fileName)
-  fileName = fileName.replace(extension, '')
+  fileName = fileName
+    .replace(extension, '')
     .toLowerCase()
     .trim()
     .replace(/&/g, '-and-')
@@ -305,7 +321,7 @@ const parsePath = (path_, basePath = null, format = null) => {
     path: path_,
     pathType: isItUrl ? 'remote' : 'local',
     name: fileName,
-    format: format ? format : extension.slice(1).toLowerCase()
+    format: format ? format : extension.slice(1).toLowerCase(),
   }
 
   const mediatype = mime.lookup(path_)
@@ -323,7 +339,7 @@ const parseDatasetIdentifier = async (path_) => {
     path: '',
     type: '',
     original: path_,
-    version: ''
+    version: '',
   }
   if (path_ === null || path_ === '') return out
 
@@ -352,13 +368,13 @@ const parseDatasetIdentifier = async (path_) => {
       let branch = 'master'
 
       // is the path a repository root?
-      if(parts.length < 6){
-          // yes, use the repository name for the package name
-          name = repoName
+      if (parts.length < 6) {
+        // yes, use the repository name for the package name
+        name = repoName
       }
 
       // does the path contain subfolders (after the repository name)?
-      if(parts.length == 3){
+      if (parts.length == 3) {
         // no, add 'master' branch
         parts.push(branch)
       } else {
@@ -375,13 +391,19 @@ const parseDatasetIdentifier = async (path_) => {
       owner = parts[1]
       name = parts[2]
       if (owner !== 'core') {
-        let resolvedPath = await fetch(`https://api.datahub.io/resolver/resolve?path=${owner}/${name}`)
+        let resolvedPath = await fetch(
+          `https://api.datahub.io/resolver/resolve?path=${owner}/${name}`
+        )
         resolvedPath = await resolvedPath.json()
         parts[1] = resolvedPath.userid
       }
-      let res = await fetch(`https://api.datahub.io/source/${parts[1]}/${name}/successful`)
+      let res = await fetch(
+        `https://api.datahub.io/source/${parts[1]}/${name}/successful`
+      )
       if (res.status >= 400) {
-        throw new Error('Provided URL is invalid. Expected URL to a dataset or descriptor.')
+        throw new Error(
+          'Provided URL is invalid. Expected URL to a dataset or descriptor.'
+        )
       }
       res = await res.json()
       const revisionId = parseInt(res.id.split('/').pop(), 10)
@@ -397,12 +419,12 @@ const parseDatasetIdentifier = async (path_) => {
   return out
 }
 
-const isUrl = path_ => {
+const isUrl = (path_) => {
   const r = new RegExp('^(?:[a-z]+:)?//', 'i')
   return r.test(path_)
 }
 
-const isDataset = path_ => {
+const isDataset = (path_) => {
   // If it is a path to file we assume it is not a Dataset
   // Only exception is 'datapackage.json':
   if (path_.endsWith('datapackage.json')) {
@@ -424,7 +446,7 @@ const isDataset = path_ => {
 
 class Dataset {
   // TODO: handle owner
-  constructor(descriptor = {}, identifier = {path: null, owner: null}) {
+  constructor(descriptor = {}, identifier = { path: null, owner: null }) {
     if (!lodash.isPlainObject(descriptor)) {
       throw new TypeError(`To create a new Dataset please use Dataset.load`)
     }
@@ -435,22 +457,29 @@ class Dataset {
   }
 
   // eslint-disable-next-line no-unused-vars
-  static async load(pathOrDescriptor, {owner = null} = {}) {
+  static async load(pathOrDescriptor, { owner = null } = {}) {
     if (
-      !(lodash.isString(pathOrDescriptor) || lodash.isPlainObject(pathOrDescriptor))
+      !(
+        lodash.isString(pathOrDescriptor) ||
+        lodash.isPlainObject(pathOrDescriptor)
+      )
     ) {
-      throw new TypeError('Dataset needs to be created with descriptor Object or identifier string')
+      throw new TypeError(
+        'Dataset needs to be created with descriptor Object or identifier string'
+      )
     }
 
-    let descriptor, identifier = null
+    let descriptor,
+      identifier = null
 
     if (lodash.isPlainObject(pathOrDescriptor)) {
       descriptor = pathOrDescriptor
       identifier = {
         path: null,
-        owner: owner
+        owner: owner,
       }
-    } else { // pathOrDescriptor is a path
+    } else {
+      // pathOrDescriptor is a path
       descriptor = {}
       // TODO: owner if provided should override anything parsed from path
       identifier = await parseDatasetIdentifier(pathOrDescriptor)
@@ -468,14 +497,16 @@ class Dataset {
     switch (this.identifier.type) {
       case 'local': {
         if (fs.existsSync(this.dataPackageJsonPath)) {
-          this._descriptor = JSON.parse(fs.readFileSync(this.dataPackageJsonPath))
+          this._descriptor = JSON.parse(
+            fs.readFileSync(this.dataPackageJsonPath)
+          )
           this._originalDescriptor = lodash.cloneDeep(this._descriptor)
-        }  else {
+        } else {
           throw new Error('No datapackage.json at destination.')
         }
         // Now get README from local disk if exists
         if (fs.existsSync(readmePath)) {
-          this._descriptor.readme  = fs.readFileSync(readmePath).toString()
+          this._descriptor.readme = fs.readFileSync(readmePath).toString()
         }
         break
       }
@@ -484,7 +515,9 @@ class Dataset {
       case 'datahub': {
         let res = await fetch(this.dataPackageJsonPath)
         if (res.status >= 400) {
-          throw new Error( `${res.status}: ${res.statusText}. Requested URL: ${res.url}`)
+          throw new Error(
+            `${res.status}: ${res.statusText}. Requested URL: ${res.url}`
+          )
         }
         this._descriptor = await res.json()
         this._originalDescriptor = lodash.cloneDeep(this._descriptor)
@@ -502,14 +535,13 @@ class Dataset {
     // handle case where readme was already inlined in the descriptor as readme
     // attribute as e.g. on the datahub
     // Now load each resource ...
-    this._resources = this.descriptor.resources.map(resource => {
-      return open(resource, {basePath: this.path})
+    this._resources = this.descriptor.resources.map((resource) => {
+      return open(resource, { basePath: this.path })
     })
     // We need to update original descriptor with metadata about resources after guessing them
-    this.descriptor.resources = this._resources.map(resource => {
+    this.descriptor.resources = this._resources.map((resource) => {
       return resource.descriptor
     })
-
   }
 
   get identifier() {
@@ -541,17 +573,22 @@ class Dataset {
     if (lodash.isPlainObject(resource)) {
       this.descriptor.resources.push(resource)
       this.resources.push(open(resource))
-    } else if (lodash.isObject(resource)) { // It is already a resource object!
+    } else if (lodash.isObject(resource)) {
+      // It is already a resource object!
       this.descriptor.resources.push(resource.descriptor)
       this.resources.push(resource)
     } else {
-      throw new TypeError(`addResource requires a resource descriptor or an instantiated resources but got: ${resource}`)
+      throw new TypeError(
+        `addResource requires a resource descriptor or an instantiated resources but got: ${resource}`
+      )
     }
   }
 
   // Path relative to this dataset
   _path(offset = null) {
-    const path_ = this.path ? this.path.replace('datapackage.json', '') : this.path
+    const path_ = this.path
+      ? this.path.replace('datapackage.json', '')
+      : this.path
     // TODO: ensure offset is relative (security etc)
     switch (this.identifier.type) {
       case 'local':
@@ -570,7 +607,6 @@ class Dataset {
   }
 }
 
-
 module.exports = {
   open,
   File,
@@ -583,5 +619,5 @@ module.exports = {
   isDataset,
   Dataset,
   xlsxParser,
-  csvParser
+  csvParser,
 }
