@@ -21,7 +21,7 @@ const { xlsxParser } = require('./parser/xlsx')
 const DEFAULT_ENCODING = 'utf-8'
 
 // for browser related functions
-const browser = require('./browser/index')
+const browser = require('./browser-utils/index')
 
 // create a File from a pathOrDescriptor
 function open(pathOrDescriptor, { basePath, format } = {}) {

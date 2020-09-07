@@ -1,4 +1,4 @@
-if (typeof window !== 'undefined') module.exports = { ...require('./api') }
+if (typeof window !== 'undefined') module.exports = { ...require('./utils') }
 else
   module.exports = {
     toNodeStream: (res, size) => {},
