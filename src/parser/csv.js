@@ -1,4 +1,3 @@
-const Readable = require('stream').Readable
 const parse = require('csv-parse')
 const CSVSniffer = require('csv-sniffer')()
 const toString = require('stream-to-string')

@@ -15,14 +15,13 @@ const urljoin = require('url-join')
 const toArray = require('stream-to-array')
 const infer = require('tableschema').infer
 
-const {
-  csvParser,
-  guessParseOptions,
-  Uint8ArrayToStringsTransformer,
-} = require('./parser/csv')
+const { csvParser, guessParseOptions } = require('./parser/csv')
 const { xlsxParser } = require('./parser/xlsx')
 
 const DEFAULT_ENCODING = 'utf-8'
+
+// for browser related functions
+const browser = require('./browser-utils/index')
 
 // create a File from a pathOrDescriptor
 function open(pathOrDescriptor, { basePath, format } = {}) {
@@ -193,29 +192,7 @@ class FileRemote extends File {
         if (typeof window === 'undefined') {
           return res.body
         } else {
-          // if in browser, return node like stream so that parsers work
-          // Running in browser: transform browser's ReadableStream to string, then
-          // create a nodejs stream from it:
-          const s = new stream.Readable()
-          // Create a transform stream with our transformer
-          const ts = new TransformStream(new Uint8ArrayToStringsTransformer())
-          // Apply our Transformer on the ReadableStream to create a stream of strings
-          const lineStream = res.body.pipeThrough(ts)
-          // Read the stream of strings
-          const reader = lineStream.getReader()
-          let lineCounter = 0
-          while (true) {
-            const { done, value } = await reader.read()
-            lineCounter += 1
-            if (done || (lineCounter > size && size !== 0)) {
-              reader.cancel()
-              break
-            }
-            // Write each string line to our nodejs stream
-            s.push(value + '\r\n')
-          }
-          s.push(null)
-          return s
+          return await browser.toNodeStream(res, size)
         }
       } else {
         throw new Error(
