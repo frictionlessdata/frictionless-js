@@ -1,5 +1,6 @@
 // File and Dataset objects
 const crypto = require('crypto')
+const CryptoJS = require('crypto-js')
 const fs = require('fs')
 const path = require('path')
 const stream = require('stream')
@@ -26,6 +27,11 @@ const browser = require('./browser-utils/index')
 // create a File from a pathOrDescriptor
 function open(pathOrDescriptor, { basePath, format } = {}) {
   let descriptor = null
+
+  if (browser.checkFileFromBrowser(pathOrDescriptor)) {
+    return new FileInterface(pathOrDescriptor) 
+  }
+
   if (lodash.isPlainObject(pathOrDescriptor)) {
     descriptor = lodash.cloneDeep(pathOrDescriptor)
     // NB: data must come first - we could have data and path in which path
@@ -170,20 +176,6 @@ class FileInterface extends File {
 
       reader.readAsArrayBuffer(this.descriptor);
     });
-  }
-
-  // return the content as a text
-  contentAsText() {
-      
-    let reader = new FileReader();
-    
-    reader.readAsText(this.descriptor);
-  
-    reader.onerror = function() {
-      throw new Error(`${reader.error}`);
-    };
-
-    return reader.result;
   }
 }
 
@@ -648,6 +640,7 @@ module.exports = {
   FileLocal,
   FileRemote,
   FileInline,
+  FileInterface,
   parsePath,
   parseDatasetIdentifier,
   isUrl,
