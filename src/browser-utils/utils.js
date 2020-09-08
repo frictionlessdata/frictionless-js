@@ -46,11 +46,11 @@ const toNodeStream = async (res, size) => {
   return nodeStream
 }
 
-const checkFileFromBrowser = (file) => {
+const isFileFromBrowser = (file) => {
   return file instanceof File
 }
 
 module.exports = {
   toNodeStream: toNodeStream,
-  checkFileFromBrowser: checkFileFromBrowser,
+  isFileFromBrowser: isFileFromBrowser,
 }

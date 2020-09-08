@@ -28,7 +28,7 @@ const browser = require('./browser-utils/index')
 function open(pathOrDescriptor, { basePath, format } = {}) {
   let descriptor = null
 
-  if (browser.checkFileFromBrowser(pathOrDescriptor)) {
+  if (browser.isFileFromBrowser(pathOrDescriptor)) {
     return new FileInterface(pathOrDescriptor) 
   }
 
