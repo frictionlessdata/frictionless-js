@@ -25,15 +25,16 @@
   },
   "homepage": "https://github.com/datopian/data.js#readme",
   "devDependencies": {
-    "ava": "^0.21.0",
-    "nock": "^9.0.14",
-    "nyc": "^14.1.1",
-    "xo": "^0.18.2",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12",
     "@babel/core": "^7.7.2",
     "@babel/preset-env": "^7.7.1",
-    "babel-loader": "^8.0.6"
+    "ava": "^0.21.0",
+    "babel-loader": "^8.0.6",
+    "nock": "^9.0.14",
+    "nyc": "^14.1.1",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "browser-env": "^3.3.0",
+    "xo": "^0.18.2"
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
