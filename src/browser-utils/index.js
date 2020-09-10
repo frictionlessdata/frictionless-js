@@ -2,5 +2,7 @@ if (typeof window !== 'undefined') module.exports = { ...require('./utils') }
 else
   module.exports = {
     toNodeStream: (res, size) => {},
-    checkFileFromBrowser: (file) => {},
+    isFileFromBrowser: (file) => {},
+    readCSV: (file) => {},
+    readChunked: (file, chunkCallback, endCallback) => {},
   }
