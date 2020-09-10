@@ -5,11 +5,9 @@ describe('FileInterface', function () {
     const file = new data.open(
       new File(
         [
-          `
-number,string,boolean
+          `number,string,boolean
 1,two,true
-3,four,false
-            `,
+3,four,false`,
         ],
         'sample.csv',
         { type: 'text/csv' }
@@ -41,8 +39,7 @@ number,string,boolean
           `
 number,string,boolean
 1,two,true
-3,four,false
-            `,
+3,four,false`,
         ],
         'sample.csv',
         { type: 'text/csv' }
