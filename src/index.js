@@ -111,6 +111,12 @@ class File {
   }
 
   async addSchema() {
+    if (this.displayName === 'FileInterface') {
+      // tested with big file 1.9Gb 
+      this.descriptor.data = await browser.readCSV(this.descriptor); 
+      this.descriptor.schema = await infer(this.descriptor.data)
+      return
+    }
     // Ensure file is tabular
     if (knownTabularFormats.indexOf(this.descriptor.format) === -1) {
       throw new Error('File is not in known tabular format.')
@@ -119,6 +125,7 @@ class File {
       this.descriptor.schema = await infer(this.descriptor.data)
       return
     }
+    
     // Get parserOptions so we can use it when "infering" schema:
     const parserOptions = await guessParseOptions(this)
     // We also need to include parserOptions in "dialect" property of descriptor:
@@ -155,17 +162,30 @@ class FileInterface extends File {
     return this.descriptor.name;
   }
 
-  // call content function and generate MD5 hash from this content
-  async hash() {
-    const content = await this.contentArrayBuffer()
-    const wordArray = CryptoJS.lib.WordArray.create(content);
-
-    const hash = CryptoJS.MD5(wordArray).toString()
-    return hash;
+  // call content function and generate MD5 hash from this content 
+  // tested with big file 1.9Gb 
+  async hash(cbProgress) {
+    return new Promise((resolve, reject) => {
+      let md5 = CryptoJS.algo.MD5.create();
+      browser.readChunked(this.descriptor, (chunk, offs, total) => {
+        md5.update(CryptoJS.enc.Latin1.parse(chunk));
+        if (cbProgress) {
+          cbProgress(offs / total);
+        }
+      }, err => {
+        if (err) {
+          reject(err);
+        } else {
+          // TODO: Handle errors
+          let hash = md5.finalize();
+          let hashHex = hash.toString(CryptoJS.enc.Hex);
+          resolve(hashHex);
+        }
+      });
+    });
   }
 
-  // return the content as an array buffer
-  async contentArrayBuffer() {
+  async buffer() {
     return new Promise((resolve, reject) => {
       let reader = new FileReader();
 
@@ -173,7 +193,7 @@ class FileInterface extends File {
         resolve(event.target.result);
       };
       reader.onerror = reject;
-
+      
       reader.readAsArrayBuffer(this.descriptor);
     });
   }
