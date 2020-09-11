@@ -490,3 +490,5 @@ test('Dataset.addResource method works', t => {
   t.is(dataset.resources.length, 2)
   t.is(dataset.descriptor.resources.length, 2)
 })
+
+module.exports.testFileStream = testFileStream;

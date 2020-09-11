@@ -1,5 +1,6 @@
 // File and Dataset objects
 const crypto = require('crypto')
+const CryptoJS = require('crypto-js')
 const fs = require('fs')
 const path = require('path')
 const stream = require('stream')
@@ -26,6 +27,11 @@ const browser = require('./browser-utils/index')
 // create a File from a pathOrDescriptor
 function open(pathOrDescriptor, { basePath, format } = {}) {
   let descriptor = null
+
+  if (browser.isFileFromBrowser(pathOrDescriptor)) {
+    return new FileInterface(pathOrDescriptor) 
+  }
+
   if (lodash.isPlainObject(pathOrDescriptor)) {
     descriptor = lodash.cloneDeep(pathOrDescriptor)
     // NB: data must come first - we could have data and path in which path
@@ -105,6 +111,12 @@ class File {
   }
 
   async addSchema() {
+    if (this.displayName === 'FileInterface') {
+      // tested with big file 1.9Gb 
+      this.descriptor.data = await browser.readCSV(this.descriptor); 
+      this.descriptor.schema = await infer(this.descriptor.data)
+      return
+    }
     // Ensure file is tabular
     if (knownTabularFormats.indexOf(this.descriptor.format) === -1) {
       throw new Error('File is not in known tabular format.')
@@ -113,6 +125,7 @@ class File {
       this.descriptor.schema = await infer(this.descriptor.data)
       return
     }
+    
     // Get parserOptions so we can use it when "infering" schema:
     const parserOptions = await guessParseOptions(this)
     // We also need to include parserOptions in "dialect" property of descriptor:
@@ -123,6 +136,66 @@ class File {
     // Now let's get a stream from file and infer schema:
     let thisFileStream = await this.stream({ size: 100 })
     this.descriptor.schema = await infer(thisFileStream, parserOptions)
+  }
+}
+
+class FileInterface extends File {
+
+  get displayName() {
+    return "FileInterface";
+  }
+
+  // create and return a path url
+  get path() {
+    return  URL.createObjectURL(this.descriptor);
+  }
+
+  get encoding() {
+    return DEFAULT_ENCODING;
+  }
+
+  get size() {
+    return this.descriptor.size;
+  }
+
+  get fileName() {
+    return this.descriptor.name;
+  }
+
+  // call content function and generate MD5 hash from this content 
+  // tested with big file 1.9Gb 
+  async hash(cbProgress) {
+    return new Promise((resolve, reject) => {
+      let md5 = CryptoJS.algo.MD5.create();
+      browser.readChunked(this.descriptor, (chunk, offs, total) => {
+        md5.update(CryptoJS.enc.Latin1.parse(chunk));
+        if (cbProgress) {
+          cbProgress(offs / total);
+        }
+      }, err => {
+        if (err) {
+          reject(err);
+        } else {
+          // TODO: Handle errors
+          let hash = md5.finalize();
+          let hashHex = hash.toString(CryptoJS.enc.Hex);
+          resolve(hashHex);
+        }
+      });
+    });
+  }
+
+  async buffer() {
+    return new Promise((resolve, reject) => {
+      let reader = new FileReader();
+
+      reader.onload = (event) => {
+        resolve(event.target.result);
+      };
+      reader.onerror = reject;
+      
+      reader.readAsArrayBuffer(this.descriptor);
+    });
   }
 }
 
@@ -587,6 +660,7 @@ module.exports = {
   FileLocal,
   FileRemote,
   FileInline,
+  FileInterface,
   parsePath,
   parseDatasetIdentifier,
   isUrl,
