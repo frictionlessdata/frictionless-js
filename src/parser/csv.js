@@ -24,6 +24,8 @@ const guessParseOptions = async (file) => {
   if (file.displayName === 'FileLocal') {
     const stream = await file.stream({ end: 50000 })
     text = await toString(stream)
+  } else if (file.displayName === 'FileInterface') {
+    text = await file.descriptor.text()
   } else if (file.displayName === 'FileRemote') {
     const stream = await file.stream({ size: 100 })
     let bytes = 0
