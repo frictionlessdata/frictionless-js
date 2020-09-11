@@ -152,7 +152,7 @@ class FileInterface extends File {
 
   /**
    *
-   * If the size is not provided then will read whole file
+   * If the size is -1 then will read whole file
    */
   stream({ size } = {}) {
     size = size === -1 ? this.size : size || 0

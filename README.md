@@ -416,16 +416,29 @@ Requirements:
 * NodeJS >= v8.10.0
 * NPM >= v5.2.0
 
+
+### Test
+
+We have two type of tests Karma based for browser testing and Ava.js based for Node. All node tests are in `/test` folder. Since Ava.js is sensitive test namings, we have separate folder `/browser-test` for only Karma.
+
+- To run browser test, first you need to build the lib in order to have the bundle in `/dist` folder. Run: `yarn build`, then for browser testing `yarn test:browser`, this will run Karma tests
+- To test in Node: `yarn test:node`
+- To run all tests including Node and browser run `yarn test`
+- To watch Node test run: `yarn test:node:watch`
+
 ### Setup
 
 1. Git clone the repo
 2. Install dependencies: `yarn`
-3. Run tests: `yarn test`
-4. Do some dev work
-  * While doing dev, you can run tests in a watch mode: `yarn test:watch`
-5. Once done, make sure tests are passing
-6. Compile ES2015+ syntax so that the code works in current browsers: `yarn compile`
+3. To make the browser test work, first run the build: `yarn build`
+4. Run tests: `yarn test`
+5. Do some dev work
+6. Once done, make sure tests are passing. Then build distribution version of the app - `yarn build`.
+
+   Run `yarn build` to compile using webpack for different browser targets. To watch the build run: `yarn build:watch`.
+
 7. Now proceed to "Deployment" stage
+
 
 ### Deployment
 

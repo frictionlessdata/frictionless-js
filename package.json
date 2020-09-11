@@ -2,18 +2,18 @@
   "name": "data.js",
   "version": "0.12.11",
   "description": "",
-  "main": "lib/index.js",
+  "main": "dist/datajs.umd.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "nyc ava && yarn test:browser",
+    "test": "yarn test:node && yarn test:browser",
     "test:browser": "karma start karma.conf.js --browsers=ChromeHeadless",
-    "test:watch": "ava --watch",
+    "test:node": "nyc ava",
+    "test:node:watch": "ava --watch",
     "lint": "xo --quiet",
     "build": "rm -rf dist/ && webpack",
-    "build:watch": "webpack --watch",
-    "compile": "npx babel src --out-dir lib"
+    "build:watch": "webpack --watch"
   },
   "repository": {
     "type": "git",
