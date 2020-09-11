@@ -36,16 +36,20 @@ describe('FileInterface', function () {
   })
 
   it('rows()', async () => {
-    debugger
     const file = new data.open(genFile())
 
-    const rowStream = await file.rows({ size: -1 })
-    const rows = await toArray(rowStream)
+    let rowStream = await file.rows({ size: -1 })
+    let rows = await toArray(rowStream)
     expect(rows[0]).toEqual(['number', 'string', 'boolean'])
     expect(rows[1]).toEqual(['1', 'two', 'true'])
+
+    rowStream = await file.rows({ size: 1 })
+    rows = await toArray(rowStream)
+    expect(rows[0]).toEqual(['number', 'string', 'boolean'])
+    expect(rows[1]).toEqual(undefined)
   })
 
-  it('rows()', async () => {
+  it('stream()', async () => {
     debugger
     const file = new data.open(genFile())
 

@@ -156,10 +156,7 @@ class FileInterface extends File {
    */
   stream({ size } = {}) {
     size = size === -1 ? this.size : size || 0
-    return browser.toNodeStream(
-      this.descriptor.slice(0, size).stream().getReader(),
-      size
-    )
+    return browser.toNodeStream(this.descriptor.stream().getReader(), size)
   }
 
   buffer(size) {
