@@ -1,6 +1,5 @@
 // File and Dataset objects
 const crypto = require('crypto')
-const CryptoJS = require('crypto-js')
 const fs = require('fs')
 const path = require('path')
 const stream = require('stream')
@@ -29,7 +28,7 @@ function open(pathOrDescriptor, { basePath, format } = {}) {
   let descriptor = null
 
   if (browser.isFileFromBrowser(pathOrDescriptor)) {
-    return new FileInterface(pathOrDescriptor) 
+    return new FileInterface(pathOrDescriptor)
   }
 
   if (lodash.isPlainObject(pathOrDescriptor)) {
@@ -111,12 +110,6 @@ class File {
   }
 
   async addSchema() {
-    if (this.displayName === 'FileInterface') {
-      // tested with big file 1.9Gb 
-      this.descriptor.data = await browser.readCSV(this.descriptor); 
-      this.descriptor.schema = await infer(this.descriptor.data)
-      return
-    }
     // Ensure file is tabular
     if (knownTabularFormats.indexOf(this.descriptor.format) === -1) {
       throw new Error('File is not in known tabular format.')
@@ -125,7 +118,7 @@ class File {
       this.descriptor.schema = await infer(this.descriptor.data)
       return
     }
-    
+
     // Get parserOptions so we can use it when "infering" schema:
     const parserOptions = await guessParseOptions(this)
     // We also need to include parserOptions in "dialect" property of descriptor:
@@ -140,62 +133,56 @@ class File {
 }
 
 class FileInterface extends File {
-
+  constructor(descriptor, { basePath } = {}) {
+    super(descriptor, { basePath })
+    this._descriptor.format = 'csv'
+  }
   get displayName() {
-    return "FileInterface";
+    return 'FileInterface'
   }
 
   // create and return a path url
   get path() {
-    return  URL.createObjectURL(this.descriptor);
+    return URL.createObjectURL(this.descriptor)
   }
 
   get encoding() {
-    return DEFAULT_ENCODING;
+    return this._encoding || DEFAULT_ENCODING
+  }
+
+  /**
+   *
+   * If the size is not provided then will read whole file
+   */
+  stream({ size } = {}) {
+    size = size === -1 ? this.size : size || 0
+    return browser.toNodeStream(
+      this.descriptor.slice(0, size).stream().getReader(),
+      size
+    )
+  }
+
+  buffer(size) {
+    size = size === -1 ? this.size : size || 0
+    return this.descriptor.arrayBuffer()
   }
 
   get size() {
-    return this.descriptor.size;
+    return this.descriptor.size
   }
 
   get fileName() {
-    return this.descriptor.name;
+    return this.descriptor.name
   }
 
-  // call content function and generate MD5 hash from this content 
-  // tested with big file 1.9Gb 
-  async hash(cbProgress) {
-    return new Promise((resolve, reject) => {
-      let md5 = CryptoJS.algo.MD5.create();
-      browser.readChunked(this.descriptor, (chunk, offs, total) => {
-        md5.update(CryptoJS.enc.Latin1.parse(chunk));
-        if (cbProgress) {
-          cbProgress(offs / total);
-        }
-      }, err => {
-        if (err) {
-          reject(err);
-        } else {
-          // TODO: Handle errors
-          let hash = md5.finalize();
-          let hashHex = hash.toString(CryptoJS.enc.Hex);
-          resolve(hashHex);
-        }
-      });
-    });
+  async hash() {
+    const text = await this.descriptor.text()
+    return crypto.createHash('md5').update(text).digest('base64')
   }
 
-  async buffer() {
-    return new Promise((resolve, reject) => {
-      let reader = new FileReader();
-
-      reader.onload = (event) => {
-        resolve(event.target.result);
-      };
-      reader.onerror = reject;
-      
-      reader.readAsArrayBuffer(this.descriptor);
-    });
+  async hashSha256() {
+    const text = await this.descriptor.text()
+    return crypto.createHash('sha256').update(text).digest('base64')
   }
 }
 
@@ -265,7 +252,7 @@ class FileRemote extends File {
         if (typeof window === 'undefined') {
           return res.body
         } else {
-          return await browser.toNodeStream(res, size)
+          return await browser.toNodeStream(res.body.getReader(), size)
         }
       } else {
         throw new Error(
