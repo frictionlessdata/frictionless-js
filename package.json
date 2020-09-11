@@ -2,7 +2,7 @@
   "name": "data.js",
   "version": "0.12.11",
   "description": "",
-  "main": "lib/index.js",
+  "main": "dist/datajs.umd.js",
   "directories": {
     "test": "test"
   },
@@ -13,8 +13,7 @@
     "test:node:watch": "ava --watch",
     "lint": "xo --quiet",
     "build": "rm -rf dist/ && webpack",
-    "build:watch": "webpack --watch",
-    "compile": "npx babel src --out-dir lib"
+    "build:watch": "webpack --watch"
   },
   "repository": {
     "type": "git",

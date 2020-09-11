@@ -433,16 +433,11 @@ We have two type of tests Karma based for browser testing and Ava.js based for N
 3. To make the browser test work, first run the build: `yarn build`
 4. Run tests: `yarn test`
 5. Do some dev work
-6. Once done, make sure tests are passing
+6. Once done, make sure tests are passing. Then build distribution version of the app - `yarn build`.
 
-   TODO - I think we don't need `yarn compile`, instead run `yarn build` to gen bundles in `/dist` folder.
-   If need then how we can use `/lib` in the browser?
+   Run `yarn build` to compile using webpack for different browser targets. To watch the build run: `yarn build:watch`.
 
-   6.1 Run `yarn build` to compile using webpack for different browser targets
-   6.2 To watch the build run: `yarn build:watch`
-
-7. Compile ES2015+ syntax so that the code works in current browsers: `yarn compile`
-8. Now proceed to "Deployment" stage
+7. Now proceed to "Deployment" stage
 
 
 ### Deployment
