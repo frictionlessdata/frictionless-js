@@ -110,13 +110,24 @@ class File {
   }
 
   async addSchema() {
-    // Ensure file is tabular
-    if (knownTabularFormats.indexOf(this.descriptor.format) === -1) {
-      throw new Error('File is not in known tabular format.')
-    }
     if (this.displayName === 'FileInline') {
       this.descriptor.schema = await infer(this.descriptor.data)
       return
+    }
+
+    // Try to infer schema from sample data if given file is xlsx
+    if (this.descriptor.format === 'xlsx' && this.descriptor.sample) {
+      let headers = 1
+      if (lodash.isPlainObject(this.descriptor.sample[0])) {
+        headers = Object.keys(this.descriptor.sample[0])
+      }
+      this.descriptor.schema = await infer(this.descriptor.sample, {headers})
+      return
+    }
+
+    // Ensure file is tabular
+    if (knownTabularFormats.indexOf(this.descriptor.format) === -1) {
+      throw new Error('File is not in known tabular format.')
     }
 
     // Get parserOptions so we can use it when "infering" schema:
