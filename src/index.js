@@ -146,8 +146,9 @@ class File {
 class FileInterface extends File {
   constructor(descriptor, { basePath } = {}) {
     super(descriptor, { basePath })
-    this._descriptor.format = 'csv'
+    this._descriptor.format = descriptor.name.split('.').pop() || ''
   }
+
   get displayName() {
     return 'FileInterface'
   }
