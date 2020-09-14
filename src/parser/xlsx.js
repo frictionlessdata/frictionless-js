@@ -6,8 +6,7 @@ const { getParseOptions } = require('./csv')
 
 const xlsxParser = async (file, keyed = false, sheetIdxOrName = 0) => {
   let buffer
-  if (typeof window === 'undefined') {
-    // Not in browser so 'buffer' is available
+  if (typeof window === 'undefined' || file.displayName === 'FileInterface') {
     buffer = await file.buffer
   } else {
     // Running in browser
