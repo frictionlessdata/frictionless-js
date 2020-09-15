@@ -59,7 +59,7 @@ describe('FileInterface', function () {
     expect(out.toString().indexOf('number,string,boolean')).toBeGreaterThan(-1)
 
     // Test buffer
-    const buffer = await file.buffer(-1)
+    const buffer = await file.buffer
     const text = new TextDecoder('utf-8').decode(buffer)
     expect(text.slice(0, 21)).toBe('number,string,boolean')
   })

@@ -135,7 +135,7 @@ const stream = await file.stream()
 const rows = await resource.rows()
 
 // entire file as a buffer (be careful with large files!)
-const buffer = await resource.buffer()
+const buffer = await resource.buffer
 ```
 
 With a Dataset:
@@ -272,7 +272,7 @@ Get readable stream
 
 #### buffer
 
-`File.buffer()`
+`File.buffer`
 
 Get this file as a buffer (async)
 
