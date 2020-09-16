@@ -29,8 +29,10 @@ describe('FileInterface', function () {
 
     const hash = await file.hash()
     const hashSha256 = await file.hashSha256()
-    expect(hash).toBe('sGYdlWZJioAPv5U2XOKHRw==')
-    expect(hashSha256).toBe('2dR7kKyWB8URH/moOqN7wQ4FjOYgbAC2YmreCReE4Jg=')
+    expect(hash).toBe('b0661d9566498a800fbf95365ce28747')
+    expect(hashSha256).toBe(
+      'd9d47b90ac9607c5111ff9a83aa37bc10e058ce6206c00b6626ade091784e098'
+    )
     expect(file.displayName).toBe('FileInterface')
     expect(file.size).toBe(46)
   })

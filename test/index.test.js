@@ -196,7 +196,7 @@ test('parsePath function with remote url without conventional filename', t => {
 const testFile = async (t, file) => {
   t.is(file.path, 'test/fixtures/sample.csv')
   t.is(file.size, 46)
-  t.is(file.hash, 'sGYdlWZJioAPv5U2XOKHRw==')
+  t.is(file.hash, 'b0661d9566498a800fbf95365ce28747')
   await testFileStream(t, file)
 }
 
