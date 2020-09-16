@@ -185,12 +185,12 @@ class FileInterface extends File {
 
   async hash() {
     const text = await this.descriptor.text()
-    return crypto.createHash('md5').update(text).digest('base64')
+    return crypto.createHash('md5').update(text).digest('hex')
   }
 
   async hashSha256() {
     const text = await this.descriptor.text()
-    return crypto.createHash('sha256').update(text).digest('base64')
+    return crypto.createHash('sha256').update(text).digest('hex')
   }
 }
 
@@ -217,7 +217,7 @@ class FileLocal extends File {
     return crypto
       .createHash('md5')
       .update(fs.readFileSync(this.path))
-      .digest('base64')
+      .digest('hex')
   }
 
   get encoding() {
@@ -302,7 +302,7 @@ class FileInline extends File {
   }
 
   get hash() {
-    return crypto.createHash('md5').update(this._buffer).digest('base64')
+    return crypto.createHash('md5').update(this._buffer).digest('hex')
   }
 
   stream() {
