@@ -2,7 +2,7 @@
   "name": "data.js",
   "version": "0.13.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/datajs.umd.js",
   "directories": {
     "test": "test"
   },
@@ -13,7 +13,6 @@
     "test:node:watch": "ava --watch",
     "lint": "xo --quiet",
     "build": "rm -rf dist/ && webpack",
-    "nodebuild": "rm -rf dist/ && babel ./src -d ./dist --no-comments",
     "build:watch": "webpack --watch"
   },
   "repository": {
@@ -27,13 +26,10 @@
   },
   "homepage": "https://github.com/datopian/data.js#readme",
   "devDependencies": {
-    "@babel/cli": "^7.10.5",
-    "@babel/core": "^7.10.5",
-    "@babel/plugin-transform-modules-umd": "^7.10.4",
-    "@babel/preset-env": "^7.10.4",
-    "@babel/register": "^7.10.1",
-    "babel-loader": "^8.1.0",
+    "@babel/core": "^7.7.2",
+    "@babel/preset-env": "^7.7.1",
     "ava": "^0.21.0",
+    "babel-loader": "^8.0.6",
     "browser-env": "^3.3.0",
     "nock": "^9.0.14",
     "nyc": "^14.1.1",

@@ -38,4 +38,3 @@ module.exports = [
   createConfig('amd'),
   createConfig('umd'),
 ]
-

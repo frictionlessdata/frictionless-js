@@ -118,9 +118,9 @@ test('parseDatasetIdentifier function with datahub url', async t => {
   nock('https://api.datahub.io')
     .persist()
     .get('/resolver/resolve?path=core/co2-ppm')
-    .reply(200, { packageid: 'co2-ppm', userid: 'core' })
+    .reply(200, {packageid: 'co2-ppm', userid: 'core'})
     .get('/source/core/co2-ppm/successful')
-    .reply(200, { id: 'core/co2-ppm/3' })
+    .reply(200, {id: 'core/co2-ppm/3'})
   const url_ = 'https://datahub.io/core/co2-ppm'
   const res = await data.parseDatasetIdentifier(url_)
   const exp = {
@@ -138,9 +138,9 @@ test('parseDatasetIdentifier function with datahub url and id different from use
   nock('https://api.datahub.io')
     .persist()
     .get('/resolver/resolve?path=username/dataset')
-    .reply(200, { packageid: 'dataset', userid: 'userid' })
+    .reply(200, {packageid: 'dataset', userid: 'userid'})
     .get('/source/userid/dataset/successful')
-    .reply(200, { id: 'userid/dataset/2' })
+    .reply(200, {id: 'userid/dataset/2'})
   const url_ = 'https://datahub.io/username/dataset'
   const res = await data.parseDatasetIdentifier(url_)
   const exp = {
@@ -217,10 +217,10 @@ const testFileStream = async (t, file) => {
   t.deepEqual(rows[1], ['1', 'two', 'true'])
 
   // Test rows with keyed option (rows as objects)
-  const rowStreamKeyed = await file.rows({ keyed: true })
+  const rowStreamKeyed = await file.rows({keyed: true})
   const rowsAsObjects = await toArray(rowStreamKeyed)
-  t.deepEqual(rowsAsObjects[0], { number: '1', string: 'two', boolean: 'true' })
-  t.deepEqual(rowsAsObjects[1], { number: '3', string: 'four', boolean: 'false' })
+  t.deepEqual(rowsAsObjects[0], {number: '1', string: 'two', boolean: 'true'})
+  t.deepEqual(rowsAsObjects[1], {number: '3', string: 'four', boolean: 'false'})
 }
 
 // testing the stream or the buffer for non-utf8 encoding will not work,
@@ -243,13 +243,13 @@ test('File class with path', async t => {
 })
 
 test('File class with descriptor', async t => {
-  const descriptor = { path: 'test/fixtures/sample.csv' }
+  const descriptor = {path: 'test/fixtures/sample.csv'}
   const obj2 = data.open(descriptor)
   await testFile(t, obj2)
 })
 
 test('File with path and basePath', t => {
-  const obj3 = data.open('sample.csv', { basePath: 'test/fixtures' })
+  const obj3 = data.open('sample.csv', {basePath: 'test/fixtures'})
   testFile(t, obj3)
 })
 
@@ -257,7 +257,7 @@ test('File with inline JS data', async t => {
   const inlineData = {
     name: 'abc'
   }
-  const file = data.open({ data: inlineData })
+  const file = data.open({data:inlineData})
   t.is(file.size, 14)
   const stream = await file.stream()
   const out = await toArray(stream)
@@ -286,7 +286,7 @@ test('File with inline array data', async t => {
   ]
   // To make it testable with testFile we add the path but it is not needed
   const file = data.open({
-    data: inlineData
+    data:inlineData
   })
   t.is(file.size, 63)
   const stream = await file.stream()
