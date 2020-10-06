@@ -7,7 +7,6 @@ const url = require('url')
 
 // encoding helpers
 const chardet = require('chardet')
-
 const fetch = require('node-fetch')
 const lodash = require('lodash')
 const mime = require('mime-types')
@@ -121,7 +120,7 @@ class File {
       if (lodash.isPlainObject(this.descriptor.sample[0])) {
         headers = Object.keys(this.descriptor.sample[0])
       }
-      this.descriptor.schema = await infer(this.descriptor.sample, {headers})
+      this.descriptor.schema = await infer(this.descriptor.sample, { headers })
       return
     }
 
