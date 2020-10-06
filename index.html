@@ -4,20 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="./index.js"></script>
+    <script src="lib/datajs.web.js"></script>
     <title>Document</title>
 </head>
 
 <body>
+<script>
+    var file = data.open('https://raw.githubusercontent.com/datopian/data.js/master/test/fixtures/sample.csv')
 
-    <script>
-        var file = data.open('https://raw.githubusercontent.com/datopian/data.js/master/test/fixtures/sample.csv')
+    console.log(file.descriptor)
 
-        console.log(file.descriptor)
-
-        console.log(file.size)
-
-    </script>
+</script>
 </body>
 
 </html>

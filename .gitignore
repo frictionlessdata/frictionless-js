@@ -22,3 +22,5 @@ sandbox/*
 .nyc_output
 coverage
 .vscode
+
+index.html

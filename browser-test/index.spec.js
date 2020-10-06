@@ -2,8 +2,7 @@ const toArray = require('stream-to-array')
 
 const genFile = () => {
   return new File(
-    [
-      `number,string,boolean
+    [`number,string,boolean
 1,two,true
 3,four,false
 `,

@@ -9,12 +9,11 @@ const createConfig = (target) => {
     entry: {
       index: `${assetPath}/index.js`,
     },
+    target: target,
     output: {
-      path: path.resolve(__dirname, 'dist'),
+      path: path.resolve(__dirname, 'lib'),
       filename: `datajs.${target}.js`,
-      libraryTarget: target,
       library: 'data',
-      globalObject: `(typeof self !== 'undefined' ? self : this)`,
     },
     module: {
       rules: [
@@ -33,8 +32,8 @@ const createConfig = (target) => {
 }
 
 module.exports = [
-  createConfig('var'),
-  createConfig('commonjs2'),
-  createConfig('amd'),
-  createConfig('umd'),
+  // createConfig('var'),
+  // createConfig('commonjs2'),
+  // createConfig('amd'),
+  createConfig('web'),
 ]
