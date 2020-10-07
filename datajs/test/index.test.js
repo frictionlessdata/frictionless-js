@@ -1,9 +1,7 @@
 const path = require('path')
 const test = require('ava')
 const nock = require('nock')
-
 const toArray = require('stream-to-array')
-
 const data = require('../src/index')
 
 // ====================================
@@ -34,13 +32,13 @@ test('Tests if given path is url or not', t => {
 // isDataset
 
 test('isDataset function works', t => {
-  let pathToDataset = 'test/fixtures/co2-ppm'
+  let pathToDataset = 'datajs/test/fixtures/co2-ppm'
   let res = data.isDataset(pathToDataset)
   t.true(res)
-  pathToDataset = 'test/fixtures/co2-ppm/datapackage.json'
+  pathToDataset = 'datajs/test/fixtures/co2-ppm/datapackage.json'
   res = data.isDataset(pathToDataset)
   t.true(res)
-  const pathToFile = 'test/fixtures/sample.csv'
+  const pathToFile = 'datajs/test/fixtures/sample.csv'
   res = data.isDataset(pathToFile)
   t.false(res)
   let urlToDataset = 'http://test.com/'
@@ -158,7 +156,7 @@ test('parseDatasetIdentifier function with datahub url and id different from use
 // parsePath
 
 test('parsePath function with local path', t => {
-  const path_ = 'test/fixtures/sample.csv'
+  const path_ = 'datajs/test/fixtures/sample.csv'
   const res = data.parsePath(path_)
   t.is(res.path, path_)
   t.is(res.pathType, 'local')
@@ -194,7 +192,7 @@ test('parsePath function with remote url without conventional filename', t => {
 // common method to test all the functionality which we can use for all types
 // of files
 const testFile = async (t, file) => {
-  t.is(file.path, 'test/fixtures/sample.csv')
+  t.is(file.path, 'datajs/test/fixtures/sample.csv')
   t.is(file.size, 46)
   t.is(file.hash, 'b0661d9566498a800fbf95365ce28747')
   await testFileStream(t, file)
@@ -227,7 +225,7 @@ const testFileStream = async (t, file) => {
 // as we moved the stream decoding from the data.js lib,
 // so here we now testing if File.encoding property is correct
 test('cyrillic encoding', async t => {
-  const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
+  const path_ = 'datajs/test/fixtures/sample-cyrillic-encoding.csv'
   const file = await data.open(path_)
   //const buffer = await file.buffer
   //t.is(buffer.toString().slice(0, 12), 'номер, город')
@@ -237,19 +235,19 @@ test('cyrillic encoding', async t => {
 
 test('File class with path', async t => {
   // With path
-  const path_ = 'test/fixtures/sample.csv'
+  const path_ = 'datajs/test/fixtures/sample.csv'
   const res = data.open(path_)
   await testFile(t, res)
 })
 
 test('File class with descriptor', async t => {
-  const descriptor = {path: 'test/fixtures/sample.csv'}
+  const descriptor = {path: 'datajs/test/fixtures/sample.csv'}
   const obj2 = data.open(descriptor)
   await testFile(t, obj2)
 })
 
 test('File with path and basePath', t => {
-  const obj3 = data.open('sample.csv', {basePath: 'test/fixtures'})
+  const obj3 = data.open('sample.csv', {basePath: 'datajs/test/fixtures'})
   testFile(t, obj3)
 })
 
@@ -271,7 +269,7 @@ test('File with inline text (CSV) data', async t => {
 `
   // To make it testable with testFile we add the path but it is not needed
   const file = data.open({
-    path: 'test/fixtures/sample.csv',
+    path: 'datajs/test/fixtures/sample.csv',
     format: 'csv',
     inlineData
   })
@@ -315,7 +313,7 @@ test.serial('File class stream with url', async t => {
 
 test('File class for addSchema method', async t => {
   // with FileLocal
-  let path_ = 'test/fixtures/sample.csv'
+  let path_ = 'datajs/test/fixtures/sample.csv'
   let file = data.open(path_)
   t.is(file.descriptor.schema, undefined)
   await file.addSchema()
@@ -348,13 +346,13 @@ test('File class for addSchema method', async t => {
 })
 
 test('File name has spaces and dots', async t => {
-  let path_ = 'test/fixtures/some file.name.ext'
+  let path_ = 'datajs/test/fixtures/some file.name.ext'
   let file = data.File.load(path_)
   t.is(file.descriptor.name, 'some-file.name')
 })
 
 test('File... classes have displayName method', t => {
-  const fileLocal = data.open('test/fixtures/sample.csv')
+  const fileLocal = data.open('datajs/test/fixtures/sample.csv')
   t.is(fileLocal.displayName, 'FileLocal')
 
   const fileRemote = data.open('https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv')
@@ -377,26 +375,26 @@ test('Dataset constructor works', t => {
 })
 
 test('Dataset with inline README works', async t => {
-  const path = 'test/fixtures/dp-with-inline-readme'
+  const path = 'datajs/test/fixtures/dp-with-inline-readme'
   const dataset = await data.Dataset.load(path)
   t.deepEqual(dataset.identifier.type, 'local')
   t.deepEqual(dataset.readme, 'This is the README')
 })
 
 test('Dataset.load works with co2-ppm', async t => {
-  const path = 'test/fixtures/co2-ppm'
+  const path = 'datajs/test/fixtures/co2-ppm'
   const dataset2 = await data.Dataset.load(path)
   t.deepEqual(dataset2.identifier.type, 'local')
 
   t.is(dataset2.descriptor.name, 'co2-ppm')
   t.is(dataset2.resources.length, 6)
   t.is(dataset2.resources[0].descriptor.name, 'co2-mm-mlo')
-  t.true(dataset2.resources[0].path.includes('test/fixtures/co2-ppm/data/co2-mm-mlo.csv'))
+  t.true(dataset2.resources[0].path.includes('datajs/test/fixtures/co2-ppm/data/co2-mm-mlo.csv'))
   t.true(dataset2.readme.includes('CO2 PPM - Trends in Atmospheric Carbon Dioxide.'))
 })
 
 test('Dataset.load with dir/datapckage.json', async t => {
-  const path = 'test/fixtures/co2-ppm/datapackage.json'
+  const path = 'datajs/test/fixtures/co2-ppm/datapackage.json'
   const dataset = await data.Dataset.load(path)
   t.is(dataset.descriptor.name, 'co2-ppm')
   t.is(dataset.identifier.type, 'local')
@@ -474,7 +472,7 @@ test('Dataset.load with url/datapackage.json', async t => {
 test('Dataset.addResource method works', t => {
   const resourceAsPlainObj = {
     name: 'sample',
-    path: 'test/fixtures/sample.csv',
+    path: 'datajs/test/fixtures/sample.csv',
     format: 'csv'
   }
   const resourceAsFileObj = data.open(resourceAsPlainObj)
