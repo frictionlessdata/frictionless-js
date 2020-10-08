@@ -4,6 +4,13 @@ const nock = require('nock')
 const toArray = require('stream-to-array')
 const data = require('../src/index')
 
+// import path from 'path'
+// import * as test from 'ava'
+// import * as nock from 'nock'
+// import * as toArray from 'stream-to-array'
+// import * as data from '../src/index-r'
+
+
 // ====================================
 // isUrl
 

@@ -1,4 +1,5 @@
-const stream = require('stream')
+import { Readable } from 'stream'
+import {File} from '../file-base'
 
 /**
  * Return node like stream so that parsers work.
@@ -6,10 +7,10 @@ const stream = require('stream')
  * @param {object} reader
  * @param {number} size
  */
-const toNodeStream = async (reader, size) => {
+export const toNodeStream = async (reader, size) => {
   // if in browser, return node like stream so that parsers work
   // Running in browser:
-  const nodeStream = new stream.Readable()
+  const nodeStream = new Readable()
 
   let lineCounter = 0
   let lastString = ''
@@ -44,11 +45,7 @@ const toNodeStream = async (reader, size) => {
   return nodeStream
 }
 
-const isFileFromBrowser = (file) => {
+export const isFileFromBrowser = (file) => {
   return file instanceof File
 }
 
-module.exports = {
-  toNodeStream: toNodeStream,
-  isFileFromBrowser: isFileFromBrowser,
-}

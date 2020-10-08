@@ -24,3 +24,4 @@ coverage
 .vscode
 
 index.html
+datajs/test/_babel*

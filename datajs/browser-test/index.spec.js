@@ -1,5 +1,18 @@
 // const toArray = require('stream-to-array')
 
+// const genFile = () => {
+//   return new File(
+//     [
+//       `number,string,boolean
+// 1,two,true
+// 3,four,false
+// `,
+//     ],
+//     'sample.csv',
+//     { type: 'text/csv' }
+//   )
+// }
+
 // describe('FileInterface', function () {
 //   it('addSchema()', async () => {
 //     const file = new data.open(genFile())
@@ -53,12 +66,3 @@
 //     expect(text.slice(0, 21)).toBe('number,string,boolean')
 //   })
 // })
-
-
-// const genFile = () => {
-//   return new File(
-//     [`number,string,boolean\n1,two,true\n3,four,false`],
-//     'sample.csv',
-//     { type: 'text/csv' }
-//   )
-// }
