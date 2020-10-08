@@ -53,7 +53,7 @@
     "ava": "3.13.0",
     "babel-loader": "^8.1.0",
     "browser-env": "3.3.0",
-    "nock": "13.0.4",
+    "nock": "^9.0.14",
     "nyc": "15.1.0",
     "webpack": "4.44.2",
     "webpack-cli": "3.3.12",

@@ -2,8 +2,9 @@ import { cloneDeep, isPlainObject, isString, isObject } from 'lodash'
 import urljoin from 'url-join'
 import fs from 'fs'
 import path from 'path'
+import fetch from 'node-fetch'
 
-import { parseDatasetIdentifier } from './data'
+import { parseDatasetIdentifier, open } from './data'
 
 
 /**
