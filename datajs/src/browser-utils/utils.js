@@ -47,3 +47,42 @@ export async function toNodeStream(reader, size) {
 export function isFileFromBrowser(file) {
   return file instanceof File
 }
+
+const readChunked = (file, chunkCallback, endCallback) => {
+  let fileSize = file.size
+  let chunkSize = 4 * 1024 * 1024 // 4MB
+  let offset = 0
+
+  let reader = new FileReader()
+  reader.onload = function () {
+    if (reader.error) {
+      endCallback(reader.error || {})
+      return
+    }
+    offset += reader.result.length
+    // callback for handling read chunk
+    // TODO: handle errors
+    chunkCallback(reader.result, offset, fileSize)
+    if (offset >= fileSize) {
+      endCallback(null)
+      return
+    }
+    readNext()
+  }
+
+  reader.onerror = function (err) {
+    endCallback(err || {})
+  }
+
+  function readNext() {
+    let fileSlice = file.slice(offset, offset + chunkSize)
+    reader.readAsBinaryString(fileSlice)
+  }
+  readNext()
+}
+
+module.exports = {
+  toNodeStream: toNodeStream,
+  isFileFromBrowser: isFileFromBrowser,
+  readChunked: readChunked,
+}
