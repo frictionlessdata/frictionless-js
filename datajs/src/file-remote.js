@@ -2,7 +2,8 @@ import urljoin from 'url-join'
 import fetch from 'node-fetch'
 import { File } from './file-base'
 import { isUrl } from './data'
-import { toNodeStream } from './browser-utils/utils'
+import { toNodeStream } from './browser-utils/index'
+
 import { DEFAULT_ENCODING } from './data'
 
 

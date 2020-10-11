@@ -11,7 +11,7 @@ module.exports = function (config) {
     frameworks: ['jasmine', 'browserify'],
 
     // list of files / patterns to load in the browser
-    files: ['datajs/lib/*.js', 'datajs/browser-test/*.js'],
+    files: ['lib/bundle.js', 'datajs/browser-test/*.js'],
 
     // list of files / patterns to exclude
     exclude: [],
@@ -28,7 +28,7 @@ module.exports = function (config) {
     reporters: ['progress'],
 
     // web server port
-    port: 9876,
+    port: 9877,
 
     // enable / disable colors in the output (reporters and logs)
     colors: true,
@@ -48,6 +48,7 @@ module.exports = function (config) {
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: true,
 
+    
     // Concurrency level
     // how many browser should be started simultaneous
     concurrency: Infinity,

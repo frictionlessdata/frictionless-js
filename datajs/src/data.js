@@ -9,7 +9,7 @@ import { xlsxParser } from './parser/xlsx'
 
 // for browser related functions
 // import browser from './browser-utils/index'
-import { isFileFromBrowser } from './browser-utils/utils'
+import { isFileFromBrowser } from './browser-utils/index'
 
 
 import { FileInterface } from './file-base'

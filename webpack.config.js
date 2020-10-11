@@ -11,8 +11,9 @@ const createConfig = (target) => {
     },
     target: target,
     output: {
-      path: path.resolve(__dirname, 'datajs/lib'),
-      filename: `datajs.${target}.js`,
+      path: path.resolve(__dirname, 'lib'),
+      // filename: `datajs.${target}.js`,
+      filename: `bundle.js`,
       library: 'data',
     },
     module: {

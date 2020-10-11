@@ -4,7 +4,8 @@ import toArray from 'stream-to-array'
 import crypto from 'crypto'
 import { isPlainObject } from 'lodash'
 import { guessParseOptions } from './parser/csv'
-import { toNodeStream } from './browser-utils/utils'
+import { toNodeStream } from './browser-utils/index'
+import { open } from './data'
 
 
 /**

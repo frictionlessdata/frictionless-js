@@ -1,5 +1,5 @@
 import { Readable } from 'stream'
-import {File} from '../file-base'
+// import { File } from '../file-base'
 
 /**
  * Return node like stream so that parsers work.
@@ -7,7 +7,7 @@ import {File} from '../file-base'
  * @param {object} reader
  * @param {number} size
  */
-export const toNodeStream = async (reader, size) => {
+export async function toNodeStream(reader, size) {
   // if in browser, return node like stream so that parsers work
   // Running in browser:
   const nodeStream = new Readable()
@@ -45,7 +45,7 @@ export const toNodeStream = async (reader, size) => {
   return nodeStream
 }
 
-export const isFileFromBrowser = (file) => {
+export function isFileFromBrowser(file) {
   return file instanceof File
 }
 
