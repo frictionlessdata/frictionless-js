@@ -1,43 +1,40 @@
 "use strict";
 
-require("core-js/modules/es.object.assign");
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.csvParser = csvParser;
+exports.guessParseOptions = guessParseOptions;
+exports.getParseOptions = getParseOptions;
+exports.Uint8ArrayToStringsTransformer = void 0;
 
-require("core-js/modules/es.promise");
+var _csvParse = _interopRequireDefault(require("csv-parse"));
 
-require("core-js/modules/es.regexp.to-string");
+var _streamToString = _interopRequireDefault(require("stream-to-string"));
 
-require("core-js/modules/es.string.replace");
+var _iconvLite = require("iconv-lite");
 
-require("core-js/modules/es.string.split");
-
-require("core-js/modules/web.dom-collections.iterator");
-
-const parse = require('csv-parse');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const CSVSniffer = require('csv-sniffer')();
 
-const toString = require('stream-to-string');
-
-const iconv = require('iconv-lite');
-
-const csvParser = async function csvParser(file) {
-  let {
-    keyed = false,
-    size = 0
-  } = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+async function csvParser(file, {
+  keyed = false,
+  size = 0
+} = {}) {
   const parseOptions = await getParseOptions(file, keyed);
   let stream = await file.stream({
     size
   });
 
   if (file.descriptor.encoding.toLowerCase().replace('-', '') === 'utf8') {
-    return stream.pipe(parse(parseOptions));
+    return stream.pipe((0, _csvParse.default)(parseOptions));
   } else {
-    return stream.pipe(iconv.decodeStream(file.descriptor.encoding)).pipe(parse(parseOptions));
+    return stream.pipe((0, _iconvLite.decodeStream)(file.descriptor.encoding)).pipe((0, _csvParse.default)(parseOptions));
   }
-};
+}
 
-const guessParseOptions = async file => {
+async function guessParseOptions(file) {
   const possibleDelimiters = [',', ';', ':', '|', '\t', '^', '*', '&'];
   const sniffer = new CSVSniffer(possibleDelimiters);
   let text = '';
@@ -46,7 +43,7 @@ const guessParseOptions = async file => {
     const stream = await file.stream({
       end: 50000
     });
-    text = await toString(stream);
+    text = await (0, _streamToString.default)(stream);
   } else if (file.displayName === 'FileInterface') {
     text = await file.descriptor.text();
   } else if (file.displayName === 'FileRemote') {
@@ -75,9 +72,9 @@ const guessParseOptions = async file => {
     delimiter: results.delimiter,
     quote: results.quoteChar || '"'
   };
-};
+}
 
-const getParseOptions = async (file, keyed) => {
+async function getParseOptions(file, keyed) {
   let parseOptions = {
     columns: keyed ? true : null,
     ltrim: true
@@ -97,7 +94,7 @@ const getParseOptions = async (file, keyed) => {
   }
 
   return parseOptions;
-};
+}
 
 class Uint8ArrayToStringsTransformer {
   constructor() {
@@ -106,7 +103,7 @@ class Uint8ArrayToStringsTransformer {
   }
 
   transform(chunk, controller) {
-    const string = "".concat(this.lastString).concat(this.decoder.decode(chunk));
+    const string = `${this.lastString}${this.decoder.decode(chunk)}`;
     const lines = string.split(/\r\n|[\r\n]/g);
     this.lastString = lines.pop() || '';
 
@@ -123,9 +120,4 @@ class Uint8ArrayToStringsTransformer {
 
 }
 
-module.exports = {
-  csvParser,
-  getParseOptions,
-  guessParseOptions,
-  Uint8ArrayToStringsTransformer
-};
+exports.Uint8ArrayToStringsTransformer = Uint8ArrayToStringsTransformer;

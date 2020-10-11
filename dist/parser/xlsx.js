@@ -1,20 +1,19 @@
 "use strict";
 
-require("core-js/modules/es.promise");
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.xlsxParser = xlsxParser;
 
-const Readable = require('stream').Readable;
+var _stream = require("stream");
 
-const XLSX = require('xlsx');
+var _xlsx = require("xlsx");
 
-const parse = require('csv-parse');
+var _csvParse = _interopRequireDefault(require("csv-parse"));
 
-const {
-  getParseOptions
-} = require('./csv');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const xlsxParser = async function xlsxParser(file) {
-  let keyed = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  let sheetIdxOrName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+async function xlsxParser(file, keyed = false, sheetIdxOrName = 0) {
   let buffer;
 
   if (typeof window === 'undefined' || file.displayName === 'FileInterface') {
@@ -23,7 +22,7 @@ const xlsxParser = async function xlsxParser(file) {
     buffer = await file.browserBuffer;
   }
 
-  const workbook = XLSX.read(buffer, {
+  const workbook = (0, _xlsx.read)(buffer, {
     type: 'buffer'
   });
   let selectedSheetName = sheetIdxOrName;
@@ -33,16 +32,14 @@ const xlsxParser = async function xlsxParser(file) {
   }
 
   const sheet = workbook.Sheets[selectedSheetName];
-  const csv = XLSX.utils.sheet_to_csv(sheet);
-  const stream = new Readable();
+
+  const csv = _xlsx.utils.sheet_to_csv(sheet);
+
+  const stream = new _stream.Readable();
   stream.push(csv);
   stream.push(null);
-  return stream.pipe(parse({
+  return stream.pipe((0, _csvParse.default)({
     columns: keyed ? true : null,
     ltrim: true
   }));
-};
-
-module.exports = {
-  xlsxParser
-};
+}

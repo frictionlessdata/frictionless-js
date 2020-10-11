@@ -1,15 +1,15 @@
 "use strict";
 
-require("core-js/modules/es.promise");
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.toNodeStream = toNodeStream;
+exports.isFileFromBrowser = isFileFromBrowser;
 
-require("core-js/modules/es.string.split");
+var _stream = require("stream");
 
-require("core-js/modules/web.dom-collections.iterator");
-
-const stream = require('stream');
-
-const toNodeStream = async (reader, size) => {
-  const nodeStream = new stream.Readable();
+async function toNodeStream(reader, size) {
+  const nodeStream = new _stream.Readable();
   let lineCounter = 0;
   let lastString = '';
   const decoder = new TextDecoder();
@@ -25,7 +25,7 @@ const toNodeStream = async (reader, size) => {
       break;
     }
 
-    const string = "".concat(lastString).concat(decoder.decode(value));
+    const string = `${lastString}${decoder.decode(value)}`;
     const lines = string.split(/\r\n|[\r\n]/g);
     lastString = lines.pop() || '';
 
@@ -38,13 +38,8 @@ const toNodeStream = async (reader, size) => {
 
   nodeStream.push(null);
   return nodeStream;
-};
+}
 
-const isFileFromBrowser = file => {
+function isFileFromBrowser(file) {
   return file instanceof File;
-};
-
-module.exports = {
-  toNodeStream: toNodeStream,
-  isFileFromBrowser: isFileFromBrowser
-};
+}
