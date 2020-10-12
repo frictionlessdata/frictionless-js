@@ -12,8 +12,16 @@ import { open } from './data'
  * Abstract Base instance of File
  */
 export class File {
-    // 2019-02-05 kept for backwards compatibility (we factored method out as open)
-    // TODO: deprecate this ...
+    /**
+     * Load a file from a path or descriptor. Files source supported are 
+     * local, remote or inline data. 
+     *
+     * @deprecated Use "open" instead
+     * 2019-02-05 kept for backwards compatibility
+     *
+     * @param {array} pathOrDescriptor - digits to multiply
+     * @param {object} options - { basePath, format }
+     */
     static load(pathOrDescriptor, { basePath, format } = {}) {
         return open(pathOrDescriptor, { basePath, format })
     }

@@ -1,5 +1,4 @@
 import { Readable } from 'stream'
-// import { File } from '../file-base'
 
 /**
  * Return node like stream so that parsers work.
@@ -48,4 +47,3 @@ export async function toNodeStream(reader, size) {
 export function isFileFromBrowser(file) {
   return file instanceof File
 }
-
