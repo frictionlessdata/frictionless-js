@@ -1,4 +1,4 @@
-import { DEFAULT_ENCODING, PARSE_DATABASE, KNOWN_TABULAR_FORMAT } from './data'
+aimport { DEFAULT_ENCODING, PARSE_DATABASE, KNOWN_TABULAR_FORMAT } from './data'
 import { infer } from 'tableschema'
 import toArray from 'stream-to-array'
 import crypto from 'crypto'
@@ -13,16 +13,11 @@ import { open } from './data'
  */
 export class File {
     /**
-     * Load a file from a path or descriptor. Files source supported are 
-     * local, remote or inline data. 
-     *
      * @deprecated Use "open" instead
      * 2019-02-05 kept for backwards compatibility
-     *
-     * @param {array} pathOrDescriptor - digits to multiply
-     * @param {object} options - { basePath, format }
      */
     static load(pathOrDescriptor, { basePath, format } = {}) {
+        console.warn("WARNING! Depreciated function called. Function 'load' has been deprecated, please use the 'open' function instead!")
         return open(pathOrDescriptor, { basePath, format })
     }
 
