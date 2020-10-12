@@ -3,7 +3,6 @@ const CSVSniffer = require('csv-sniffer')()
 import toString from 'stream-to-string'
 import { decodeStream } from 'iconv-lite'
 
-
 export async function csvParser(file, { keyed = false, size = 0 } = {}) {
   const parseOptions = await getParseOptions(file, keyed)
   let stream = await file.stream({ size })
@@ -21,15 +20,19 @@ export async function guessParseOptions(file) {
   const possibleDelimiters = [',', ';', ':', '|', '\t', '^', '*', '&']
   const sniffer = new CSVSniffer(possibleDelimiters)
   let text = ''
+
   // We assume that reading first 50K bytes is enough to detect delimiter, line terminator etc.:
   if (file.displayName === 'FileLocal') {
     const stream = await file.stream({ end: 50000 })
     text = await toString(stream)
+
   } else if (file.displayName === 'FileInterface') {
     text = await file.descriptor.text()
+
   } else if (file.displayName === 'FileRemote') {
     const stream = await file.stream({ size: 100 })
     let bytes = 0
+
     await new Promise((resolve, reject) => {
       stream
         .on('data', (chunk) => {
@@ -46,30 +49,35 @@ export async function guessParseOptions(file) {
         })
     })
   }
+
   const results = sniffer.sniff(text)
+
   return {
     delimiter: results.delimiter,
     quote: results.quoteChar || '"',
   }
 }
 
-
 export async function getParseOptions(file, keyed) {
   let parseOptions = {
     columns: keyed ? true : null,
     ltrim: true,
   }
+
   if (file.descriptor.dialect) {
     parseOptions.delimiter = file.descriptor.dialect.delimiter || ','
     parseOptions.rowDelimiter = file.descriptor.dialect.lineTerminator
     parseOptions.quote = file.descriptor.dialect.quoteChar || '"'
+
     if (
       file.descriptor.dialect.doubleQuote !== undefined &&
       file.descriptor.dialect.doubleQuote === false
     ) {
       parseOptions.escape = ''
     }
+
   } else {
+    
     const guessedParseOptions = await guessParseOptions(file)
     // Merge guessed parse options with default one:
     parseOptions = Object.assign(parseOptions, guessedParseOptions)
@@ -77,7 +85,6 @@ export async function getParseOptions(file, keyed) {
 
   return parseOptions
 }
-
 
 /**
  * This transformer takes binary Uint8Array chunks from a `fetch`
@@ -125,4 +132,3 @@ export class Uint8ArrayToStringsTransformer {
     }
   }
 }
-

@@ -8,7 +8,6 @@ import { csvParser } from './parser/csv'
 import { xlsxParser } from './parser/xlsx'
 
 // for browser related functions
-// import browser from './browser-utils/index'
 import { isFileFromBrowser } from './browser-utils/index'
 
 import { FileInterface } from './file-base'
@@ -30,6 +29,44 @@ export const PARSE_DATABASE = {
 export const KNOWN_TABULAR_FORMAT = ['csv', 'tsv', 'dsv']
 
 
+/**
+ * Load a file from a path or descriptor. Files source supported are
+ * local, remote or inline data.
+ *
+ * @param {array} pathOrDescriptor - A source to load data from. Can be a local or remote file path, can be a
+ * raw data object with the format:
+ * {
+ *  name: 'mydata',
+ *  data: { // can be any javascript object, array or string
+ *          a: 1,
+ *          b: 2
+ *      }
+ * }
+ *
+ * Files can also be loaded with a descriptor object. This allows more fine-grained configuration. The
+ * descriptor should follow the Frictionless Data Resource model
+ * http://specs.frictionlessdata.io/data-resource/
+ *
+ * {
+ *   file or url path
+ *     path: 'https://example.com/data.csv',
+ *     // a Table Schema - https://specs.frictionlessdata.io/table-schema/
+ *     schema: {
+ *      fields: [
+ *            ...
+ *           ]
+ *      }
+ *     // CSV dialect - https://specs.frictionlessdata.io/csv-dialect/
+ *     dialect: {
+ *     // this is tab separated CSV/DSV
+ *     delimiter: '\t'
+ *    }
+ * }
+ *
+ * @param {object} options - { basePath, format } Use basepath in cases where you want to create
+ *  a File with a path that is relative to a base directory / path e.g:
+ *  const file = data.open('data.csv', {basePath: '/my/base/path'})
+ */
 export function open(pathOrDescriptor, { basePath, format } = {}) {
   let descriptor = null
 
@@ -66,10 +103,11 @@ export function open(pathOrDescriptor, { basePath, format } = {}) {
 }
 
 /**
- *
- * @param {*} path_
- * @param {*} basePath
- * @param {*} format
+ * Parse a data source path into a descriptor object. The descriptor should follow the Frictionless Data Resource model
+ * http://specs.frictionlessdata.io/data-resource/
+ * @param {string} path_ - Data source. Can be a url or local file path
+ * @param {string} basePath - Base path to data source
+ * @param {string} format - format of the data.
  */
 export const parsePath = (path_, basePath = null, format = null) => {
   let fileName
@@ -95,6 +133,7 @@ export const parsePath = (path_, basePath = null, format = null) => {
     .trim()
     .replace(/&/g, '-and-')
     .replace(/[^a-z0-9-._]+/g, '-')
+
   const descriptor = {
     path: path_,
     pathType: isItUrl ? 'remote' : 'local',
@@ -103,6 +142,7 @@ export const parsePath = (path_, basePath = null, format = null) => {
   }
 
   const mediatype = mime.lookup(path_)
+
   if (mediatype) {
     descriptor.mediatype = mediatype
   }
@@ -112,7 +152,7 @@ export const parsePath = (path_, basePath = null, format = null) => {
 
 /**
  *
- * @param {*} path_
+ * @param {string} path_ - Data source. Can be a url or local file path
  */
 export const parseDatasetIdentifier = async (path_) => {
   const out = {
@@ -203,8 +243,8 @@ export const parseDatasetIdentifier = async (path_) => {
 }
 
 /**
- *
- * @param {*} path_
+ * Checks if path os a URL
+ * @param {string} path_ - Data source. Can be a url or local file path
  */
 export const isUrl = (path_) => {
   const r = new RegExp('^(?:[a-z]+:)?//', 'i')
@@ -212,8 +252,8 @@ export const isUrl = (path_) => {
 }
 
 /**
- *
- * @param {*} path_
+ * Checks if path is a Dataset package. Dateset follows the Frictionless Data Resource model
+ * @param {string} path_ - Data source. Can be a url or local file path
  */
 export const isDataset = (path_) => {
   // If it is a path to file we assume it is not a Dataset

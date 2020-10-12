@@ -4,36 +4,39 @@ import nock from 'nock'
 import * as data from '../src/data'
 import { testFileStream } from './file-base'
 
+describe('File Remote', function () {
+  this.timeout(10000) // all tests in this suite get 10 seconds before timeout
 
-describe("File Remote", function () {
-    this.timeout(10000) // all tests in this suite get 10 seconds before timeout
+  it('File class stream with url', async () => {
+    const url =
+      'https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv'
+    nock('https://raw.githubusercontent.com')
+      .get('/datahq/datahub-cli/master/test/fixtures/sample.csv')
+      .replyWithFile(200, path.join(__dirname, '/fixtures/sample.csv'))
 
-    it('File class stream with url', async () => {
-        const url = 'https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv'
-        nock('https://raw.githubusercontent.com')
-            .get('/datahq/datahub-cli/master/test/fixtures/sample.csv')
-            .replyWithFile(200, path.join(__dirname, '/fixtures/sample.csv'))
+    nock.cleanAll()
 
-        nock.cleanAll()
+    const res = data.open(url)
+    await testFileStream(assert, res)
+  })
 
-        const res = data.open(url)
-        await testFileStream(assert, res)
-    })
+  it('File class for addSchema method', async () => {
+    let path_ =
+      'https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv'
+    let file = data.open(path_)
+    assert.strictEqual(file.descriptor.schema, undefined)
 
-    it('File class for addSchema method', async () => {
-        let path_ = 'https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv'
-        let file = data.open(path_)
-        assert.strictEqual(file.descriptor.schema, undefined)
+    await file.addSchema()
+    assert.strictEqual(file.descriptor.schema.fields[1].type, 'string')
 
-        await file.addSchema()
-        assert.strictEqual(file.descriptor.schema.fields[1].type, 'string')
+    let headers = file.descriptor.schema.fields.map((field) => field.name)
+    assert.deepStrictEqual(headers, ['number', 'string', 'boolean'])
+  })
 
-        let headers = file.descriptor.schema.fields.map(field => field.name)
-        assert.deepStrictEqual(headers, ['number', 'string', 'boolean'])
-    })
-
-    it('File classes have displayName method', async () => {
-        const fileRemote = data.open('https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv')
-        assert.strictEqual(fileRemote.displayName, 'FileRemote')
-    })
+  it('File classes have displayName method', async () => {
+    const fileRemote = data.open(
+      'https://raw.githubusercontent.com/datahq/datahub-cli/master/test/fixtures/sample.csv'
+    )
+    assert.strictEqual(fileRemote.displayName, 'FileRemote')
+  })
 })
