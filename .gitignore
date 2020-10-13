@@ -22,3 +22,9 @@ sandbox/*
 .nyc_output
 coverage
 .vscode
+
+index.html
+datajs/test/_babel*
+
+lib/
+dist/

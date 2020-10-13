@@ -1,5 +1,5 @@
 const path = require('path')
-const assetPath = './src'
+const assetPath = './datajs/src'
 
 const createConfig = (target) => {
   return {
@@ -9,12 +9,12 @@ const createConfig = (target) => {
     entry: {
       index: `${assetPath}/index.js`,
     },
+    target: target,
     output: {
-      path: path.resolve(__dirname, 'dist'),
-      filename: `datajs.${target}.js`,
-      libraryTarget: target,
+      path: path.resolve(__dirname, 'lib'),
+      // filename: `datajs.${target}.js`,
+      filename: `bundle.js`,
       library: 'data',
-      globalObject: `(typeof self !== 'undefined' ? self : this)`,
     },
     module: {
       rules: [
@@ -33,8 +33,8 @@ const createConfig = (target) => {
 }
 
 module.exports = [
-  createConfig('var'),
-  createConfig('commonjs2'),
-  createConfig('amd'),
-  createConfig('umd'),
+  // createConfig('var'),
+  // createConfig('commonjs2'),
+  // createConfig('amd'),
+  createConfig('web'),
 ]

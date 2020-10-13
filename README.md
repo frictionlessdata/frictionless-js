@@ -100,10 +100,10 @@ Run the following command to generate the bundle for the necessary JS targets
 
 `yarn build` 
 
-This will create bundles in `./dist` folder. In a simple html file you can use it like this:
+This will create two bundles `./dist` and `./lib`. `./dist` is is built for node environment, while `./lib` is built for the browser. In a simple html file you can use it like this:
 ```html
 <head>
-  <script src="./dist/datajs.var.js"></script>
+  <script src="./lib/bundle.js"></script>
   <script>
     // Global data lib is available here...
     
@@ -419,9 +419,9 @@ Requirements:
 
 ### Test
 
-We have two type of tests Karma based for browser testing and Ava.js based for Node. All node tests are in `/test` folder. Since Ava.js is sensitive test namings, we have separate folder `/browser-test` for only Karma.
+We have two type of tests Karma based for browser testing and Mocha with Chai for Node. All node tests are in `datajs/test` folder. Since Mocha is sensitive to test namings, we have separate the folder `/browser-test` for only Karma.
 
-- To run browser test, first you need to build the lib in order to have the bundle in `/dist` folder. Run: `yarn build`, then for browser testing `yarn test:browser`, this will run Karma tests
+- To run browser test, first you need to build the lib in order to have the bundle in `/lib` folder. Run: `yarn build`, then for browser testing `yarn test:browser`, this will run Karma tests
 - To test in Node: `yarn test:node`
 - To run all tests including Node and browser run `yarn test`
 - To watch Node test run: `yarn test:node:watch`
@@ -430,12 +430,12 @@ We have two type of tests Karma based for browser testing and Ava.js based for N
 
 1. Git clone the repo
 2. Install dependencies: `yarn`
-3. To make the browser test work, first run the build: `yarn build`
+3. To make the browser and node test work, first run the build: `yarn build`
 4. Run tests: `yarn test`
 5. Do some dev work
 6. Once done, make sure tests are passing. Then build distribution version of the app - `yarn build`.
 
-   Run `yarn build` to compile using webpack for different browser targets. To watch the build run: `yarn build:watch`.
+   Run `yarn build` to compile using webpack and babel for different node and web target. To watch the build run: `yarn build:watch`.
 
 7. Now proceed to "Deployment" stage
 
