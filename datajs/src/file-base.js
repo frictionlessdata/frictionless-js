@@ -6,7 +6,7 @@ import { isPlainObject } from 'lodash'
 import { guessParseOptions } from './parser/csv'
 import { toNodeStream, readChunked } from './browser-utils/index'
 import { open } from './data'
-import CryptoJS from 'crypto-js'
+import crypto from 'crypto'
 
 
 /**
@@ -142,11 +142,11 @@ export class FileInterface extends File {
     return this.descriptor.name
   }
 
-  generateHash(hashType, cbProgress) {
+  async generateHash(hashType, cbProgress) {
     return new Promise((resolve, reject) => {
-      let newHash =  hashType === "md5" ? CryptoJS.algo.MD5.create() : CryptoJS.algo.SHA256.create();
+      let newHash =  hashType === "md5" ? crypto.createHash('md5') : crypto.createHash('sha256');
       readChunked(this.descriptor, (chunk, offs, total) => {
-        newHash.update(CryptoJS.enc.Latin1.parse(chunk));
+        newHash.update(chunk);
         if (cbProgress) {
           cbProgress(offs / total);
         }
@@ -155,8 +155,7 @@ export class FileInterface extends File {
           reject(err);
         } else {
           // TODO: Handle errors
-          let hash = newHash.finalize();
-          let hashHex = hash.toString(CryptoJS.enc.Hex);
+          let hashHex = newHash.digest('hex')
           resolve(hashHex);
         }
       });
