@@ -48,7 +48,7 @@ export function isFileFromBrowser(file) {
   return file instanceof File
 }
 
-const readChunked = (file, chunkCallback, endCallback) => {
+export function readChunked(file, chunkCallback, endCallback){
   let fileSize = file.size
   let chunkSize = 4 * 1024 * 1024 // 4MB
   let offset = 0
@@ -79,10 +79,4 @@ const readChunked = (file, chunkCallback, endCallback) => {
     reader.readAsBinaryString(fileSlice)
   }
   readNext()
-}
-
-module.exports = {
-  toNodeStream: toNodeStream,
-  isFileFromBrowser: isFileFromBrowser,
-  readChunked: readChunked,
 }
