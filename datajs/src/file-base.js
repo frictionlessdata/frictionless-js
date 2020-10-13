@@ -142,6 +142,11 @@ export class FileInterface extends File {
     return this.descriptor.name
   }
 
+  /**
+   *
+   * @param {string} hashType - Should be md5 or sha256 
+   * @param {string} cbProgress - Should be a callback to track the progress
+   */
   async generateHash(hashType, cbProgress) {
     return new Promise((resolve, reject) => {
       let newHash =  hashType === "md5" ? crypto.createHash('md5') : crypto.createHash('sha256');
@@ -154,7 +159,6 @@ export class FileInterface extends File {
         if (err) {
           reject(err);
         } else {
-          // TODO: Handle errors
           let hashHex = newHash.digest('hex')
           resolve(hashHex);
         }
@@ -162,14 +166,18 @@ export class FileInterface extends File {
     });
   }
 
-  // call content function and generate MD5 hash from this content
-  // tested with big file 1.9Gb
+  /**
+   *
+   * @param {string} cbProgress - Should be a callback to track the progress
+   */
   async hash(cbProgress) {
     return this.generateHash("md5", cbProgress)
   }
 
-  // call content function and generate SHA256 hash from this content
-  // tested with big file 1.9Gb
+  /**
+   *
+   * @param {string} cbProgress - Should be a callback to track the progress
+   */
   async hashSha256(cbProgress) {
     return this.generateHash("sha256", cbProgress)
   }
