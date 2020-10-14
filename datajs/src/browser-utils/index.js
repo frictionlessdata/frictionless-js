@@ -3,4 +3,5 @@ else
   module.exports = {
     toNodeStream: (reader, size) => {},
     isFileFromBrowser: (file) => {},
+    readChunked: (file, chunkCallback, endCallback) => {},
   }
