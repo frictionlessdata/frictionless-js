@@ -25,6 +25,3 @@ coverage
 
 index.html
 datajs/test/_babel*
-
-lib/
-dist/
