@@ -5,6 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.toNodeStream = toNodeStream;
 exports.isFileFromBrowser = isFileFromBrowser;
+exports.readChunked = readChunked;
 
 var _stream = require("stream");
 
@@ -42,4 +43,39 @@ async function toNodeStream(reader, size) {
 
 function isFileFromBrowser(file) {
   return file instanceof File;
+}
+
+function readChunked(file, chunkCallback, endCallback) {
+  let fileSize = file.size;
+  let chunkSize = 4 * 1024 * 1024;
+  let offset = 0;
+  let reader = new FileReader();
+
+  reader.onload = function () {
+    if (reader.error) {
+      endCallback(reader.error || {});
+      return;
+    }
+
+    offset += reader.result.length;
+    chunkCallback(reader.result, offset, fileSize);
+
+    if (offset >= fileSize) {
+      endCallback(null);
+      return;
+    }
+
+    readNext();
+  };
+
+  reader.onerror = function (err) {
+    endCallback(err || {});
+  };
+
+  function readNext() {
+    let fileSlice = file.slice(offset, offset + chunkSize);
+    reader.readAsBinaryString(fileSlice);
+  }
+
+  readNext();
 }
