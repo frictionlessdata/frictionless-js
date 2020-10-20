@@ -33,7 +33,10 @@ export async function toNodeStream(reader, size) {
     lastString = lines.pop() || ''
 
     for (const line of lines) {
-      if (lineCounter === size) break
+      if (lineCounter === size){
+        reader.cancel()
+        break
+      }
       // Write each string line to our nodejs stream
       nodeStream.push(line + '\r\n')
       lineCounter++
@@ -48,7 +51,7 @@ export function isFileFromBrowser(file) {
   return file instanceof File
 }
 
-export function readChunked(file, chunkCallback, endCallback){
+export function readChunked(file, chunkCallback, endCallback) {
   let fileSize = file.size
   let chunkSize = 4 * 1024 * 1024 // 4MB
   let offset = 0
