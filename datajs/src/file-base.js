@@ -128,6 +128,8 @@ export class FileInterface extends File {
   stream({ size } = {}) {
     size = size === -1 ? this.size : size || 0
     return toNodeStream(this.descriptor.stream().getReader(), size)
+
+
   }
 
   get buffer() {

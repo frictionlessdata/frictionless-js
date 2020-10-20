@@ -23,5 +23,6 @@ sandbox/*
 coverage
 .vscode
 
-index.html
 datajs/test/_babel*
+
+*.html
