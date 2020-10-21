@@ -5,14 +5,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.toNodeStream = toNodeStream;
 exports.isFileFromBrowser = isFileFromBrowser;
-exports.readChunked = readChunked;
+exports.readChunk = readChunk;
 
 var _stream = require("stream");
 
-async function toNodeStream(reader, size) {
+async function toNodeStream(reader, size, returnChunk = false) {
   const nodeStream = new _stream.Readable();
   let lineCounter = 0;
   let lastString = '';
+  let chunkText = '';
   const decoder = new TextDecoder();
 
   while (true) {
@@ -27,17 +28,27 @@ async function toNodeStream(reader, size) {
     }
 
     const string = `${lastString}${decoder.decode(value)}`;
+    chunkText += string;
     const lines = string.split(/\r\n|[\r\n]/g);
     lastString = lines.pop() || '';
 
     for (const line of lines) {
-      if (lineCounter === size) break;
+      if (lineCounter === size) {
+        reader.cancel();
+        break;
+      }
+
       nodeStream.push(line + '\r\n');
       lineCounter++;
     }
   }
 
   nodeStream.push(null);
+
+  if (returnChunk) {
+    return chunkText;
+  }
+
   return nodeStream;
 }
 
@@ -45,7 +56,7 @@ function isFileFromBrowser(file) {
   return file instanceof File;
 }
 
-function readChunked(file, chunkCallback, endCallback) {
+function readChunk(file, next, done) {
   let fileSize = file.size;
   let chunkSize = 4 * 1024 * 1024;
   let offset = 0;
@@ -53,15 +64,15 @@ function readChunked(file, chunkCallback, endCallback) {
 
   reader.onload = function () {
     if (reader.error) {
-      endCallback(reader.error || {});
+      done(reader.error || {});
       return;
     }
 
     offset += reader.result.length;
-    chunkCallback(reader.result, offset, fileSize);
+    next(reader.result, offset, fileSize);
 
     if (offset >= fileSize) {
-      endCallback(null);
+      done(null);
       return;
     }
 
@@ -69,7 +80,7 @@ function readChunked(file, chunkCallback, endCallback) {
   };
 
   reader.onerror = function (err) {
-    endCallback(err || {});
+    done(err || {});
   };
 
   function readNext() {

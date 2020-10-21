@@ -51,7 +51,7 @@ export async function toNodeStream(reader, size, returnChunk = false) {
   nodeStream.push(null)
 
   //return a chunk of the file. Chunk is used when parsing large files in CSV modeule
-  if (return_chunk) {
+  if (returnChunk) {
     return chunkText
   }
 
