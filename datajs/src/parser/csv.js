@@ -2,6 +2,7 @@ import parse from 'csv-parse'
 const CSVSniffer = require('csv-sniffer')()
 import toString from 'stream-to-string'
 import { decodeStream } from 'iconv-lite'
+import { toNodeStream } from '../browser-utils/utils'
 
 export async function csvParser(file, { keyed = false, size = 0 } = {}) {
   const parseOptions = await getParseOptions(file, keyed)
@@ -25,9 +26,11 @@ export async function guessParseOptions(file) {
   if (file.displayName === 'FileLocal') {
     const stream = await file.stream({ end: 50000 })
     text = await toString(stream)
+
   } else if (file.displayName === 'FileInterface') {
-    // text = await file.descriptor.text()
-    text = await getChunkText(file)
+    let reader = file.descriptor.stream().getReader()
+    text = await toNodeStream(reader, 10, true)
+
   } else if (file.displayName === 'FileRemote') {
     const stream = await file.stream({ size: 100 })
     let bytes = 0
@@ -128,45 +131,4 @@ export class Uint8ArrayToStringsTransformer {
       controller.enqueue(this.lastString)
     }
   }
-}
-
-async function getChunkText(file, size = 10) {
-  // if in browser, return node like stream so that parsers work
-  // Running in browser:
-  let chunkText = ''
-  const reader = file.descriptor.stream().getReader()
-
-  let lineCounter = 0
-  let lastString = ''
-  const decoder = new TextDecoder()
-
-  while (true) {
-    const { done, value } = await reader.read()
-
-    if (done || (lineCounter > size && size !== 0)) {
-      reader.cancel()
-      break
-    }
-
-    // Decode the current chunk to string and prepend the last string
-    const string = `${lastString}${decoder.decode(value)}`
-    chunkText+= string
-    // Extract lines from chunk
-    const lines = string.split(/\r\n|[\r\n]/g)
-
-    // Save last line, as it might be incomplete
-    lastString = lines.pop() || ''
-
-    for (const line of lines) {
-      if (lineCounter === size) {
-        reader.cancel()
-        break
-      }
-     
-      lineCounter++
-    }
-  }
-
-
-  return chunkText
 }
