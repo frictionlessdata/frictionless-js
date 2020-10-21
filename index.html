@@ -4,17 +4,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="./lib/bundle.js"></script>
     <title>Document</title>
 </head>
 
 <body>
-<script>
-    var file = data.open('https://raw.githubusercontent.com/datopian/data.js/master/test/fixtures/sample.csv')
+    <div>
+        <label>File:</label>
+        <input type="file" id="inputField" />
+        <button>Submit file</button>
+    </div>
 
-    console.log(file.descriptor)
+
+</body>
+<script src="./lib/bundle.js"></script>
+<script>
+
+    var inputElement = document.getElementById("inputField");
+    inputElement.addEventListener("change", handleFiles, false);
+
+    async function handleFiles() {
+        var fileList = this.files;
+        const file = new data.open(fileList[0])
+        // console.log("newww", fileList[0]);
+
+        const rowStream = await file.rows({ size: 20, keyed: true });
+        // file.descriptor.sample = await toArray(rowStream);
+        console.log("rowStream: ", rowStream);
+        await file.addSchema();
+        console.log("descriptor: ", file);
+
+        //Show the progress of the hash generator on console in devtools
+        // const hash = await file.hashSha256((e) => console.log("progress", e))
+        // console.log("hash is Done:", hash);
+
+        //const contentBuffer = await file.buffer()
+        //console.log("contentBuffer :", contentBuffer);
+    }
 
 </script>
-</body>
 
 </html>

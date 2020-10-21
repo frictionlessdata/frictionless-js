@@ -2,6 +2,7 @@ import parse from 'csv-parse'
 const CSVSniffer = require('csv-sniffer')()
 import toString from 'stream-to-string'
 import { decodeStream } from 'iconv-lite'
+import { toNodeStream } from '../browser-utils/utils'
 
 export async function csvParser(file, { keyed = false, size = 0 } = {}) {
   const parseOptions = await getParseOptions(file, keyed)
@@ -16,6 +17,7 @@ export async function csvParser(file, { keyed = false, size = 0 } = {}) {
   }
 }
 
+
 export async function guessParseOptions(file) {
   const possibleDelimiters = [',', ';', ':', '|', '\t', '^', '*', '&']
   const sniffer = new CSVSniffer(possibleDelimiters)
@@ -27,7 +29,8 @@ export async function guessParseOptions(file) {
     text = await toString(stream)
 
   } else if (file.displayName === 'FileInterface') {
-    text = await file.descriptor.text()
+    let reader = file.descriptor.stream().getReader()
+    text = await toNodeStream(reader, 10, true)
 
   } else if (file.displayName === 'FileRemote') {
     const stream = await file.stream({ size: 100 })
@@ -75,9 +78,7 @@ export async function getParseOptions(file, keyed) {
     ) {
       parseOptions.escape = ''
     }
-
   } else {
-    
     const guessedParseOptions = await guessParseOptions(file)
     // Merge guessed parse options with default one:
     parseOptions = Object.assign(parseOptions, guessedParseOptions)
