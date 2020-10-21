@@ -17,6 +17,7 @@ export async function csvParser(file, { keyed = false, size = 0 } = {}) {
   }
 }
 
+
 export async function guessParseOptions(file) {
   const possibleDelimiters = [',', ';', ':', '|', '\t', '^', '*', '&']
   const sniffer = new CSVSniffer(possibleDelimiters)

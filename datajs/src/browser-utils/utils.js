@@ -7,7 +7,7 @@ import { Readable } from 'stream'
  * @param {number} size Size of data to return
  * @param {boolean} return_chunk whether to return a chunk in string format or a node stream
  */
-export async function toNodeStream(reader, size, return_chunk = false) {
+export async function toNodeStream(reader, size, returnChunk = false) {
   // if in browser, return node like stream so that parsers work
   // Running in browser:
   const nodeStream = new Readable()
@@ -58,34 +58,42 @@ export async function toNodeStream(reader, size, return_chunk = false) {
   return nodeStream
 }
 
+
 export function isFileFromBrowser(file) {
   return file instanceof File
 }
 
-export function readChunked(file, chunkCallback, endCallback) {
+
+/**
+ * Read files from the browser chunks
+ * @param {object} file A file stream reader from the browser input
+ * @param {func} next callback function called for every chunk read
+ * @param {func} done callback function called after successful reading
+ */
+export function readChunk(file, next, done) {
   let fileSize = file.size
-  let chunkSize = 4 * 1024 * 1024 // 4MB
+  let chunkSize = 4 * 1024 * 1024 
   let offset = 0
 
   let reader = new FileReader()
   reader.onload = function () {
     if (reader.error) {
-      endCallback(reader.error || {})
+      done(reader.error || {})
       return
     }
     offset += reader.result.length
     // callback for handling read chunk
     // TODO: handle errors
-    chunkCallback(reader.result, offset, fileSize)
+    next(reader.result, offset, fileSize)
     if (offset >= fileSize) {
-      endCallback(null)
+      done(null)
       return
     }
     readNext()
   }
 
   reader.onerror = function (err) {
-    endCallback(err || {})
+    done(err || {})
   }
 
   function readNext() {
