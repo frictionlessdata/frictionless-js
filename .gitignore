@@ -25,4 +25,4 @@ coverage
 
 datajs/test/_babel*
 
-*.html
+index.html
