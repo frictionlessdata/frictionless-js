@@ -47,7 +47,8 @@ async function guessParseOptions(file) {
     });
     text = await (0, _streamToString.default)(stream);
   } else if (file.displayName === 'FileInterface') {
-    text = await getChunkText(file);
+    let reader = file.descriptor.stream().getReader();
+    text = await (0, _utils.toNodeStream)(reader, 10, true);
   } else if (file.displayName === 'FileRemote') {
     const stream = await file.stream({
       size: 100
@@ -123,39 +124,3 @@ class Uint8ArrayToStringsTransformer {
 }
 
 exports.Uint8ArrayToStringsTransformer = Uint8ArrayToStringsTransformer;
-
-async function getChunkText(file, size = 10) {
-  let chunkText = '';
-  const reader = file.descriptor.stream().getReader();
-  let lineCounter = 0;
-  let lastString = '';
-  const decoder = new TextDecoder();
-
-  while (true) {
-    const {
-      done,
-      value
-    } = await reader.read();
-
-    if (done || lineCounter > size && size !== 0) {
-      reader.cancel();
-      break;
-    }
-
-    const string = `${lastString}${decoder.decode(value)}`;
-    chunkText += string;
-    const lines = string.split(/\r\n|[\r\n]/g);
-    lastString = lines.pop() || '';
-
-    for (const line of lines) {
-      if (lineCounter === size) {
-        reader.cancel();
-        break;
-      }
-
-      lineCounter++;
-    }
-  }
-
-  return chunkText;
-}
