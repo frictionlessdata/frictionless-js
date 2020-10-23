@@ -1,5 +1,6 @@
 import assert from 'assert'
 import * as data from '../src/data'
+import { FileLocal } from '../src/file-local'
 
 describe('File Local', function () {
   it('File class for addSchema method', async () => {
@@ -17,5 +18,19 @@ describe('File Local', function () {
   it("File classes have displayName method'", () => {
     const fileLocal = data.open('datajs/test/fixtures/sample.csv')
     assert.strictEqual(fileLocal.displayName, 'FileLocal')
+  })
+
+  it('Calculates the streaming hash (md5) of a csv file', () => {
+    const fileLocal = data.open('datajs/test/fixtures/sample.csv')
+    fileLocal.hash((hash) => {
+      assert.strictEqual(hash, 'b0661d9566498a800fbf95365ce28747')
+    })
+  })
+
+  it('Calculates the streaming hash (sha256) of a csv file', () => {
+    const fileLocal = data.open('datajs/test/fixtures/sample.csv')
+    fileLocal.hashSha256((hash) => {
+      assert.strictEqual(hash, 'd9d47b90ac9607c5111ff9a83aa37bc10e058ce6206c00b6626ade091784e098')
+    })
   })
 })

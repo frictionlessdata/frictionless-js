@@ -8,7 +8,6 @@ import { File } from '../src/file-base'
 export const testFile = async (assert, file) => {
   assert.strictEqual(file.path, 'datajs/test/fixtures/sample.csv')
   assert.strictEqual(file.size, 46)
-  assert.strictEqual(file.hash, 'b0661d9566498a800fbf95365ce28747')
   await testFileStream(assert, file)
 }
 
