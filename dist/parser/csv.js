@@ -14,6 +14,8 @@ var _streamToString = _interopRequireDefault(require("stream-to-string"));
 
 var _iconvLite = require("iconv-lite");
 
+var _utils = require("../browser-utils/utils");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const CSVSniffer = require('csv-sniffer')();
