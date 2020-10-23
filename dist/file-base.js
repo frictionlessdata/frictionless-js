@@ -172,7 +172,7 @@ class FileInterface extends File {
   async generateHash(hashType, cbProgress) {
     return new Promise((resolve, reject) => {
       let newHash = hashType === "md5" ? _crypto.default.createHash('md5') : _crypto.default.createHash('sha256');
-      (0, _index.readChunked)(this.descriptor, (chunk, offs, total) => {
+      (0, _index.readChunk)(this.descriptor, (chunk, offs, total) => {
         newHash.update(chunk);
 
         if (cbProgress) {

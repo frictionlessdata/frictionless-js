@@ -4,7 +4,7 @@ import { infer } from 'tableschema'
 import toArray from 'stream-to-array'
 import { isPlainObject } from 'lodash'
 import { guessParseOptions } from './parser/csv'
-import { toNodeStream, readChunked } from './browser-utils/index'
+import { toNodeStream, readChunk } from './browser-utils/index'
 import { open } from './data'
 import crypto from 'crypto'
 
@@ -144,6 +144,9 @@ export class FileInterface extends File {
     return this.descriptor.name
   }
 
+
+
+
   /**
    *
    * @param {string} hashType - Should be md5 or sha256 
@@ -152,7 +155,7 @@ export class FileInterface extends File {
   async generateHash(hashType, cbProgress) {
     return new Promise((resolve, reject) => {
       let newHash =  hashType === "md5" ? crypto.createHash('md5') : crypto.createHash('sha256');
-      readChunked(this.descriptor, (chunk, offs, total) => {
+      readChunk(this.descriptor, (chunk, offs, total) => {
         newHash.update(chunk);
         if (cbProgress) {
           cbProgress(offs / total);
@@ -180,7 +183,7 @@ export class FileInterface extends File {
    *
    * @param {string} cbProgress - Should be a callback to track the progress
    */
-  async hashSha256(cbProgress) {
+   async hashSha256(cbProgress) {
     return this.generateHash("sha256", cbProgress)
   }
 }

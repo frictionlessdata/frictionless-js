@@ -14,6 +14,8 @@ var _streamToString = _interopRequireDefault(require("stream-to-string"));
 
 var _iconvLite = require("iconv-lite");
 
+var _utils = require("../browser-utils/utils");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const CSVSniffer = require('csv-sniffer')();
@@ -45,7 +47,8 @@ async function guessParseOptions(file) {
     });
     text = await (0, _streamToString.default)(stream);
   } else if (file.displayName === 'FileInterface') {
-    text = await file.descriptor.text();
+    let reader = file.descriptor.stream().getReader();
+    text = await (0, _utils.toNodeStream)(reader, 10, true);
   } else if (file.displayName === 'FileRemote') {
     const stream = await file.stream({
       size: 100
