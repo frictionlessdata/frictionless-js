@@ -31,7 +31,11 @@ async function toNodeStream(reader, size) {
     lastString = lines.pop() || '';
 
     for (const line of lines) {
-      if (lineCounter === size) break;
+      if (lineCounter === size) {
+        reader.cancel();
+        break;
+      }
+
       nodeStream.push(line + '\r\n');
       lineCounter++;
     }

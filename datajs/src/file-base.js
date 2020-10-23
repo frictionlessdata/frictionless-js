@@ -144,6 +144,9 @@ export class FileInterface extends File {
     return this.descriptor.name
   }
 
+
+
+
   /**
    *
    * @param {string} hashType - Should be md5 or sha256 
@@ -180,7 +183,7 @@ export class FileInterface extends File {
    *
    * @param {string} cbProgress - Should be a callback to track the progress
    */
-  async hashSha256(cbProgress) {
+   async hashSha256(cbProgress) {
     return this.generateHash("sha256", cbProgress)
   }
 }
