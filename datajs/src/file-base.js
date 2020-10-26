@@ -1,12 +1,15 @@
 import { DEFAULT_ENCODING, PARSE_DATABASE, KNOWN_TABULAR_FORMAT } from './data'
 import { infer } from 'tableschema'
-
+import fs from 'fs'
 import toArray from 'stream-to-array'
 import { isPlainObject } from 'lodash'
 import { guessParseOptions } from './parser/csv'
-import { toNodeStream, readChunk } from './browser-utils/index'
+import {
+  toNodeStream,
+  getStream,
+  computeHash,
+} from './browser-utils/index'
 import { open } from './data'
-import crypto from 'crypto'
 
 
 /**
@@ -128,8 +131,6 @@ export class FileInterface extends File {
   stream({ size } = {}) {
     size = size === -1 ? this.size : size || 0
     return toNodeStream(this.descriptor.stream().getReader(), size)
-
-
   }
 
   get buffer() {
@@ -144,46 +145,21 @@ export class FileInterface extends File {
     return this.descriptor.name
   }
 
-
-
-
   /**
    *
-   * @param {string} hashType - Should be md5 or sha256 
    * @param {string} cbProgress - Should be a callback to track the progress
    */
-  async generateHash(hashType, cbProgress) {
-    return new Promise((resolve, reject) => {
-      let newHash =  hashType === "md5" ? crypto.createHash('md5') : crypto.createHash('sha256');
-      readChunk(this.descriptor, (chunk, offs, total) => {
-        newHash.update(chunk);
-        if (cbProgress) {
-          cbProgress(offs / total);
-        }
-      }, err => {
-        if (err) {
-          reject(err);
-        } else {
-          let hashHex = newHash.digest('hex')
-          resolve(hashHex);
-        }
-      });
-    });
+  async hash() {
+    let stream = getStream(this.descriptor.stream())
+    return computeHash(stream, this.size, 'md5')
   }
 
   /**
    *
    * @param {string} cbProgress - Should be a callback to track the progress
    */
-  async hash(cbProgress) {
-    return this.generateHash("md5", cbProgress)
-  }
-
-  /**
-   *
-   * @param {string} cbProgress - Should be a callback to track the progress
-   */
-   async hashSha256(cbProgress) {
-    return this.generateHash("sha256", cbProgress)
+  async hashSha256() {
+    let stream = getStream(this.descriptor.stream())
+    return computeHash(stream, this.size, 'sha256')
   }
 }

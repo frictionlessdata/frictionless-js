@@ -25,20 +25,22 @@
     async function handleFiles() {
         var fileList = this.files;
         const file = new data.open(fileList[0])
+        // console.log(file);
         // console.log("newww", fileList[0]);
 
-        const rowStream = await file.rows({ size: 20, keyed: true });
+        // const rowStream = await file.rows({ size: 20, keyed: true });
         // file.descriptor.sample = await toArray(rowStream);
-        console.log("rowStream: ", rowStream);
+        // console.log("rowStream: ", rowStream);
         await file.addSchema();
-        console.log("descriptor: ", file);
 
-        //Show the progress of the hash generator on console in devtools
-        // const hash = await file.hashSha256((e) => console.log("progress", e))
-        // console.log("hash is Done:", hash);
+        // console.log("descriptor: ", file);
 
-        //const contentBuffer = await file.buffer()
-        //console.log("contentBuffer :", contentBuffer);
+        // // Show the progress of the hash generator on console in devtools
+        let hash = await file.hashSha256()
+        console.log("Done:", hash);
+
+        // const contentBuffer = await file.buffer
+        // console.log("contentBuffer :", contentBuffer);
     }
 
 </script>

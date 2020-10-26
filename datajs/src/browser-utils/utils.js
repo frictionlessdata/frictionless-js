@@ -1,4 +1,7 @@
 import { Readable } from 'stream'
+import { ReadableWebToNodeStream } from 'readable-web-to-node-stream'
+const { Transform } = require('stream')
+import crypto from 'crypto'
 
 /**
  * Return node like stream so that parsers work.
@@ -63,42 +66,55 @@ export function isFileFromBrowser(file) {
   return file instanceof File
 }
 
+/**
+ * Return node like stream
+ * @param {object} reader A file stream reader from the browser input
+ */
+export function getStream(reader) {
+  const stream = new ReadableWebToNodeStream(reader)
+  return stream
+}
 
 /**
- * Read files from the browser chunks
- * @param {object} file A file stream reader from the browser input
- * @param {func} next callback function called for every chunk read
- * @param {func} done callback function called after successful reading
+ * Computes the streaming hash of a file
+ * @param {Readerable Stream} fileStream A node like stream
+ * @param {number} fileSize Total size of the file
+ * @param {string} algorithm sha256/md5 hashing algorithm to use
  */
-export function readChunk(file, next, done) {
-  let fileSize = file.size
-  let chunkSize = 4 * 1024 * 1024 
-  let offset = 0
+export function computeHash(fileStream, fileSize, algorithm) {
+  return new Promise((resolve, reject) => {
+    let hash = crypto.createHash(algorithm)
+    let offset = 0
+    let totalChunkSize = 0
+    let chunkCount = 0
 
-  let reader = new FileReader()
-  reader.onload = function () {
-    if (reader.error) {
-      done(reader.error || {})
-      return
-    }
-    offset += reader.result.length
-    // callback for handling read chunk
-    // TODO: handle errors
-    next(reader.result, offset, fileSize)
-    if (offset >= fileSize) {
-      done(null)
-      return
-    }
-    readNext()
-  }
+    //calculates and displays progress after every 20th chunk
+    const _reportProgress = new Transform({
+      transform(chunk, encoding, callback) {
+        if (chunkCount % 20 == 0) {
+          const runningTotal = totalChunkSize + offset
+          const percentComplete = Math.round((runningTotal / fileSize) * 100)
+          console.log(`Hashing progress: ...${percentComplete}%`)
+        }
+        callback(null, chunk)
+      },
+    })
 
-  reader.onerror = function (err) {
-    done(err || {})
-  }
-
-  function readNext() {
-    let fileSlice = file.slice(offset, offset + chunkSize)
-    reader.readAsBinaryString(fileSlice)
-  }
-  readNext()
+    fileStream
+      .pipe(_reportProgress)
+      .on('error', function (err) {
+        reject(err)
+      })
+      .on('data', function (chunk) {
+        offset += chunk.length
+        chunkCount += 1
+        hash.update(chunk)
+      })
+      .on('end', function () {
+        hash = hash.digest('hex')
+        console.clear()
+        console.log(`Hashing progress: ...100%`)
+        resolve(hash)
+      })
+  })
 }

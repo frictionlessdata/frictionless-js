@@ -3,5 +3,6 @@ else
   module.exports = {
     toNodeStream: (reader, size, returnChunk) => {},
     isFileFromBrowser: (file) => {},
-    readChunk: (file, next, done) => {},
+    getStream: (reader) => {},
+    computeHash: (fileStream, fileSize, algorithm) => {}
   }
