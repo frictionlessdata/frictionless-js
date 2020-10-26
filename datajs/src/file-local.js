@@ -1,7 +1,8 @@
 import chardet from 'chardet'
 import fs from 'fs'
 import { File } from './file-base'
-import { computeHash } from './browser-utils/utils'
+import { computeHash } from './browser-utils/index'
+import path from 'path'
 
 export class FileLocal extends File {
   get displayName() {
@@ -14,8 +15,8 @@ export class FileLocal extends File {
       : this.descriptor.path
   }
 
-  stream({ end, highWaterMark = 4200000 } = {}) {
-    return fs.createReadStream(this.path, { start: 0, end, highWaterMark }) //4mb
+  stream({ end } = {}) {
+    return fs.createReadStream(this.path, { start: 0, end })
   }
 
   get size() {

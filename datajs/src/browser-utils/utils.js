@@ -112,7 +112,6 @@ export function computeHash(fileStream, fileSize, algorithm) {
       })
       .on('end', function () {
         hash = hash.digest('hex')
-        console.clear()
         console.log(`Hashing progress: ...100%`)
         resolve(hash)
       })

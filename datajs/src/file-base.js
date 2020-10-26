@@ -1,6 +1,5 @@
 import { DEFAULT_ENCODING, PARSE_DATABASE, KNOWN_TABULAR_FORMAT } from './data'
 import { infer } from 'tableschema'
-import fs from 'fs'
 import toArray from 'stream-to-array'
 import { isPlainObject } from 'lodash'
 import { guessParseOptions } from './parser/csv'
