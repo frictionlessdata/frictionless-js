@@ -21,7 +21,7 @@ describe('FileInterface', function () {
     await file.addSchema()
     headers = file.descriptor.schema.fields.map((field) => field.name)
     expect(headers).toEqual(['number', 'string', 'boolean'])
-    expect(file.descriptor.schema.fields[1].type).toBe('string')
+    expect(file.descriptor.schema.fields[1]['type']).toBe('string')
   })
 
   it('displayName, size and hash', async () => {

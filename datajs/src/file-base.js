@@ -5,7 +5,7 @@ import { isPlainObject } from 'lodash'
 import { guessParseOptions } from './parser/csv'
 import {
   toNodeStream,
-  getStream,
+  webToNodeStream,
   computeHash,
 } from './browser-utils/index'
 import { open } from './data'
@@ -144,21 +144,13 @@ export class FileInterface extends File {
     return this.descriptor.name
   }
 
-  /**
-   *
-   * @param {string} cbProgress - Should be a callback to track the progress
-   */
-  async hash() {
-    let stream = getStream(this.descriptor.stream())
-    return computeHash(stream, this.size, 'md5')
-  }
 
-  /**
-   *
-   * @param {string} cbProgress - Should be a callback to track the progress
+   /**
+   * Calculates the hash of a file
+   * @param {string} hashType - md5/sha256 type of hash algorithm to use
    */
-  async hashSha256() {
-    let stream = getStream(this.descriptor.stream())
-    return computeHash(stream, this.size, 'sha256')
+  async hash(hashType='sha256') {
+    let stream = webToNodeStream(this.descriptor.stream())
+    return computeHash(stream, this.size, hashType)
   }
 }

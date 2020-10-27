@@ -70,7 +70,7 @@ export function isFileFromBrowser(file) {
  * Return node like stream
  * @param {object} reader A file stream reader from the browser input
  */
-export function getStream(reader) {
+export function webToNodeStream(reader) {
   const stream = new ReadableWebToNodeStream(reader)
   return stream
 }

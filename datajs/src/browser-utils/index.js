@@ -3,6 +3,6 @@ else
   module.exports = {
     toNodeStream: (reader, size, returnChunk) => {},
     isFileFromBrowser: (file) => {},
-    getStream: (reader) => {},
+    webToNodeStream: (reader) => {},
     computeHash: (fileStream, fileSize, algorithm) => {}
   }

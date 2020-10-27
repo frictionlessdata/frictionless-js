@@ -1,7 +1,7 @@
 import chardet from 'chardet'
 import fs from 'fs'
 import { File } from './file-base'
-import { computeHash } from './browser-utils/index'
+import { computeHash } from './browser-utils/utils'
 import path from 'path'
 
 export class FileLocal extends File {
@@ -33,18 +33,10 @@ export class FileLocal extends File {
   }
 
   /**
-   * Calculates the md5 hash of a file
-   * @param {string} cbProgress - Should be a callback to track the progress
+   * Calculates the hash of a file
+   * @param {string} hashType - md5/sha256 type of hash algorithm to use
    */
-  async hash() {
-    return computeHash(this.stream(), this.size, 'md5')
-  }
-
-  /**
-   * Calculates the Sha256 hash of a file
-   * @param {string} cbProgress - Should be a callback to track the progress
-   */
-  async hashSha256() {
-    return computeHash(this.stream(), this.size, 'sha256')
+  async hash(hashType='sha256') {
+    return computeHash(this.stream(), this.size, hashType)
   }
 }
