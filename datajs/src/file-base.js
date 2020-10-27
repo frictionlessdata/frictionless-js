@@ -189,9 +189,9 @@ export class FileInterface extends File {
     return toNodeStream(this.descriptor.stream().getReader(), size)
   }
 
-  // get buffer() {
-  //   return this.descriptor.arrayBuffer()
-  // }
+  get buffer() {
+    return this.descriptor.arrayBuffer()
+  }
 
   get size() {
     return this.descriptor.size

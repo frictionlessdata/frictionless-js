@@ -197,6 +197,10 @@ class FileInterface extends File {
     return (0, _index.toNodeStream)(this.descriptor.stream().getReader(), size);
   }
 
+  get buffer() {
+    return this.descriptor.arrayBuffer();
+  }
+
   get size() {
     return this.descriptor.size;
   }
