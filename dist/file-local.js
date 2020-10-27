@@ -7,13 +7,13 @@ exports.FileLocal = void 0;
 
 var _chardet = _interopRequireDefault(require("chardet"));
 
-var _path = _interopRequireDefault(require("path"));
-
 var _fs = _interopRequireDefault(require("fs"));
 
-var _crypto = _interopRequireDefault(require("crypto"));
-
 var _fileBase = require("./file-base");
+
+var _utils = require("./browser-utils/utils");
+
+var _path = _interopRequireDefault(require("path"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -39,10 +39,6 @@ class FileLocal extends _fileBase.File {
     return _fs.default.statSync(this.path).size;
   }
 
-  get hash() {
-    return _crypto.default.createHash('md5').update(_fs.default.readFileSync(this.path)).digest('hex');
-  }
-
   get encoding() {
     if (this.size > 1000000) {
       return _chardet.default.detectFileSync(this.path, {
@@ -51,6 +47,10 @@ class FileLocal extends _fileBase.File {
     }
 
     return _chardet.default.detectFileSync(this.path);
+  }
+
+  async hash(hashType = 'sha256') {
+    return (0, _utils.computeHash)(this.stream(), this.size, hashType);
   }
 
 }

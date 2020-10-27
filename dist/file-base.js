@@ -17,8 +17,6 @@ var _csv = require("./parser/csv");
 
 var _index = require("./browser-utils/index");
 
-var _crypto = _interopRequireDefault(require("crypto"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class File {
@@ -169,32 +167,9 @@ class FileInterface extends File {
     return this.descriptor.name;
   }
 
-  async generateHash(hashType, cbProgress) {
-    return new Promise((resolve, reject) => {
-      let newHash = hashType === "md5" ? _crypto.default.createHash('md5') : _crypto.default.createHash('sha256');
-      (0, _index.readChunk)(this.descriptor, (chunk, offs, total) => {
-        newHash.update(chunk);
-
-        if (cbProgress) {
-          cbProgress(offs / total);
-        }
-      }, err => {
-        if (err) {
-          reject(err);
-        } else {
-          let hashHex = newHash.digest('hex');
-          resolve(hashHex);
-        }
-      });
-    });
-  }
-
-  async hash(cbProgress) {
-    return this.generateHash("md5", cbProgress);
-  }
-
-  async hashSha256(cbProgress) {
-    return this.generateHash("sha256", cbProgress);
+  async hash(hashType = 'sha256') {
+    let stream = (0, _index.webToNodeStream)(this.descriptor.stream());
+    return (0, _index.computeHash)(stream, this.size, hashType);
   }
 
 }
