@@ -46,50 +46,71 @@ export class File {
     return null
   }
 
-  get buffer() {
-    return new Promise(async (resolve, reject) => {
-      let stream = null
+  /**
+   * Return file buffer in chunks
+   * @param {func} getChunk Callback function that returns current chunk and percent of progress
+   * 
+   * Example Usage:
+   * 
+   *  await file.bufferInChunks((buf, percent)=>{
+   *         console.log("contentBuffer :", buf);
+   *         console.log("Progress :", percent);
+   *    })
+   * 
+   */
+  async bufferInChunks(getChunk) {
+    let stream = null
 
-      if (this.displayName == 'FileInterface') {
-        stream = webToNodeStream(this.descriptor.stream())
-      } else {
-        stream = await this.stream()
-      }
+    if (this.displayName == 'FileInterface') {
+      stream = webToNodeStream(this.descriptor.stream())
+    } else {
+      stream = await this.stream()
+    }
 
-      let buffer = new Buffer.alloc(0)
-      let offset = 0
-      let totalChunkSize = 0
-      let chunkCount = 0
-      let fileSize = this.size
+    let offset = 0
+    let totalChunkSize = 0
+    let chunkCount = 0
+    let fileSize = this.size
+    var percent = 0
 
-      //calculates and displays progress after every 20th chunk
-      const _reportProgress = new Transform({
-        transform(chunk, encoding, callback) {
-          if (chunkCount % 20 == 0) {
-            const runningTotal = totalChunkSize + offset
-            const percentComplete = Math.round((runningTotal / fileSize) * 100)
-            console.log(`Buffering... ${percentComplete}%`)
-          }
-          callback(null, chunk)
-        },
-      })
-
-      console.log('Buffering Started...')
-      stream
-        .pipe(_reportProgress)
-        .on('data', function (chunk) {
-          offset += chunk.length
-          chunkCount += 1
-          buffer = Buffer.concat([buffer, chunk])
-        })
-        .on('end', function () {
-          console.log('Buffering Complete')
-          resolve(buffer)
-        })
-        .on('error', function (err) {
-          reject(err)
-        })
+    //calculates and sets the progress after every 100th chunk
+    const _reportProgress = new Transform({
+      transform(chunk, encoding, callback) {
+        if (chunkCount % 100 == 0) {
+          const runningTotal = totalChunkSize + offset
+          const percentComplete = Math.round((runningTotal / fileSize) * 100)
+          percent = percentComplete
+        }
+        callback(null, chunk)
+      },
     })
+
+    stream
+      .pipe(_reportProgress)
+      .on('data', function (chunk) {
+        offset += chunk.length
+        chunkCount += 1
+
+        let buffer = new Buffer.from(chunk)
+        getChunk(buffer, percent)
+      })
+      // .on('end', function () {
+      //   getChunk(null, 100)
+      // })
+      .on('error', function (err) {
+        throw new Error(err)
+      })
+  }
+
+
+  get buffer() {
+    return (async () => {
+      const stream = await this.stream()
+      const buffers = await toArray(stream)
+
+      // eslint-disable-next-line no-undef
+      return Buffer.concat(buffers)
+    })()
   }
 
   rows({ keyed, sheet, size } = {}) {
