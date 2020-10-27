@@ -1,6 +1,7 @@
 import { DEFAULT_ENCODING, PARSE_DATABASE, KNOWN_TABULAR_FORMAT } from './data'
 import { infer } from 'tableschema'
 import toArray from 'stream-to-array'
+const { Transform } = require('stream')
 import { isPlainObject } from 'lodash'
 import { guessParseOptions } from './parser/csv'
 import {
@@ -46,19 +47,49 @@ export class File {
   }
 
   get buffer() {
-    return (async () => {
-      let stream = this.stream()
-      stream
-        .on('data', (d) => {
-          console.log(d)
-        })
-        .on('end', () => {
-          console.log('End')
-        })
-      const buffers = await toArray(stream)
+    return new Promise(async (resolve, reject) => {
+      let stream = null
 
-      return Buffer.concat(buffers)
-    })()
+      if (this.displayName == 'FileInterface') {
+        stream = webToNodeStream(this.descriptor.stream())
+      } else {
+        stream = await this.stream()
+      }
+
+      let buffer = new Buffer.alloc(0)
+      let offset = 0
+      let totalChunkSize = 0
+      let chunkCount = 0
+      let fileSize = this.size
+
+      //calculates and displays progress after every 20th chunk
+      const _reportProgress = new Transform({
+        transform(chunk, encoding, callback) {
+          if (chunkCount % 20 == 0) {
+            const runningTotal = totalChunkSize + offset
+            const percentComplete = Math.round((runningTotal / fileSize) * 100)
+            console.log(`Buffering... ${percentComplete}%`)
+          }
+          callback(null, chunk)
+        },
+      })
+
+      console.log('Buffering Started...')
+      stream
+        .pipe(_reportProgress)
+        .on('data', function (chunk) {
+          offset += chunk.length
+          chunkCount += 1
+          buffer = Buffer.concat([buffer, chunk])
+        })
+        .on('end', function () {
+          console.log('Buffering Complete')
+          resolve(buffer)
+        })
+        .on('error', function (err) {
+          reject(err)
+        })
+    })
   }
 
   rows({ keyed, sheet, size } = {}) {
@@ -137,9 +168,9 @@ export class FileInterface extends File {
     return toNodeStream(this.descriptor.stream().getReader(), size)
   }
 
-  get buffer() {
-    return this.descriptor.arrayBuffer()
-  }
+  // get buffer() {
+  //   return this.descriptor.arrayBuffer()
+  // }
 
   get size() {
     return this.descriptor.size
