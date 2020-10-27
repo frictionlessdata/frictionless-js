@@ -49,7 +49,7 @@ class FileRemote extends _fileBase.File {
         if (typeof window === 'undefined') {
           return res.body;
         } else {
-          return await (0, _index.toNodeStream)(res.body.getReader(), size);
+          return (0, _index.webToNodeStream)(res.body);
         }
       } else {
         throw new Error(`${res.status}: ${res.statusText}. Requested URL: ${this.path}`);

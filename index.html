@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="./lib/bundle.js"></script>
     <title>Document</title>
 </head>
 
@@ -16,6 +15,7 @@
     </div>
 
 </body>
+<script src="./lib/bundle.js"></script>
 <script>
 
     var inputElement = document.getElementById("inputField");
@@ -30,16 +30,17 @@
         // const rowStream = await file.rows({ size: 20, keyed: true });
         // file.descriptor.sample = await toArray(rowStream);
         // console.log("rowStream: ", rowStream);
-        await file.addSchema();
+        // await file.addSchema();
 
         // console.log("descriptor: ", file);
 
         // // Show the progress of the hash generator on console in devtools
-        let hash = await file.hashSha256()
-        console.log("Done:", hash);
+        // let hash = await file.hash("sha256")
+        // console.log("Done:", hash);
 
-        // const contentBuffer = await file.buffer
-        // console.log("contentBuffer :", contentBuffer);
+        const contentBuffer = await file.buffer
+        // console.log("lenght", Buffer.byteLength(contentBuffer));
+        console.log("contentBuffer :", contentBuffer);
     }
 
 </script>
