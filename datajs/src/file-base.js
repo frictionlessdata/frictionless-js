@@ -10,7 +10,6 @@ import {
 } from './browser-utils/index'
 import { open } from './data'
 
-
 /**
  * Abstract Base instance of File
  */
@@ -48,10 +47,16 @@ export class File {
 
   get buffer() {
     return (async () => {
-      const stream = await this.stream()
+      let stream = this.stream()
+      stream
+        .on('data', (d) => {
+          console.log(d)
+        })
+        .on('end', () => {
+          console.log('End')
+        })
       const buffers = await toArray(stream)
 
-      // eslint-disable-next-line no-undef
       return Buffer.concat(buffers)
     })()
   }
@@ -144,12 +149,11 @@ export class FileInterface extends File {
     return this.descriptor.name
   }
 
-
-   /**
+  /**
    * Calculates the hash of a file
    * @param {string} hashType - md5/sha256 type of hash algorithm to use
    */
-  async hash(hashType='sha256') {
+  async hash(hashType = 'sha256') {
     let stream = webToNodeStream(this.descriptor.stream())
     return computeHash(stream, this.size, hashType)
   }
