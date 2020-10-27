@@ -38,9 +38,12 @@
         // let hash = await file.hash("sha256")
         // console.log("Done:", hash);
 
-        const contentBuffer = await file.buffer
+        await file.bufferInChunks((buf, percent)=>{
+            // console.log("contentBuffer :", buf);
+            console.log("Progress :", percent);
+
+        })
         // console.log("lenght", Buffer.byteLength(contentBuffer));
-        console.log("contentBuffer :", contentBuffer);
     }
 
 </script>
