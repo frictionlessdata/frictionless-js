@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.computeHash = computeHash;
 exports.FileInterface = exports.File = void 0;
 
 var _data = require("./data");
@@ -17,7 +18,13 @@ var _csv = require("./parser/csv");
 
 var _index = require("./browser-utils/index");
 
+var _crypto = _interopRequireDefault(require("crypto"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const {
+  Transform
+} = require('stream');
 
 class File {
   static load(pathOrDescriptor, {
@@ -167,11 +174,53 @@ class FileInterface extends File {
     return this.descriptor.name;
   }
 
-  async hash(hashType = 'sha256') {
+  async hash(hashType = 'sha256', progress) {
     let stream = (0, _index.webToNodeStream)(this.descriptor.stream());
-    return (0, _index.computeHash)(stream, this.size, hashType);
+    return computeHash(stream, this.size, hashType, progress);
   }
 
 }
 
 exports.FileInterface = FileInterface;
+
+function computeHash(fileStream, fileSize, algorithm, progress) {
+  return new Promise((resolve, reject) => {
+    let hash = _crypto.default.createHash(algorithm);
+
+    let offset = 0;
+    let totalChunkSize = 0;
+    let chunkCount = 0;
+
+    const _reportProgress = new Transform({
+      transform(chunk, encoding, callback) {
+        if (chunkCount % 20 == 0) {
+          const runningTotal = totalChunkSize + offset;
+          const percentComplete = Math.round(runningTotal / fileSize * 100);
+
+          if (typeof progress === 'function') {
+            progress(percentComplete);
+          }
+        }
+
+        callback(null, chunk);
+      }
+
+    });
+
+    fileStream.pipe(_reportProgress).on('error', function (err) {
+      reject(err);
+    }).on('data', function (chunk) {
+      offset += chunk.length;
+      chunkCount += 1;
+      hash.update(chunk);
+    }).on('end', function () {
+      hash = hash.digest('hex');
+
+      if (typeof progress === 'function') {
+        progress(100);
+      }
+
+      resolve(hash);
+    });
+  });
+}

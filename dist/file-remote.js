@@ -61,6 +61,10 @@ class FileRemote extends _fileBase.File {
     return this._encoding || _data.DEFAULT_ENCODING;
   }
 
+  async hash(hashType = 'sha256', progress) {
+    return (0, _fileBase.computeHash)(this.stream(), this.size, hashType, progress);
+  }
+
 }
 
 exports.FileRemote = FileRemote;

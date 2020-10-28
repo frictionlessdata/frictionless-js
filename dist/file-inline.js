@@ -40,7 +40,7 @@ class FileInline extends _fileBase.File {
     return this._buffer.byteLength;
   }
 
-  get hash() {
+  hash() {
     return crypto.createHash('md5').update(this._buffer).digest('hex');
   }
 
