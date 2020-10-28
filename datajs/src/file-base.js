@@ -1,7 +1,6 @@
 import { DEFAULT_ENCODING, PARSE_DATABASE, KNOWN_TABULAR_FORMAT } from './data'
 import { infer } from 'tableschema'
 import toArray from 'stream-to-array'
-const { Transform } = require('stream')
 import { isPlainObject } from 'lodash'
 import { guessParseOptions } from './parser/csv'
 import { toNodeStream, webToNodeStream } from './browser-utils/index'
