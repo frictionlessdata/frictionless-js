@@ -149,8 +149,8 @@ export class FileInterface extends File {
    * Calculates the hash of a file
    * @param {string} hashType - md5/sha256 type of hash algorithm to use
    */
-  async hash(hashType='sha256') {
+  async hash(hashType='sha256', progress) {
     let stream = webToNodeStream(this.descriptor.stream())
-    return computeHash(stream, this.size, hashType)
+    return computeHash(stream, this.size, hashType, progress)
   }
 }

@@ -61,7 +61,6 @@ export async function toNodeStream(reader, size, returnChunk = false) {
   return nodeStream
 }
 
-
 export function isFileFromBrowser(file) {
   return file instanceof File
 }
@@ -80,21 +79,24 @@ export function webToNodeStream(reader) {
  * @param {Readerable Stream} fileStream A node like stream
  * @param {number} fileSize Total size of the file
  * @param {string} algorithm sha256/md5 hashing algorithm to use
+ * @param {func} progress Callback function with progress
  */
-export function computeHash(fileStream, fileSize, algorithm) {
+export function computeHash(fileStream, fileSize, algorithm, progress) {
   return new Promise((resolve, reject) => {
     let hash = crypto.createHash(algorithm)
     let offset = 0
     let totalChunkSize = 0
     let chunkCount = 0
 
-    //calculates and displays progress after every 20th chunk
+    //calculates progress after every 100th chunk
     const _reportProgress = new Transform({
       transform(chunk, encoding, callback) {
-        if (chunkCount % 20 == 0) {
+        if (chunkCount % 100 == 0) {
           const runningTotal = totalChunkSize + offset
           const percentComplete = Math.round((runningTotal / fileSize) * 100)
-          console.log(`Hashing progress: ...${percentComplete}%`)
+          if (typeof progress === 'function') {
+            progress(percentComplete) //callback with progress
+          }
         }
         callback(null, chunk)
       },
@@ -112,7 +114,9 @@ export function computeHash(fileStream, fileSize, algorithm) {
       })
       .on('end', function () {
         hash = hash.digest('hex')
-        console.log(`Hashing progress: ...100%`)
+        if (typeof progress === 'function') {
+          progress(percentComplete)
+        }
         resolve(hash)
       })
   })
