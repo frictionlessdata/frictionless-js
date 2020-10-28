@@ -16,8 +16,8 @@ describe('File Remote', function () {
 
     nock.cleanAll()
 
-    const res = data.open(url)
-    await testFileStream(assert, res)
+    const file = data.open(url)
+    await testFileStream(assert, file)
   })
 
   it('File class for addSchema method', async () => {

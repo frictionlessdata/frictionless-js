@@ -58,6 +58,44 @@ class File {
     return null;
   }
 
+  async bufferInChunks(getChunk) {
+    let stream = null;
+
+    if (this.displayName == 'FileInterface') {
+      stream = (0, _index.webToNodeStream)(this.descriptor.stream());
+    } else {
+      stream = await this.stream();
+    }
+
+    let offset = 0;
+    let totalChunkSize = 0;
+    let chunkCount = 0;
+    let fileSize = this.size;
+    var percent = 0;
+
+    const _reportProgress = new Transform({
+      transform(chunk, encoding, callback) {
+        if (chunkCount % 100 == 0) {
+          const runningTotal = totalChunkSize + offset;
+          const percentComplete = Math.round(runningTotal / fileSize * 100);
+          percent = percentComplete;
+        }
+
+        callback(null, chunk);
+      }
+
+    });
+
+    stream.pipe(_reportProgress).on('data', function (chunk) {
+      offset += chunk.length;
+      chunkCount += 1;
+      let buffer = new Buffer.from(chunk);
+      getChunk(buffer, percent);
+    }).on('error', function (err) {
+      throw new Error(err);
+    });
+  }
+
   get buffer() {
     return (async () => {
       const stream = await this.stream();

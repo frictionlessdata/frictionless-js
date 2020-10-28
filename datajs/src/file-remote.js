@@ -2,7 +2,7 @@ import urljoin from 'url-join'
 import fetch from 'node-fetch'
 import { File, computeHash } from './file-base'
 import { isUrl } from './data'
-import { toNodeStream } from './browser-utils/index'
+import { toNodeStream, webToNodeStream } from './browser-utils/index'
 import { DEFAULT_ENCODING } from './data'
 
 export class FileRemote extends File {
@@ -35,7 +35,7 @@ export class FileRemote extends File {
         if (typeof window === 'undefined') {
           return res.body
         } else {
-          return await toNodeStream(res.body.getReader(), size)
+          return webToNodeStream(res.body)
         }
       } else {
         throw new Error(
@@ -44,6 +44,7 @@ export class FileRemote extends File {
       }
     })()
   }
+
 
   get encoding() {
     return this._encoding || DEFAULT_ENCODING

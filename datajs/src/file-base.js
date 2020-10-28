@@ -1,13 +1,13 @@
 import { DEFAULT_ENCODING, PARSE_DATABASE, KNOWN_TABULAR_FORMAT } from './data'
 import { infer } from 'tableschema'
 import toArray from 'stream-to-array'
+const { Transform } = require('stream')
 import { isPlainObject } from 'lodash'
 import { guessParseOptions } from './parser/csv'
 import { toNodeStream, webToNodeStream } from './browser-utils/index'
 import { open } from './data'
 const { Transform } = require('stream')
 import crypto from 'crypto'
-
 
 /**
  * Abstract Base instance of File
@@ -43,6 +43,63 @@ export class File {
   stream() {
     return null
   }
+
+  /**
+   * Return file buffer in chunks
+   * @param {func} getChunk Callback function that returns current chunk and percent of progress
+   * 
+   * Example Usage:
+   * 
+   *  await file.bufferInChunks((buf, percent)=>{
+   *         console.log("contentBuffer :", buf);
+   *         console.log("Progress :", percent);
+   *    })
+   * 
+   */
+  async bufferInChunks(getChunk) {
+    let stream = null
+
+    if (this.displayName == 'FileInterface') {
+      stream = webToNodeStream(this.descriptor.stream())
+    } else {
+      stream = await this.stream()
+    }
+
+    let offset = 0
+    let totalChunkSize = 0
+    let chunkCount = 0
+    let fileSize = this.size
+    var percent = 0
+
+    //calculates and sets the progress after every 100th chunk
+    const _reportProgress = new Transform({
+      transform(chunk, encoding, callback) {
+        if (chunkCount % 100 == 0) {
+          const runningTotal = totalChunkSize + offset
+          const percentComplete = Math.round((runningTotal / fileSize) * 100)
+          percent = percentComplete
+        }
+        callback(null, chunk)
+      },
+    })
+
+    stream
+      .pipe(_reportProgress)
+      .on('data', function (chunk) {
+        offset += chunk.length
+        chunkCount += 1
+
+        let buffer = new Buffer.from(chunk)
+        getChunk(buffer, percent)
+      })
+      // .on('end', function () {
+      //   getChunk(null, 100)
+      // })
+      .on('error', function (err) {
+        throw new Error(err)
+      })
+  }
+
 
   get buffer() {
     return (async () => {

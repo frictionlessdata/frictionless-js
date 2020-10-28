@@ -52,15 +52,16 @@ describe('FileInterface', function () {
   })
 
   it('stream()', async () => {
-    debugger
     const file = new data.open(genFile())
 
     // Test stream
     const stream = await file.stream({ size: -1 })
     const out = await toArray(stream)
     expect(out.toString().indexOf('number,string,boolean')).toBeGreaterThan(-1)
+  })
 
-    // Test buffer
+  it('buffer()', async () => {
+    const file = new data.open(genFile())
     const buffer = await file.buffer
     const text = new TextDecoder('utf-8').decode(buffer)
     expect(text.slice(0, 21)).toBe('number,string,boolean')

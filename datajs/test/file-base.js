@@ -2,7 +2,6 @@ import assert from 'assert'
 import * as data from '../src/data'
 import toArray from 'stream-to-array'
 import { File } from '../src/file-base'
-
 // common method to test all the functionality which we can use for all types
 // of files
 export const testFile = async (assert, file) => {
@@ -77,5 +76,17 @@ describe('File Base', async () => {
     let path_ = 'datajs/test/fixtures/some file.name.ext'
     let file = File.load(path_)
     assert.strictEqual(file.descriptor.name, 'some-file.name')
+  })
+})
+
+describe('bufferInChunks', () => {
+  it('File is loaded in chunks', async () => {
+    const path_ = 'datajs/test/fixtures/sample-cyrillic-encoding.csv'
+    const file = data.open(path_)
+
+     file.bufferInChunks((chunk, percent) => {
+      assert.strictEqual(chunk.length , 40)
+      assert.strictEqual(typeof percent, 'number')
+    })
   })
 })
