@@ -1,7 +1,6 @@
 import { Readable } from 'stream'
 import { ReadableWebToNodeStream } from 'readable-web-to-node-stream'
-const { Transform } = require('stream')
-import crypto from 'crypto'
+
 
 /**
  * Return node like stream so that parsers work.
@@ -72,52 +71,4 @@ export function isFileFromBrowser(file) {
 export function webToNodeStream(reader) {
   const stream = new ReadableWebToNodeStream(reader)
   return stream
-}
-
-/**
- * Computes the streaming hash of a file
- * @param {Readerable Stream} fileStream A node like stream
- * @param {number} fileSize Total size of the file
- * @param {string} algorithm sha256/md5 hashing algorithm to use
- * @param {func} progress Callback function with progress
- */
-export function computeHash(fileStream, fileSize, algorithm, progress) {
-  return new Promise((resolve, reject) => {
-    let hash = crypto.createHash(algorithm)
-    let offset = 0
-    let totalChunkSize = 0
-    let chunkCount = 0
-
-    //calculates progress after every 20th chunk
-    const _reportProgress = new Transform({
-      transform(chunk, encoding, callback) {
-        if (chunkCount % 20 == 0) {
-          const runningTotal = totalChunkSize + offset
-          const percentComplete = Math.round((runningTotal / fileSize) * 100)
-          if (typeof progress === 'function') {
-            progress(percentComplete) //callback with progress
-          }
-        }
-        callback(null, chunk)
-      },
-    })
-
-    fileStream
-      .pipe(_reportProgress)
-      .on('error', function (err) {
-        reject(err)
-      })
-      .on('data', function (chunk) {
-        offset += chunk.length
-        chunkCount += 1
-        hash.update(chunk)
-      })
-      .on('end', function () {
-        hash = hash.digest('hex')
-        if (typeof progress === 'function') {
-          progress(100)
-        }
-        resolve(hash)
-      })
-  })
 }

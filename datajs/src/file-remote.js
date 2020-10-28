@@ -1,8 +1,8 @@
 import urljoin from 'url-join'
 import fetch from 'node-fetch'
-import { File } from './file-base'
+import { File, computeHash } from './file-base'
 import { isUrl } from './data'
-import { toNodeStream, computeHash } from './browser-utils/index'
+import { toNodeStream } from './browser-utils/index'
 import { DEFAULT_ENCODING } from './data'
 
 export class FileRemote extends File {

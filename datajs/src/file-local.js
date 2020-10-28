@@ -1,7 +1,6 @@
 import chardet from 'chardet'
 import fs from 'fs'
-import { File } from './file-base'
-import { computeHash } from './browser-utils/utils'
+import { File, computeHash } from './file-base'
 import path from 'path'
 
 export class FileLocal extends File {
