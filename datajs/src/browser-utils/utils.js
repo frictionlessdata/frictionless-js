@@ -88,10 +88,10 @@ export function computeHash(fileStream, fileSize, algorithm, progress) {
     let totalChunkSize = 0
     let chunkCount = 0
 
-    //calculates progress after every 100th chunk
+    //calculates progress after every 20th chunk
     const _reportProgress = new Transform({
       transform(chunk, encoding, callback) {
-        if (chunkCount % 100 == 0) {
+        if (chunkCount % 20 == 0) {
           const runningTotal = totalChunkSize + offset
           const percentComplete = Math.round((runningTotal / fileSize) * 100)
           if (typeof progress === 'function') {
@@ -115,7 +115,7 @@ export function computeHash(fileStream, fileSize, algorithm, progress) {
       .on('end', function () {
         hash = hash.digest('hex')
         if (typeof progress === 'function') {
-          progress(percentComplete)
+          progress(100)
         }
         resolve(hash)
       })

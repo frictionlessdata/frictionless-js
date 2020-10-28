@@ -36,7 +36,7 @@ export class FileLocal extends File {
    * Calculates the hash of a file
    * @param {string} hashType - md5/sha256 type of hash algorithm to use
    */
-  async hash(hashType='sha256') {
-    return computeHash(this.stream(), this.size, hashType)
+  async hash(hashType='sha256', progress) {
+    return computeHash(this.stream(), this.size, hashType, progress)
   }
 }

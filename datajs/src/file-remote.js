@@ -2,9 +2,8 @@ import urljoin from 'url-join'
 import fetch from 'node-fetch'
 import { File } from './file-base'
 import { isUrl } from './data'
-import { toNodeStream } from './browser-utils/index'
+import { toNodeStream, computeHash } from './browser-utils/index'
 import { DEFAULT_ENCODING } from './data'
-
 
 export class FileRemote extends File {
   get displayName() {
@@ -48,5 +47,13 @@ export class FileRemote extends File {
 
   get encoding() {
     return this._encoding || DEFAULT_ENCODING
+  }
+
+  /**
+   * Calculates the hash of a file
+   * @param {string} hashType - md5/sha256 type of hash algorithm to use
+   */
+  async hash(hashType = 'sha256', progress) {
+    return computeHash(this.stream(), this.size, hashType, progress)
   }
 }
