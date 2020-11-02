@@ -46,14 +46,14 @@ export class File {
   /**
    * Return file buffer in chunks
    * @param {func} getChunk Callback function that returns current chunk and percent of progress
-   * 
+   *
    * Example Usage:
-   * 
+   *
    *  await file.bufferInChunks((buf, percent)=>{
    *         console.log("contentBuffer :", buf);
    *         console.log("Progress :", percent);
    *    })
-   * 
+   *
    */
   async bufferInChunks(getChunk) {
     let stream = null
@@ -99,7 +99,9 @@ export class File {
       })
   }
 
-
+  /**
+   * Returns file buffer
+   */
   get buffer() {
     return (async () => {
       const stream = await this.stream()
@@ -108,6 +110,29 @@ export class File {
       // eslint-disable-next-line no-undef
       return Buffer.concat(buffers)
     })()
+  }
+
+  /**
+   * Calculates the hash of a file
+   * @param {string} hashType - md5/sha256 type of hash algorithm to use
+   * @param {func} progress - Callback that returns current progress
+   * @returns {string} hash of file
+   */
+  async hash(hashType = 'md5', progress) {
+    let displayName = this.displayName
+    let stream = null
+
+    switch (displayName) {
+      case 'FileInterface':
+        stream = webToNodeStream(this.descriptor.stream())
+        break
+      case 'FileInline':
+        return crypto.createHash('md5').update(this._buffer).digest('hex')
+      default:
+        stream = this.stream()
+        break
+    }
+    return computeHash(stream, this.size, hashType, progress)
   }
 
   rows({ keyed, sheet, size } = {}) {
@@ -196,17 +221,6 @@ export class FileInterface extends File {
 
   get fileName() {
     return this.descriptor.name
-  }
-
-  /**
-   * Calculates the hash of a file
-   * @param {string} hashType - md5/sha256 type of hash algorithm to use
-  * @param {func} progress - Callback that returns current progress
-   * @returns {string} hash of file
-   */
-  async hash(hashType = 'sha256', progress) {
-    let stream = webToNodeStream(this.descriptor.stream())
-    return computeHash(stream, this.size, hashType, progress)
   }
 }
 

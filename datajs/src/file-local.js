@@ -31,13 +31,4 @@ export class FileLocal extends File {
     return chardet.detectFileSync(this.path)
   }
 
-  /**
-   * Calculates the hash of a file
-   * @param {string} hashType - md5/sha256 type of hash algorithm to use
-   * @param {func} progress - Callback that returns current progress
-   * @returns {string} hash of file
-   */
-  async hash(hashType = 'sha256', progress) {
-    return computeHash(this.stream(), this.size, hashType, progress)
-  }
 }
