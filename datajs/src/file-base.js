@@ -43,6 +43,7 @@ export class File {
     return null
   }
 
+
   /**
    * Return file buffer in chunks
    * @param {func} getChunk Callback function that returns current chunk and percent of progress
@@ -91,9 +92,9 @@ export class File {
         let buffer = new Buffer.from(chunk)
         getChunk(buffer, percent)
       })
-      // .on('end', function () {
-      //   getChunk(null, 100)
-      // })
+      .on('end', function () {
+        getChunk(null, 100)
+      })
       .on('error', function (err) {
         throw new Error(err)
       })
@@ -107,7 +108,6 @@ export class File {
       const stream = await this.stream()
       const buffers = await toArray(stream)
 
-      // eslint-disable-next-line no-undef
       return Buffer.concat(buffers)
     })()
   }
@@ -132,7 +132,7 @@ export class File {
         stream = this.stream()
         break
     }
-    return await computeHash(stream, this.size, hashType, progress)
+    return await _computeHash(stream, this.size, hashType, progress)
   }
 
   /**
@@ -149,6 +149,14 @@ export class File {
     return this.hash('sha256', progress)
   }
 
+  /**
+   * Return specified number of rows as stream of data
+   * @param {boolean} keyed whether the file is keyed or not
+   * @param {number} sheet The number of the sheet to load for excel files
+   * @param {number} size The number of rows to return
+   *
+   * @returns {Stream} File stream
+   */
   rows({ keyed, sheet, size } = {}) {
     return this._rows({ keyed, sheet, size })
   }
@@ -245,7 +253,7 @@ export class FileInterface extends File {
  * @param {string} algorithm sha256/md5 hashing algorithm to use
  * @param {func} progress Callback function with progress
  */
-export function computeHash(fileStream, fileSize, algorithm, progress) {
+export function _computeHash(fileStream, fileSize, algorithm, progress) {
   return new Promise((resolve, reject) => {
     let hash = crypto.createHash(algorithm)
     let offset = 0
