@@ -58,7 +58,6 @@ function isFileFromBrowser(file) {
   return file instanceof File;
 }
 
-function webToNodeStream(reader) {
-  const stream = new _readableWebToNodeStream.ReadableWebToNodeStream(reader);
-  return stream;
+function webToNodeStream(reader, size) {
+  return new _readableWebToNodeStream.ReadableWebToNodeStream(reader);
 }

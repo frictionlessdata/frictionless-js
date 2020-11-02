@@ -28,7 +28,8 @@ export class FileRemote extends File {
     })()
   }
 
-  stream({ size = 0 } = {}) {
+  stream({ size } = {}) {
+    size = size === -1 ? this.size : size || 0
     return (async () => {
       const res = await fetch(this.path)
       if (res.status === 200) {
@@ -48,5 +49,4 @@ export class FileRemote extends File {
   get encoding() {
     return this._encoding || DEFAULT_ENCODING
   }
-
 }

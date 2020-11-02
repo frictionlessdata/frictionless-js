@@ -31,7 +31,6 @@ export async function guessParseOptions(file) {
   } else if (file.displayName === 'FileInterface') {
     let reader = file.descriptor.stream().getReader()
     text = await toNodeStream(reader, 10, true)
-
   } else if (file.displayName === 'FileRemote') {
     const stream = await file.stream({ size: 100 })
     let bytes = 0

@@ -40,8 +40,9 @@ class FileRemote extends _fileBase.File {
   }
 
   stream({
-    size = 0
+    size
   } = {}) {
+    size = size === -1 ? this.size : size || 0;
     return (async () => {
       const res = await (0, _nodeFetch.default)(this.path);
 
@@ -49,7 +50,7 @@ class FileRemote extends _fileBase.File {
         if (typeof window === 'undefined') {
           return res.body;
         } else {
-          return (0, _index.webToNodeStream)(res.body);
+          return (0, _index.webToNodeStream)(res.body, size);
         }
       } else {
         throw new Error(`${res.status}: ${res.statusText}. Requested URL: ${this.path}`);
@@ -59,10 +60,6 @@ class FileRemote extends _fileBase.File {
 
   get encoding() {
     return this._encoding || _data.DEFAULT_ENCODING;
-  }
-
-  async hash(hashType = 'sha256', progress) {
-    return (0, _fileBase.computeHash)(this.stream(), this.size, hashType, progress);
   }
 
 }

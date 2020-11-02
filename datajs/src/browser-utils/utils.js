@@ -1,7 +1,6 @@
 import { Readable } from 'stream'
 import { ReadableWebToNodeStream } from 'readable-web-to-node-stream'
 
-
 /**
  * Return node like stream so that parsers work.
  * Transform browser's Reader to string, then create a nodejs stream from it
@@ -69,6 +68,5 @@ export function isFileFromBrowser(file) {
  * @param {object} reader A file stream reader from the browser input
  */
 export function webToNodeStream(reader, size) {
-  const stream = new ReadableWebToNodeStream(reader)
-  return stream
+  return new ReadableWebToNodeStream(reader)
 }

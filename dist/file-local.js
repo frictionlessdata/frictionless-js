@@ -47,10 +47,6 @@ class FileLocal extends _fileBase.File {
     return _chardet.default.detectFileSync(this.path);
   }
 
-  async hash(hashType = 'sha256', progress) {
-    return (0, _fileBase.computeHash)(this.stream(), this.size, hashType, progress);
-  }
-
 }
 
 exports.FileLocal = FileLocal;

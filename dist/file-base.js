@@ -3,7 +3,6 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.computeHash = computeHash;
 exports.FileInterface = exports.File = void 0;
 
 var _data = require("./data");
@@ -54,10 +53,6 @@ class File {
     throw new Error('This is an abstract base class which you should not instantiate. Use open() instead');
   }
 
-  stream() {
-    return null;
-  }
-
   async bufferInChunks(getChunk) {
     let stream = null;
 
@@ -102,6 +97,15 @@ class File {
       const buffers = await (0, _streamToArray.default)(stream);
       return Buffer.concat(buffers);
     })();
+  }
+
+  async hash(hashType = 'md5', progress) {
+    return _computeHash(this.stream(), this.size, hashType, progress);
+  }
+
+  async hashSha256(progress) {
+    console.warn("WARNING! Depreciated function called. Function 'hashSha256' has been deprecated, use the 'hash' function and pass the algorithm type instead!");
+    return this.hash('sha256', progress);
   }
 
   rows({
@@ -197,7 +201,7 @@ class FileInterface extends File {
     size
   } = {}) {
     size = size === -1 ? this.size : size || 0;
-    return (0, _index.toNodeStream)(this.descriptor.stream().getReader(), size);
+    return (0, _index.webToNodeStream)(this.descriptor.stream(), size);
   }
 
   get buffer() {
@@ -212,16 +216,11 @@ class FileInterface extends File {
     return this.descriptor.name;
   }
 
-  async hash(hashType = 'sha256', progress) {
-    let stream = (0, _index.webToNodeStream)(this.descriptor.stream());
-    return computeHash(stream, this.size, hashType, progress);
-  }
-
 }
 
 exports.FileInterface = FileInterface;
 
-function computeHash(fileStream, fileSize, algorithm, progress) {
+function _computeHash(fileStream, fileSize, algorithm, progress) {
   return new Promise((resolve, reject) => {
     let hash = _crypto.default.createHash(algorithm);
 
