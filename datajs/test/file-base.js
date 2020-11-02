@@ -84,9 +84,19 @@ describe('bufferInChunks', () => {
     const path_ = 'datajs/test/fixtures/sample-cyrillic-encoding.csv'
     const file = data.open(path_)
 
-     file.bufferInChunks((chunk, percent) => {
-      assert.strictEqual(chunk.length , 40)
+    file.bufferInChunks((chunk, percent) => {
+      assert.strictEqual(chunk.length, 40)
       assert.strictEqual(typeof percent, 'number')
     })
+  })
+})
+
+describe('hashSha256', () => {
+  it('hashSha256 returns right hash', async () => {
+    const path_ = 'datajs/test/fixtures/sample-cyrillic-encoding.csv'
+    const file = data.open(path_)
+
+    let hash = await file.hashSha256()
+    assert.strictEqual(hash, '8eff5a7815864615309d48035b461b79aa1bdc4402924e97fc66e123725214fd')
   })
 })

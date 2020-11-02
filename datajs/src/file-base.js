@@ -132,7 +132,21 @@ export class File {
         stream = this.stream()
         break
     }
-    return computeHash(stream, this.size, hashType, progress)
+    return await computeHash(stream, this.size, hashType, progress)
+  }
+
+  /**
+   * @deprecated Use "hash" function instead by passing the algorithm type
+   *
+   * Calculates the hash of a file using sha256 algorithm
+   * @param {func} progress - Callback that returns current progress
+   * @returns {string} hash of file
+   */
+  async hashSha256(progress) {
+    console.warn(
+      "WARNING! Depreciated function called. Function 'hashSha256' has been deprecated, use the 'hash' function and pass the algorithm type instead!"
+    )
+    return this.hash('sha256', progress)
   }
 
   rows({ keyed, sheet, size } = {}) {
