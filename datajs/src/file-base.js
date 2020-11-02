@@ -3,11 +3,10 @@ import { infer } from 'tableschema'
 import toArray from 'stream-to-array'
 import { isPlainObject } from 'lodash'
 import { guessParseOptions } from './parser/csv'
-import { toNodeStream, webToNodeStream } from './browser-utils/index'
+import { webToNodeStream } from './browser-utils/index'
 import { open } from './data'
 const { Transform } = require('stream')
 import crypto from 'crypto'
-
 /**
  * Abstract Base instance of File
  */
@@ -38,11 +37,6 @@ export class File {
       'This is an abstract base class which you should not instantiate. Use open() instead'
     )
   }
-
-  stream() {
-    return null
-  }
-
 
   /**
    * Return file buffer in chunks
@@ -92,9 +86,9 @@ export class File {
         let buffer = new Buffer.from(chunk)
         getChunk(buffer, percent)
       })
-      .on('end', function () {
-        getChunk(null, 100)
-      })
+      // .on('end', function () {
+      //   getChunk(null, 100)
+      // })
       .on('error', function (err) {
         throw new Error(err)
       })
@@ -119,26 +113,13 @@ export class File {
    * @returns {string} hash of file
    */
   async hash(hashType = 'md5', progress) {
-    let displayName = this.displayName
-    let stream = null
-
-    switch (displayName) {
-      case 'FileInterface':
-        stream = webToNodeStream(this.descriptor.stream())
-        break
-      case 'FileInline':
-        return crypto.createHash('md5').update(this._buffer).digest('hex')
-      default:
-        stream = this.stream()
-        break
-    }
-    return await _computeHash(stream, this.size, hashType, progress)
+    return _computeHash(this.stream(), this.size, hashType, progress)
   }
 
   /**
    * @deprecated Use "hash" function instead by passing the algorithm type
    *
-   * Calculates the hash of a file using sha256 algorithm
+   * Calculates the hash of a file usiƒng sha256 algorithm
    * @param {func} progress - Callback that returns current progress
    * @returns {string} hash of file
    */
@@ -225,12 +206,12 @@ export class FileInterface extends File {
   }
 
   /**
-   *
+   * Return the stream to a file
    * If the size is -1 then will read whole file
    */
   stream({ size } = {}) {
     size = size === -1 ? this.size : size || 0
-    return toNodeStream(this.descriptor.stream().getReader(), size)
+    return webToNodeStream(this.descriptor.stream(), size)
   }
 
   get buffer() {
@@ -253,7 +234,7 @@ export class FileInterface extends File {
  * @param {string} algorithm sha256/md5 hashing algorithm to use
  * @param {func} progress Callback function with progress
  */
-export function _computeHash(fileStream, fileSize, algorithm, progress) {
+function _computeHash(fileStream, fileSize, algorithm, progress) {
   return new Promise((resolve, reject) => {
     let hash = crypto.createHash(algorithm)
     let offset = 0

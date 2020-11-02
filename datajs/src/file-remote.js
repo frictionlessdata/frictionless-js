@@ -35,7 +35,7 @@ export class FileRemote extends File {
         if (typeof window === 'undefined') {
           return res.body
         } else {
-          return webToNodeStream(res.body)
+          return webToNodeStream(res.body, size)
         }
       } else {
         throw new Error(

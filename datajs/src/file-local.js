@@ -1,6 +1,6 @@
 import chardet from 'chardet'
 import fs from 'fs'
-import { File, computeHash } from './file-base'
+import { File } from './file-base'
 import path from 'path'
 
 export class FileLocal extends File {
@@ -30,5 +30,4 @@ export class FileLocal extends File {
     }
     return chardet.detectFileSync(this.path)
   }
-
 }
