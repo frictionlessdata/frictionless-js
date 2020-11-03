@@ -11,7 +11,7 @@ module.exports = function (config) {
     frameworks: ['jasmine', 'browserify'],
 
     // list of files / patterns to load in the browser
-    files: ['lib/bundle.js', 'datajs/browser-test/*.js'],
+    files: ['dist/browser/bundle.js', 'datajs/browser-test/*.js'],
 
     // list of files / patterns to exclude
     exclude: [],

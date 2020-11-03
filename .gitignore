@@ -14,8 +14,7 @@ results/
 node_modules/
 .idea/
 
-dist/
-lib/
+dist/*
 npm-debug.log
 package-lock.json
 
