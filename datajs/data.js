@@ -10,7 +10,7 @@ import { xlsxParser } from './parser/xlsx'
 // for browser related functions
 import { isFileFromBrowser } from './browser-utils/index'
 
-import { FileInterface } from './file-base'
+import { FileInterface } from './file-interface'
 import { FileLocal } from './file-local'
 import { FileRemote } from './file-remote'
 import { FileInline } from './file-inline'
