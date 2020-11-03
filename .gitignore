@@ -25,5 +25,4 @@ coverage
 .vscode
 
 datajs/test/_babel*
-index.*
 node_modules
