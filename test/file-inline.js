@@ -1,5 +1,5 @@
 import assert from 'assert'
-import * as data from '../data'
+import * as data from '../src/data'
 import toArray from 'stream-to-array'
 import { testFile } from './file-base'
 
@@ -20,7 +20,7 @@ describe('File-Inline', () => {
     const inlineData = `number,string,boolean\n1,two,true\n3,four,false`
     // To make it testable with testFile we add the path but it is not needed
     const file = data.open({
-      path: 'datajs/test/fixtures/sample.csv',
+      path: 'test/fixtures/sample.csv',
       format: 'csv',
       inlineData,
     })

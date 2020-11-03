@@ -1,8 +1,8 @@
 import assert from 'assert'
 import path from 'path'
 import nock from 'nock'
-import * as data from '../data'
-import { Dataset } from '../dataset'
+import * as data from '../src/data'
+import { Dataset } from '../src/dataset'
 
 describe('Dataset', () => {
   it('Dataset constructor works', async () => {
@@ -18,14 +18,14 @@ describe('Dataset', () => {
   })
 
   it('Dataset with inline README works', async () => {
-    const path = 'datajs/test/fixtures/dp-with-inline-readme'
+    const path = 'test/fixtures/dp-with-inline-readme'
     const dataset = await Dataset.load(path)
     assert.deepStrictEqual(dataset.identifier.type, 'local')
     assert.deepStrictEqual(dataset.readme, 'This is the README')
   })
 
   it('Dataset.load works with co2-ppm', async () => {
-    const path = 'datajs/test/fixtures/co2-ppm'
+    const path = 'test/fixtures/co2-ppm'
     const dataset2 = await Dataset.load(path)
     assert.strictEqual(dataset2.identifier.type, 'local')
 
@@ -34,7 +34,7 @@ describe('Dataset', () => {
     assert.strictEqual(dataset2.resources[0].descriptor.name, 'co2-mm-mlo')
     assert.strictEqual(
       dataset2.resources[0].path.includes(
-        'datajs/test/fixtures/co2-ppm/data/co2-mm-mlo.csv'
+        'test/fixtures/co2-ppm/data/co2-mm-mlo.csv'
       ),
       true
     )
@@ -47,7 +47,7 @@ describe('Dataset', () => {
   })
 
   it('Dataset.load with dir/datapckage.json', async () => {
-    const path = 'datajs/test/fixtures/co2-ppm/datapackage.json'
+    const path = 'test/fixtures/co2-ppm/datapackage.json'
     const dataset = await Dataset.load(path)
     assert.strictEqual(dataset.descriptor.name, 'co2-ppm')
     assert.strictEqual(dataset.identifier.type, 'local')
@@ -91,7 +91,7 @@ describe('Dataset', () => {
   it('Dataset.addResource method works', async () => {
     const resourceAsPlainObj = {
       name: 'sample',
-      path: 'datajs/test/fixtures/sample.csv',
+      path: 'test/fixtures/sample.csv',
       format: 'csv',
     }
     const resourceAsFileObj = data.open(resourceAsPlainObj)

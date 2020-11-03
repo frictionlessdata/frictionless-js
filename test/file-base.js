@@ -1,11 +1,11 @@
 import assert from 'assert'
-import * as data from '../data'
+import * as data from '../src/data'
 import toArray from 'stream-to-array'
-import { File } from '../file-base'
+import { File } from '../src/file-base'
 // common method to test all the functionality which we can use for all types
 // of files
 export const testFile = async (assert, file) => {
-  assert.strictEqual(file.path, 'datajs/test/fixtures/sample.csv')
+  assert.strictEqual(file.path, 'test/fixtures/sample.csv')
   assert.strictEqual(file.size, 46)
   await testFileStream(assert, file)
 }
@@ -47,7 +47,7 @@ export const testFileStream = async (assert, file) => {
 
 describe('File Base', async () => {
   it('cyrillic encoding is working', () => {
-    const path_ = 'datajs/test/fixtures/sample-cyrillic-encoding.csv'
+    const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
     const file = data.open(path_)
     //const buffer = await file.buffer
     //t.is(buffer.toString().slice(0, 12), 'номер, город')
@@ -56,24 +56,24 @@ describe('File Base', async () => {
 
   it('File class with path', async () => {
     // With path
-    const path_ = 'datajs/test/fixtures/sample.csv'
+    const path_ = 'test/fixtures/sample.csv'
     const res = data.open(path_)
     await testFile(assert, res)
   })
 
   it('File class with descriptor', async () => {
-    const descriptor = { path: 'datajs/test/fixtures/sample.csv' }
+    const descriptor = { path: 'test/fixtures/sample.csv' }
     const obj2 = data.open(descriptor)
     await testFile(assert, obj2)
   })
 
   it('File with path and basePath', async () => {
-    const obj3 = data.open('sample.csv', { basePath: 'datajs/test/fixtures' })
+    const obj3 = data.open('sample.csv', { basePath: 'test/fixtures' })
     testFile(assert, obj3)
   })
 
   it('File name has spaces and dots', async () => {
-    let path_ = 'datajs/test/fixtures/some file.name.ext'
+    let path_ = 'test/fixtures/some file.name.ext'
     let file = File.load(path_)
     assert.strictEqual(file.descriptor.name, 'some-file.name')
   })
@@ -81,7 +81,7 @@ describe('File Base', async () => {
 
 describe('bufferInChunks', () => {
   it('File is loaded in chunks', async () => {
-    const path_ = 'datajs/test/fixtures/sample-cyrillic-encoding.csv'
+    const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
     const file = data.open(path_)
 
     file.bufferInChunks((chunk, percent) => {
@@ -93,7 +93,7 @@ describe('bufferInChunks', () => {
 
 describe('hashSha256', () => {
   it('hashSha256 returns right hash', async () => {
-    const path_ = 'datajs/test/fixtures/sample-cyrillic-encoding.csv'
+    const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
     const file = data.open(path_)
 
     let hash = await file.hashSha256()

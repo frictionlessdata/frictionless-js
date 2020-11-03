@@ -1,7 +1,7 @@
 import assert from 'assert'
 import path from 'path'
 import nock from 'nock'
-import * as data from '../data'
+import * as data from '../src/data'
 
 describe('isUrl', () => {
   it('Tests if given path is url or not', async () => {
@@ -160,15 +160,15 @@ describe('parsePath', () => {
 
 describe('isDataset', () => {
   it('isDataset function works on different examples', async () => {
-    let pathToDataset = 'datajs/test/fixtures/co2-ppm'
+    let pathToDataset = 'test/fixtures/co2-ppm'
     let res = data.isDataset(pathToDataset)
     assert.strictEqual(res, true)
 
-    pathToDataset = 'datajs/test/fixtures/co2-ppm/datapackage.json'
+    pathToDataset = 'test/fixtures/co2-ppm/datapackage.json'
     res = data.isDataset(pathToDataset)
     assert.strictEqual(res, true)
 
-    const pathToFile = 'datajs/test/fixtures/sample.csv'
+    const pathToFile = 'test/fixtures/sample.csv'
     res = data.isDataset(pathToFile)
     assert.strictEqual(res, false)
 

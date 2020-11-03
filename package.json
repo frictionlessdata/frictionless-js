@@ -4,19 +4,19 @@
   "description": "",
   "main": "dist/node/index.js",
   "directories": {
-    "test": "datajs/test"
+    "test": "src/test"
   },
   "scripts": {
     "test": "yarn run test:node && yarn run test:browser",
     "test:browser": "yarn run build:browser && karma start karma.conf.js --browsers=ChromeHeadless",
-    "test:node": "nyc mocha --require @babel/register datajs/test/*",
+    "test:node": "nyc mocha --require @babel/register test/*",
     "build:browser": "webpack --mode production",
-    "build:node": "babel ./datajs/ -d ./dist/node --no-comments",
+    "build:node": "babel ./src/ -d ./dist/node --no-comments",
     "build": "yarn run build:node && yarn run build:browser",
     "build:watch": "webpack --watch",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
-    "lint": "eslint ./datajs"
+    "lint": "eslint ./src"
   },
   "repository": {
     "type": "git",

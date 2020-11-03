@@ -1,13 +1,13 @@
 import assert from 'assert'
 import toArray from 'stream-to-array'
-import { csvParser, guessParseOptions } from '../../parser/csv'
-import * as data from '../../index'
+import { csvParser, guessParseOptions } from '../../src/parser/csv'
+import * as data from '../../src/index'
 
 describe('csvParser', function () {
   this.timeout(30000) // all tests in this suite get 10 seconds before timeout
 
   it('csvParser iso8859 file encoding', async () => {
-    const path_ = 'datajs/test/fixtures/encodings/iso8859.csv'
+    const path_ = 'test/fixtures/encodings/iso8859.csv'
     const file = data.open(path_)
     const parsed_file = await csvParser(file)
     const rows = await toArray(parsed_file)
@@ -24,7 +24,7 @@ describe('csvParser', function () {
   })
 
   it('csvParser western-macos-roman file encoding', async () => {
-    const path_ = 'datajs/test/fixtures/encodings/western-macos-roman.csv'
+    const path_ = 'test/fixtures/encodings/western-macos-roman.csv'
     const file = data.open(path_)
     const parsed_file = await csvParser(file)
     const rows = await toArray(parsed_file)
@@ -41,7 +41,7 @@ describe('csvParser', function () {
   })
 
   it('guessParseOptions for local data', async () => {
-    const path_ = 'datajs/test/fixtures/semicolon-delimited.csv'
+    const path_ = 'test/fixtures/semicolon-delimited.csv'
     let file = data.open(path_)
     let parseOptions = await guessParseOptions(file)
     assert.deepStrictEqual(parseOptions.delimiter, ';')

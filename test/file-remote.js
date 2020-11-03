@@ -1,7 +1,7 @@
 import assert from 'assert'
 import path from 'path'
 import nock from 'nock'
-import * as data from '../data'
+import * as data from '../src/data'
 import { testFileStream } from './file-base'
 
 describe('File Remote', function () {
