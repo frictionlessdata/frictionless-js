@@ -12,7 +12,7 @@
     "test:node": "nyc mocha --require @babel/register datajs/test/*",
     "build:browser": "rm -rf ./dist/browser && webpack --mode production",
     "build:node": "rm -rf ./dist/node && babel ./datajs/ -d ./dist/node --no-comments",
-    "build": "npm run build:browser && npm run build:node",
+    "build": "yarn run build:browser && yarn run build:node",
     "build:watch": "webpack --watch",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",

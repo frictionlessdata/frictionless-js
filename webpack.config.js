@@ -1,5 +1,5 @@
 const path = require('path')
-const assetPath = './datajs/'
+const assetPath = './datajs'
 
 const createConfig = (target) => {
   return {
@@ -32,8 +32,5 @@ const createConfig = (target) => {
 }
 
 module.exports = [
-  // createConfig('var'),
-  // createConfig('commonjs2'),
-  // createConfig('amd'),
   createConfig('web'),
 ]
