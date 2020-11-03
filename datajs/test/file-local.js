@@ -1,5 +1,5 @@
 import assert from 'assert'
-import * as data from '../src/data'
+import * as data from '../data'
 
 describe('File Local', function () {
   it('File class for addSchema method', async () => {

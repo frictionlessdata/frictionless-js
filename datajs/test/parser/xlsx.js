@@ -1,7 +1,7 @@
 import assert from 'assert'
 import toArray from 'stream-to-array'
-import { xlsxParser } from '../../src/parser/xlsx'
-import * as data from '../../src/index'
+import { xlsxParser } from '../../parser/xlsx'
+import * as data from '../../index'
 
 describe('xlsxParser', function () {
   it('xlsxParser works with local XLSX files', async () => {

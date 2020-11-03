@@ -1,7 +1,7 @@
 import assert from 'assert'
 import toArray from 'stream-to-array'
-import { csvParser, guessParseOptions } from '../../src/parser/csv'
-import * as data from '../../src/index'
+import { csvParser, guessParseOptions } from '../../parser/csv'
+import * as data from '../../index'
 
 describe('csvParser', function () {
   this.timeout(30000) // all tests in this suite get 10 seconds before timeout

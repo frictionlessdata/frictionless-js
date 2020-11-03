@@ -1,5 +1,5 @@
 import assert from 'assert'
-import * as data from '../src/data'
+import * as data from '../data'
 import toArray from 'stream-to-array'
 import { testFile } from './file-base'
 

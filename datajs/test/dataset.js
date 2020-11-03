@@ -1,8 +1,8 @@
 import assert from 'assert'
 import path from 'path'
 import nock from 'nock'
-import * as data from '../src/data'
-import { Dataset } from '../src/dataset'
+import * as data from '../data'
+import { Dataset } from '../dataset'
 
 describe('Dataset', () => {
   it('Dataset constructor works', async () => {
@@ -110,7 +110,7 @@ describe('Dataset', () => {
 })
 
 describe('Dataset.nock', function () {
-  this.timeout(10000) // all tests in this suite get 10 seconds before timeout
+  this.timeout(30000) // all tests in this suite get 10 seconds before timeout
 
   const url = 'https://raw.githubusercontent.com/datasets/co2-ppm/master/'
   it('Dataset.load with url-directory', async () => {

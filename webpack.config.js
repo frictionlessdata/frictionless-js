@@ -1,5 +1,5 @@
 const path = require('path')
-const assetPath = './datajs/src'
+const assetPath = './datajs/'
 
 const createConfig = (target) => {
   return {
@@ -12,7 +12,6 @@ const createConfig = (target) => {
     target: target,
     output: {
       path: path.resolve(__dirname, 'dist/browser'),
-      // filename: `datajs.${target}.js`,
       filename: `bundle.js`,
       library: 'data',
     },

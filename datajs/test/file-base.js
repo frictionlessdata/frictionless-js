@@ -1,7 +1,7 @@
 import assert from 'assert'
-import * as data from '../src/data'
+import * as data from '../data'
 import toArray from 'stream-to-array'
-import { File } from '../src/file-base'
+import { File } from '../file-base'
 // common method to test all the functionality which we can use for all types
 // of files
 export const testFile = async (assert, file) => {

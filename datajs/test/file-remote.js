@@ -1,11 +1,11 @@
 import assert from 'assert'
 import path from 'path'
 import nock from 'nock'
-import * as data from '../src/data'
+import * as data from '../data'
 import { testFileStream } from './file-base'
 
 describe('File Remote', function () {
-  this.timeout(10000) // all tests in this suite get 10 seconds before timeout
+  this.timeout(50000) // all tests in this suite get 10 seconds before timeout
 
   it('File class stream with url', async () => {
     const url =

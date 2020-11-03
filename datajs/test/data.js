@@ -1,7 +1,7 @@
 import assert from 'assert'
 import path from 'path'
 import nock from 'nock'
-import * as data from '../src/data'
+import * as data from '../data'
 
 describe('isUrl', () => {
   it('Tests if given path is url or not', async () => {
