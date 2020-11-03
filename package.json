@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "yarn run test:node && yarn run test:browser",
-    "test:browser": "yarn run build:browser && karma start karma.conf.js --browsers=ChromeHeadless",
+    "test:browser": "karma start karma.conf.js --browsers=ChromeHeadless",
     "test:node": "nyc mocha --require @babel/register test/*",
     "build:browser": "webpack --mode production",
     "build:node": "babel ./src/ -d ./dist/node --no-comments",
