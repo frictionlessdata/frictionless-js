@@ -1,5 +1,4 @@
 const path = require('path')
-const assetPath = './datajs'
 
 const createConfig = (target) => {
   return {
@@ -7,7 +6,7 @@ const createConfig = (target) => {
     devtool: 'source-map',
     context: path.resolve(__dirname),
     entry: {
-      index: `${assetPath}/index.js`,
+      index: `./datajs/index.js`,
     },
     target: target,
     output: {
