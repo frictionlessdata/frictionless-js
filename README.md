@@ -100,10 +100,10 @@ Run the following command to generate the bundle for the necessary JS targets
 
 `yarn build` 
 
-This will create two bundles `./dist` and `./lib`. `./dist` is is built for node environment, while `./lib` is built for the browser. In a simple html file you can use it like this:
+This will create two bundles in the `dist` folder. `node` sub-folder contaons build for node environment, while `browser` sub-folder contains build for the browser. In a simple html file you can use it like this:
 ```html
 <head>
-  <script src="./lib/bundle.js"></script>
+  <script src="./dist/browser/bundle.js"></script>
   <script>
     // Global data lib is available here...
     
@@ -132,10 +132,17 @@ const stream = await file.stream()
 
 // let's get an object stream of the rows
 // (assuming it is tabular i.e. csv, xls etc)
-const rows = await resource.rows()
+const rows = await file.rows()
 
-// entire file as a buffer (be careful with large files!)
-const buffer = await resource.buffer
+// entire file as a buffer
+const buffer = await file.buffer
+
+//for large files you can return in chunks
+await file.bufferInChunks((chunk, progress)=>{
+  console.log(progress, chunk)
+})
+
+
 ```
 
 With a Dataset:
@@ -253,7 +260,10 @@ const path = file.path
 const size = file.size
 
 // md5 hash of the file
-const hash = file.hash
+const hash = file.hash()
+
+// sha256 hash of the file
+const hash256 = file.hash(hashType='sha256')
 
 // file encoding
 const encoding = file.encoding
@@ -421,7 +431,7 @@ Requirements:
 
 We have two type of tests Karma based for browser testing and Mocha with Chai for Node. All node tests are in `datajs/test` folder. Since Mocha is sensitive to test namings, we have separate the folder `/browser-test` for only Karma.
 
-- To run browser test, first you need to build the lib in order to have the bundle in `/lib` folder. Run: `yarn build`, then for browser testing `yarn test:browser`, this will run Karma tests
+- To run browser test, first you need to build the library in order to have the bundle in `dist/browser` folder. Run: `yarn build:browser` to achieve this, then for browser testing use the command `yarn test:browser`, this will run Karma tests.
 - To test in Node: `yarn test:node`
 - To run all tests including Node and browser run `yarn test`
 - To watch Node test run: `yarn test:node:watch`

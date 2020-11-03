@@ -2,7 +2,7 @@
   "name": "data.js",
   "version": "0.13.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/node/index.js",
   "directories": {
     "test": "datajs/test"
   },
