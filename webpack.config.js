@@ -11,7 +11,7 @@ const createConfig = (target) => {
     },
     target: target,
     output: {
-      path: path.resolve(__dirname, 'dist/browser'),
+      path: path.resolve(__dirname, './dist/browser'),
       filename: `bundle.js`,
       library: 'data',
     },
