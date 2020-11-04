@@ -100,7 +100,7 @@ class File {
   }
 
   async hash(hashType = 'md5', progress) {
-    return _computeHash(this.stream(), this.size, hashType, progress);
+    return _computeHash(await this.stream(), this.size, hashType, progress);
   }
 
   async hashSha256(progress) {
@@ -197,11 +197,8 @@ class FileInterface extends File {
     return this._encoding || _data.DEFAULT_ENCODING;
   }
 
-  stream({
-    size
-  } = {}) {
-    size = size === -1 ? this.size : size || 0;
-    return (0, _index.webToNodeStream)(this.descriptor.stream(), size);
+  async stream(size) {
+    return (0, _index.webToNodeStream)(await this.descriptor.stream(), size);
   }
 
   get buffer() {

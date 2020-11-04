@@ -22,12 +22,10 @@ const CSVSniffer = require('csv-sniffer')();
 
 async function csvParser(file, {
   keyed = false,
-  size = 0
+  size
 } = {}) {
   const parseOptions = await getParseOptions(file, keyed);
-  let stream = await file.stream({
-    size
-  });
+  let stream = await file.stream(size);
 
   if (file.descriptor.encoding.toLowerCase().replace('-', '') === 'utf8') {
     return stream.pipe((0, _csvParse.default)(parseOptions));
@@ -47,8 +45,8 @@ async function guessParseOptions(file) {
     });
     text = await (0, _streamToString.default)(stream);
   } else if (file.displayName === 'FileInterface') {
-    let reader = file.descriptor.stream().getReader();
-    text = await (0, _utils.toNodeStream)(reader, 10, true);
+    let reader = file.descriptor.stream();
+    text = await (0, _utils.webToNodeStream)(reader, 10, true);
   } else if (file.displayName === 'FileRemote') {
     const stream = await file.stream({
       size: 100

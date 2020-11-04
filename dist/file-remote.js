@@ -42,7 +42,6 @@ class FileRemote extends _fileBase.File {
   stream({
     size
   } = {}) {
-    size = size === -1 ? this.size : size || 0;
     return (async () => {
       const res = await (0, _nodeFetch.default)(this.path);
 
