@@ -12,7 +12,9 @@ export async function webToNodeStream(stream, size, returnChunk = false) {
   if (size == undefined || size == -1) {
     return new ReadableWebToNodeStream(stream)
   } else {
-    const nodeStream = new Readable()
+    const nodeStream = new Readable({
+      read: {},
+    })
 
     let lineCounter = 0
     let lastString = ''
