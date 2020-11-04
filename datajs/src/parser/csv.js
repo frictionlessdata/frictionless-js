@@ -2,11 +2,11 @@ import parse from 'csv-parse'
 const CSVSniffer = require('csv-sniffer')()
 import toString from 'stream-to-string'
 import { decodeStream } from 'iconv-lite'
-import { toNodeStream } from '../browser-utils/utils'
+import {webToNodeStream } from '../browser-utils/utils'
 
-export async function csvParser(file, { keyed = false, size = 0 } = {}) {
+export async function csvParser(file, { keyed = false, size} = {}) {
   const parseOptions = await getParseOptions(file, keyed)
-  let stream = await file.stream({ size })
+  let stream = await file.stream(size)
   if (file.descriptor.encoding.toLowerCase().replace('-', '') === 'utf8') {
     return stream.pipe(parse(parseOptions))
   } else {
@@ -17,7 +17,6 @@ export async function csvParser(file, { keyed = false, size = 0 } = {}) {
   }
 }
 
-
 export async function guessParseOptions(file) {
   const possibleDelimiters = [',', ';', ':', '|', '\t', '^', '*', '&']
   const sniffer = new CSVSniffer(possibleDelimiters)
@@ -27,11 +26,9 @@ export async function guessParseOptions(file) {
   if (file.displayName === 'FileLocal') {
     const stream = await file.stream({ end: 50000 })
     text = await toString(stream)
-
   } else if (file.displayName === 'FileInterface') {
-    let reader = file.descriptor.stream().getReader()
-    text = await toNodeStream(reader, 10, true)
-
+    let reader = file.descriptor.stream()
+    text = await webToNodeStream(reader, 10, true)
   } else if (file.displayName === 'FileRemote') {
     const stream = await file.stream({ size: 100 })
     let bytes = 0

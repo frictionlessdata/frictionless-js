@@ -1,7 +1,6 @@
 import chardet from 'chardet'
 import fs from 'fs'
 import { File } from './file-base'
-import { computeHash } from './browser-utils/utils'
 import path from 'path'
 
 export class FileLocal extends File {
@@ -30,13 +29,5 @@ export class FileLocal extends File {
       return chardet.detectFileSync(this.path, { sampleSize: 1000000 })
     }
     return chardet.detectFileSync(this.path)
-  }
-
-  /**
-   * Calculates the hash of a file
-   * @param {string} hashType - md5/sha256 type of hash algorithm to use
-   */
-  async hash(hashType='sha256') {
-    return computeHash(this.stream(), this.size, hashType)
   }
 }

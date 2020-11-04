@@ -27,8 +27,8 @@ describe('FileInterface', function () {
   it('displayName, size and hash', async () => {
     const file = new data.open(genFile())
 
-    const hash = await file.hash("md5")
-    const hashSha256 = await file.hash("sha256")
+    const hash = await file.hash('md5')
+    const hashSha256 = await file.hash('sha256')
     expect(hash).toBe('b0661d9566498a800fbf95365ce28747')
     expect(hashSha256).toBe(
       'd9d47b90ac9607c5111ff9a83aa37bc10e058ce6206c00b6626ade091784e098'

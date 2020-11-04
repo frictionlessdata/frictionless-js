@@ -17,6 +17,8 @@ var _csv = require("./parser/csv");
 
 var _index = require("./browser-utils/index");
 
+var _crypto = _interopRequireDefault(require("crypto"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const {
@@ -49,10 +51,6 @@ class File {
 
   get path() {
     throw new Error('This is an abstract base class which you should not instantiate. Use open() instead');
-  }
-
-  stream() {
-    return null;
   }
 
   async bufferInChunks(getChunk) {
@@ -99,6 +97,15 @@ class File {
       const buffers = await (0, _streamToArray.default)(stream);
       return Buffer.concat(buffers);
     })();
+  }
+
+  async hash(hashType = 'md5', progress) {
+    return _computeHash(await this.stream(), this.size, hashType, progress);
+  }
+
+  async hashSha256(progress) {
+    console.warn("WARNING! Depreciated function called. Function 'hashSha256' has been deprecated, use the 'hash' function and pass the algorithm type instead!");
+    return this.hash('sha256', progress);
   }
 
   rows({
@@ -190,11 +197,8 @@ class FileInterface extends File {
     return this._encoding || _data.DEFAULT_ENCODING;
   }
 
-  stream({
-    size
-  } = {}) {
-    size = size === -1 ? this.size : size || 0;
-    return (0, _index.toNodeStream)(this.descriptor.stream().getReader(), size);
+  async stream(size) {
+    return (0, _index.webToNodeStream)(await this.descriptor.stream(), size);
   }
 
   get buffer() {
@@ -209,11 +213,48 @@ class FileInterface extends File {
     return this.descriptor.name;
   }
 
-  async hash(hashType = 'sha256') {
-    let stream = (0, _index.webToNodeStream)(this.descriptor.stream());
-    return (0, _index.computeHash)(stream, this.size, hashType);
-  }
-
 }
 
 exports.FileInterface = FileInterface;
+
+function _computeHash(fileStream, fileSize, algorithm, progress) {
+  return new Promise((resolve, reject) => {
+    let hash = _crypto.default.createHash(algorithm);
+
+    let offset = 0;
+    let totalChunkSize = 0;
+    let chunkCount = 0;
+
+    const _reportProgress = new Transform({
+      transform(chunk, encoding, callback) {
+        if (chunkCount % 20 == 0) {
+          const runningTotal = totalChunkSize + offset;
+          const percentComplete = Math.round(runningTotal / fileSize * 100);
+
+          if (typeof progress === 'function') {
+            progress(percentComplete);
+          }
+        }
+
+        callback(null, chunk);
+      }
+
+    });
+
+    fileStream.pipe(_reportProgress).on('error', function (err) {
+      reject(err);
+    }).on('data', function (chunk) {
+      offset += chunk.length;
+      chunkCount += 1;
+      hash.update(chunk);
+    }).on('end', function () {
+      hash = hash.digest('hex');
+
+      if (typeof progress === 'function') {
+        progress(100);
+      }
+
+      resolve(hash);
+    });
+  });
+}

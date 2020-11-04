@@ -4,5 +4,4 @@ else
     toNodeStream: (reader, size, returnChunk) => {},
     isFileFromBrowser: (file) => {},
     webToNodeStream: (reader) => {},
-    computeHash: (fileStream, fileSize, algorithm) => {}
   }

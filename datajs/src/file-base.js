@@ -1,16 +1,12 @@
 import { DEFAULT_ENCODING, PARSE_DATABASE, KNOWN_TABULAR_FORMAT } from './data'
 import { infer } from 'tableschema'
 import toArray from 'stream-to-array'
-const { Transform } = require('stream')
 import { isPlainObject } from 'lodash'
 import { guessParseOptions } from './parser/csv'
-import {
-  toNodeStream,
-  webToNodeStream,
-  computeHash,
-} from './browser-utils/index'
+import { webToNodeStream } from './browser-utils/index'
 import { open } from './data'
-
+const { Transform } = require('stream')
+import crypto from 'crypto'
 /**
  * Abstract Base instance of File
  */
@@ -42,21 +38,17 @@ export class File {
     )
   }
 
-  stream() {
-    return null
-  }
-
   /**
    * Return file buffer in chunks
    * @param {func} getChunk Callback function that returns current chunk and percent of progress
-   * 
+   *
    * Example Usage:
-   * 
+   *
    *  await file.bufferInChunks((buf, percent)=>{
    *         console.log("contentBuffer :", buf);
    *         console.log("Progress :", percent);
    *    })
-   * 
+   *
    */
   async bufferInChunks(getChunk) {
     let stream = null
@@ -102,17 +94,50 @@ export class File {
       })
   }
 
-
+  /**
+   * Returns file buffer
+   */
   get buffer() {
     return (async () => {
       const stream = await this.stream()
       const buffers = await toArray(stream)
 
-      // eslint-disable-next-line no-undef
       return Buffer.concat(buffers)
     })()
   }
 
+  /**
+   * Calculates the hash of a file
+   * @param {string} hashType - md5/sha256 type of hash algorithm to use
+   * @param {func} progress - Callback that returns current progress
+   * @returns {string} hash of file
+   */
+  async hash(hashType = 'md5', progress) {
+    return _computeHash(await this.stream(), this.size, hashType, progress)
+  }
+
+  /**
+   * @deprecated Use "hash" function instead by passing the algorithm type
+   *
+   * Calculates the hash of a file usiƒng sha256 algorithm
+   * @param {func} progress - Callback that returns current progress
+   * @returns {string} hash of file
+   */
+  async hashSha256(progress) {
+    console.warn(
+      "WARNING! Depreciated function called. Function 'hashSha256' has been deprecated, use the 'hash' function and pass the algorithm type instead!"
+    )
+    return this.hash('sha256', progress)
+  }
+
+  /**
+   * Return specified number of rows as stream of data
+   * @param {boolean} keyed whether the file is keyed or not
+   * @param {number} sheet The number of the sheet to load for excel files
+   * @param {number} size The number of rows to return
+   *
+   * @returns {Stream} File stream
+   */
   rows({ keyed, sheet, size } = {}) {
     return this._rows({ keyed, sheet, size })
   }
@@ -181,12 +206,11 @@ export class FileInterface extends File {
   }
 
   /**
-   *
+   * Return the stream to a file
    * If the size is -1 then will read whole file
    */
-  stream({ size } = {}) {
-    size = size === -1 ? this.size : size || 0
-    return toNodeStream(this.descriptor.stream().getReader(), size)
+  async stream(size) {
+    return webToNodeStream(await this.descriptor.stream(), size)
   }
 
   get buffer() {
@@ -200,13 +224,52 @@ export class FileInterface extends File {
   get fileName() {
     return this.descriptor.name
   }
+}
 
-  /**
-   * Calculates the hash of a file
-   * @param {string} hashType - md5/sha256 type of hash algorithm to use
-   */
-  async hash(hashType = 'sha256') {
-    let stream = webToNodeStream(this.descriptor.stream())
-    return computeHash(stream, this.size, hashType)
-  }
+/**
+ * Computes the streaming hash of a file
+ * @param {Readerable Stream} fileStream A node like stream
+ * @param {number} fileSize Total size of the file
+ * @param {string} algorithm sha256/md5 hashing algorithm to use
+ * @param {func} progress Callback function with progress
+ */
+function _computeHash(fileStream, fileSize, algorithm, progress) {
+  return new Promise((resolve, reject) => {
+    let hash = crypto.createHash(algorithm)
+    let offset = 0
+    let totalChunkSize = 0
+    let chunkCount = 0
+
+    //calculates progress after every 20th chunk
+    const _reportProgress = new Transform({
+      transform(chunk, encoding, callback) {
+        if (chunkCount % 20 == 0) {
+          const runningTotal = totalChunkSize + offset
+          const percentComplete = Math.round((runningTotal / fileSize) * 100)
+          if (typeof progress === 'function') {
+            progress(percentComplete) //callback with progress
+          }
+        }
+        callback(null, chunk)
+      },
+    })
+
+    fileStream
+      .pipe(_reportProgress)
+      .on('error', function (err) {
+        reject(err)
+      })
+      .on('data', function (chunk) {
+        offset += chunk.length
+        chunkCount += 1
+        hash.update(chunk)
+      })
+      .on('end', function () {
+        hash = hash.digest('hex')
+        if (typeof progress === 'function') {
+          progress(100)
+        }
+        resolve(hash)
+      })
+  })
 }

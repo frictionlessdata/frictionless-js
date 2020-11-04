@@ -35,14 +35,12 @@
         // console.log("descriptor: ", file);
 
         // // Show the progress of the hash generator on console in devtools
-        // let hash = await file.hash("sha256")
-        // console.log("Done:", hash);
 
-        await file.bufferInChunks((buf, percent)=>{
-            // console.log("contentBuffer :", buf);
-            console.log("Progress :", percent);
-
+        let hash = await file.hash("sha256", (percent) => {
+            console.log(percent);
         })
+        console.log(hash);
+
         // console.log("lenght", Buffer.byteLength(contentBuffer));
     }
 

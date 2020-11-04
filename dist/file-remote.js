@@ -40,7 +40,7 @@ class FileRemote extends _fileBase.File {
   }
 
   stream({
-    size = 0
+    size
   } = {}) {
     return (async () => {
       const res = await (0, _nodeFetch.default)(this.path);
@@ -49,7 +49,7 @@ class FileRemote extends _fileBase.File {
         if (typeof window === 'undefined') {
           return res.body;
         } else {
-          return (0, _index.webToNodeStream)(res.body);
+          return (0, _index.webToNodeStream)(res.body, size);
         }
       } else {
         throw new Error(`${res.status}: ${res.statusText}. Requested URL: ${this.path}`);

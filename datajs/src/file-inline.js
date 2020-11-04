@@ -31,9 +31,6 @@ export class FileInline extends File {
     return this._buffer.byteLength
   }
 
-  get hash() {
-    return crypto.createHash('md5').update(this._buffer).digest('hex')
-  }
 
   stream() {
     const bufferStream = new stream.PassThrough()

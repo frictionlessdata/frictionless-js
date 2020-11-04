@@ -40,10 +40,6 @@ class FileInline extends _fileBase.File {
     return this._buffer.byteLength;
   }
 
-  get hash() {
-    return crypto.createHash('md5').update(this._buffer).digest('hex');
-  }
-
   stream() {
     const bufferStream = new _stream.default.PassThrough();
     bufferStream.end(this._buffer);

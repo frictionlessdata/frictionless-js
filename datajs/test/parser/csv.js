@@ -4,7 +4,7 @@ import { csvParser, guessParseOptions } from '../../src/parser/csv'
 import * as data from '../../src/index'
 
 describe('csvParser', function () {
-  this.timeout(10000) // all tests in this suite get 10 seconds before timeout
+  this.timeout(30000) // all tests in this suite get 10 seconds before timeout
 
   it('csvParser iso8859 file encoding', async () => {
     const path_ = 'datajs/test/fixtures/encodings/iso8859.csv'
