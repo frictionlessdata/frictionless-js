@@ -29,7 +29,6 @@ export class FileRemote extends File {
   }
 
   stream({ size } = {}) {
-    size = size === -1 ? this.size : size || 0
     return (async () => {
       const res = await fetch(this.path)
       if (res.status === 200) {

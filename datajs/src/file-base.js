@@ -113,7 +113,7 @@ export class File {
    * @returns {string} hash of file
    */
   async hash(hashType = 'md5', progress) {
-    return _computeHash(this.stream(), this.size, hashType, progress)
+    return _computeHash(await this.stream(), this.size, hashType, progress)
   }
 
   /**
@@ -209,9 +209,8 @@ export class FileInterface extends File {
    * Return the stream to a file
    * If the size is -1 then will read whole file
    */
-  stream({ size } = {}) {
-    size = size === -1 ? this.size : size || 0
-    return webToNodeStream(this.descriptor.stream(), size)
+  async stream(size) {
+    return webToNodeStream(await this.descriptor.stream(), size)
   }
 
   get buffer() {
