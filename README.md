@@ -1,6 +1,6 @@
-`data.js` is a lightweight, standardized "stream-plus-metadata" interface for accessing files and datasets, especially tabular ones (CSV, Excel).
+`frictionless.js` is a lightweight, standardized "stream-plus-metadata" interface for accessing files and datasets, especially tabular ones (CSV, Excel).
 
-`data.js` follows the ["Frictionless Data Lib Pattern"][fd-pattern].
+`frictionless.js` follows the ["Frictionless Data Lib Pattern"][fd-pattern].
 
 [fd-pattern]: http://okfnlabs.org/blog/2018/02/15/design-pattern-for-a-core-data-library.html#dataset
 
@@ -10,12 +10,12 @@
 * **Tabular**: open CSV, Excel or arrays and get a row stream
 * **Frictionless**: compatible with [Frictionless Data standards][fd]
 
-[![Build Status](https://travis-ci.org/datopian/data.js.svg?branch=master)](https://travis-ci.org/datopian/data.js) [![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/datahubio/chat)
+[![Build Status](https://travis-ci.org/frictionlessdata/frictionless-js.svg?branch=master)](https://travis-ci.org/frictionlessdata/frictionless-js) [![Gitter](https://img.shields.io/gitter/room/frictionlessdata/chat.svg)](https://gitter.im/datahubio/chat)
 
 A line of code is worth a thousand words ...
 
 ```
-const {open} = require('data.js')
+const {open} = require('frictionless.js')
 
 var file = open('path/to/ons-mye-population-totals.xls')
 
@@ -68,7 +68,7 @@ file.rows() => stream object for rows
 
 ## Motivation
 
-`data.js` is motivated by the following use cases:
+`frictionless.js` is motivated by the following use cases:
 
 * **Data "plus"**: when you work with data you always find yourself needing the data itself plus a little bit more -- things like where the data came from on disk (or is going to), or how large it is. This library gives you that information in a standardized way.
 * **Convenient open**: the same simple `open` method whether you are accessing data on disk, from a URL or inline data from a string, buffer or array.
@@ -89,7 +89,7 @@ file.rows() => stream object for rows
 
 ## Installation
 
-`npm install data.js`
+`npm install frictionless.js`
 
 
 ## Browser
@@ -119,7 +119,7 @@ This will create two bundles `./dist` and `./lib`. `./dist` is is built for node
 With a simple file:
 
 ```javascript
-const data = require('data.js')
+const data = require('frictionless.js')
 
 // path can be local or remote
 const file = data.open(path)
@@ -141,7 +141,7 @@ const buffer = await resource.buffer
 With a Dataset:
 
 ```javascript
-const { Dataset } = require('data.js')
+const { Dataset } = require('frictionless.js')
 
 const path = '/path/to/directory/' // must have datapackage.json in the directory atm
 
@@ -172,7 +172,7 @@ There are 3 types of file source we support:
 * Inline data
 
 ```javascript
-const data = require('data.js')
+const data = require('frictionless.js')
 
 const file = data.open('/path/to/file.csv')
 
@@ -357,7 +357,7 @@ async Dataset.load(pathOrDescriptor, {owner = null} = {})
 For example:
 
 ```javascript
-const data = require('data.js')
+const data = require('frictionless.js')
 
 const pathOrDescriptor = 'https://raw.githubusercontent.com/datasets/co2-ppm/master/datapackage.json'
 const dataset = await data.Dataset.load(pathOrDescriptor)
