@@ -1,5 +1,5 @@
 {
-  "name": "data.js",
+  "name": "frictionless.js",
   "version": "0.13.0",
   "description": "",
   "main": "dist/index.js",
@@ -20,14 +20,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/datopian/data.js.git"
+    "url": "git+https://github.com/frictionlessdata/frictionless-js.git"
   },
   "author": "datopian",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/datopian/data.js/issues"
+    "url": "https://github.com/frictionlessdata/frictionless-js/issues"
   },
-  "homepage": "https://github.com/datopian/data.js#readme",
+  "homepage": "https://github.com/frictionlessdata/frictionless-js#readme",
   "dependencies": {
     "chardet": "1.3.0",
     "csv-parse": "4.12.0",
