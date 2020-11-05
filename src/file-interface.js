@@ -20,14 +20,13 @@ export class FileInterface extends File {
   get encoding() {
     return this._encoding || DEFAULT_ENCODING
   }
-
+  
   /**
    * Return the stream to a file
    * If the size is -1 then will read whole file
    */
-  stream({ size } = {}) {
-    size = size === -1 ? this.size : size || 0
-    return webToNodeStream(this.descriptor.stream(), size)
+  async stream(size) {
+    return webToNodeStream(await this.descriptor.stream(), size)
   }
 
   get buffer() {
