@@ -113,7 +113,7 @@ export class File {
    * @returns {string} hash of file
    */
   async hash(hashType = 'md5', progress) {
-    return _computeHash(this.stream(), this.size, hashType, progress)
+    return _computeHash(await this.stream(), this.size, hashType, progress)
   }
 
   /**

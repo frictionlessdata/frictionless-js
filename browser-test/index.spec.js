@@ -14,7 +14,6 @@ const genFile = () => {
 }
 
 describe('FileInterface', function () {
-
   it('addSchema()', async () => {
     const file = new data.open(genFile())
 
@@ -49,7 +48,7 @@ describe('FileInterface', function () {
     rowStream = await file.rows({ size: 1 })
     rows = await toArray(rowStream)
     expect(rows[0]).toEqual(['number', 'string', 'boolean'])
-    // expect(rows[1]).toEqual(undefined)
+    expect(rows[1]).toEqual(undefined)
   })
 
   it('stream()', async () => {
