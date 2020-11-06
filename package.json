@@ -1,6 +1,6 @@
 {
   "name": "frictionless.js",
-  "version": "0.13.0",
+  "version": "0.13.2",
   "description": "",
   "main": "dist/node/index.js",
   "directories": {
