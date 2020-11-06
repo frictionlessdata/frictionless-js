@@ -6,9 +6,8 @@ import { ReadableWebToNodeStream } from 'readable-web-to-node-stream'
  * Transform browser's Reader to string, then create a nodejs stream from it
  * @param {object} stream A browser file stream
  * @param {number} size size of file to return
- * @param {boolean} return_chunk whether to return a chunk in string format or a node stream
  */
-export async function webToNodeStream(stream, size, returnChunk = false) {
+export async function webToNodeStream(stream, size) {
   if (size == undefined || size == -1) {
     return new ReadableWebToNodeStream(stream)
   } else {
@@ -18,7 +17,6 @@ export async function webToNodeStream(stream, size, returnChunk = false) {
 
     let lineCounter = 0
     let lastString = ''
-    let chunkText = ''
 
     const decoder = new TextDecoder()
     let reader = stream.getReader()
@@ -33,7 +31,6 @@ export async function webToNodeStream(stream, size, returnChunk = false) {
 
       // Decode the current chunk to string and prepend the last string
       const string = `${lastString}${decoder.decode(value)}`
-      chunkText += string
 
       // Extract lines from chunk
       const lines = string.split(/\r\n|[\r\n]/g)
@@ -53,11 +50,6 @@ export async function webToNodeStream(stream, size, returnChunk = false) {
     }
 
     nodeStream.push(null)
-
-    //return a chunk of the file. Chunk is used when parsing large files in CSV modeule
-    if (returnChunk) {
-      return chunkText
-    }
 
     return nodeStream
   }

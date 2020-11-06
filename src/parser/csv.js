@@ -2,9 +2,8 @@ import parse from 'csv-parse'
 const CSVSniffer = require('csv-sniffer')()
 import toString from 'stream-to-string'
 import { decodeStream } from 'iconv-lite'
-import {webToNodeStream } from '../browser-utils/utils'
 
-export async function csvParser(file, { keyed = false, size} = {}) {
+export async function csvParser(file, { keyed = false, size } = {}) {
   const parseOptions = await getParseOptions(file, keyed)
   let stream = await file.stream(size)
   if (file.descriptor.encoding.toLowerCase().replace('-', '') === 'utf8') {
@@ -27,8 +26,8 @@ export async function guessParseOptions(file) {
     const stream = await file.stream({ end: 50000 })
     text = await toString(stream)
   } else if (file.displayName === 'FileInterface') {
-    let reader = file.descriptor.stream()
-    text = await webToNodeStream(reader, 10, true)
+    let stream = await file.stream(10)
+    text = await toString(stream)
   } else if (file.displayName === 'FileRemote') {
     const stream = await file.stream({ size: 100 })
     let bytes = 0
