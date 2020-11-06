@@ -1,5 +1,4 @@
 const path = require('path')
-const assetPath = './datajs/src'
 
 const createConfig = (target) => {
   return {
@@ -7,12 +6,11 @@ const createConfig = (target) => {
     devtool: 'source-map',
     context: path.resolve(__dirname),
     entry: {
-      index: `${assetPath}/index.js`,
+      index: `./src/index.js`,
     },
     target: target,
     output: {
-      path: path.resolve(__dirname, 'lib'),
-      // filename: `datajs.${target}.js`,
+      path: path.resolve(__dirname, 'dist/browser'),
       filename: `bundle.js`,
       library: 'data',
     },
@@ -33,8 +31,5 @@ const createConfig = (target) => {
 }
 
 module.exports = [
-  // createConfig('var'),
-  // createConfig('commonjs2'),
-  // createConfig('amd'),
   createConfig('web'),
 ]

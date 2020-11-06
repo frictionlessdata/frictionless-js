@@ -11,7 +11,7 @@ module.exports = function (config) {
     frameworks: ['jasmine', 'browserify'],
 
     // list of files / patterns to load in the browser
-    files: ['lib/bundle.js', 'datajs/browser-test/*.js'],
+    files: ['dist/browser/bundle.js', 'browser-test/*.js'],
 
     // list of files / patterns to exclude
     exclude: [],
@@ -19,7 +19,7 @@ module.exports = function (config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'datajs/browser-test/*.js': ['browserify'],
+      'browser-test/*.js': ['browserify'],
     },
 
     // test results reporter to use
