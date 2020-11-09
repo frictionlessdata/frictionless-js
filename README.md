@@ -82,7 +82,7 @@ file.rows() => stream object for rows
 * Simple: Oriented for single purpose
 * Explicit: No hidden behaviours, no extra magic
 * Frictionlesss: uses and supports (but does not require) [Frictionless Data][fd] specs such as [Data Package][dp] so you can leverage Frictionless tooling
-* Minimal glue: Use on its own or as a building block for more complex data tooling (thanks to its common miminal metadata)
+* Minimal glue: Use on its own or as a building block for more complex data tooling (thanks to its common minimal metadata)
 
 [fd]: https://frictionlessdata.io/
 [dp]: https://frictionlessdata.io/data-packages/
@@ -100,7 +100,7 @@ Run the following command to generate the bundle for the necessary JS targets
 
 `yarn build` 
 
-This will create two bundles in the `dist` folder. `node` sub-folder contaons build for node environment, while `browser` sub-folder contains build for the browser. In a simple html file you can use it like this:
+This will create two bundles in the `dist` folder. `node` sub-folder contains build for node environment, while `browser` sub-folder contains build for the browser. In a simple html file you can use it like this:
 ```html
 <head>
   <script src="./dist/browser/bundle.js"></script>
@@ -222,7 +222,7 @@ const file = data.open('data.csv', {basePath: '/my/base/path'})
 
 Will open the file: `/my/base/path/data.csv`
 
-This functionality is primarily useful when using Files as part of Datasets where it can be convenient for a  File to have a path relative to the directory of the Dataset. (See also Data Package and Data Resource in the Frictionless Data specs).
+This functionality is primarily useful when using Files as part of Datasets where it can be convenient for a File to have a path relative to the directory of the Dataset. (See also Data Package and Data Resource in the Frictionless Data specs).
 
 
 ### Files
