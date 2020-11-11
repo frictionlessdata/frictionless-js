@@ -200,6 +200,7 @@ export class File {
  * @param {number} fileSize Total size of the file
  * @param {string} algorithm sha256/md5 hashing algorithm to use
  * @param {func} progress Callback function with progress
+ * @param {object} file File object
  */
 export function computeHash(fileStream, fileSize, algorithm, progress, file) {
   return new Promise((resolve, reject) => {
