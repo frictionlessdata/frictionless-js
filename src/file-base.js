@@ -11,6 +11,13 @@ import crypto from 'crypto'
  * Abstract Base instance of File
  */
 export class File {
+  constructor(descriptor, { basePath } = {}) {
+    this._descriptor = descriptor
+    this._basePath = basePath
+    this._descriptor.encoding = this.encoding || DEFAULT_ENCODING
+    this._computedHashes = {}
+  }
+
   /**
    * @deprecated Use "open" instead
    * 2019-02-05 kept for backwards compatibility
@@ -20,12 +27,6 @@ export class File {
       "WARNING! Depreciated function called. Function 'load' has been deprecated, please use the 'open' function instead!"
     )
     return open(pathOrDescriptor, { basePath, format })
-  }
-
-  constructor(descriptor, { basePath } = {}) {
-    this._descriptor = descriptor
-    this._basePath = basePath
-    this._descriptor.encoding = this.encoding || DEFAULT_ENCODING
   }
 
   get descriptor() {
@@ -113,7 +114,14 @@ export class File {
    * @returns {string} hash of file
    */
   async hash(hashType = 'md5', progress) {
-    return computeHash(await this.stream(), this.size, hashType, progress)
+    console.log(this);
+    return computeHash(
+      await this.stream(),
+      this.size,
+      hashType,
+      progress,
+      this
+    )
   }
 
   /**
@@ -193,43 +201,53 @@ export class File {
  * @param {string} algorithm sha256/md5 hashing algorithm to use
  * @param {func} progress Callback function with progress
  */
-export function computeHash(fileStream, fileSize, algorithm, progress) {
+export function computeHash(fileStream, fileSize, algorithm, progress, file) {
   return new Promise((resolve, reject) => {
-    let hash = crypto.createHash(algorithm)
-    let offset = 0
-    let totalChunkSize = 0
-    let chunkCount = 0
+    if (file != null && algorithm in file._computedHashes) {
+      if (typeof progress === 'function') {
+        progress(100)
+      }
+      resolve(file._computedHashes[algorithm])
+    } else {
+      let hash = crypto.createHash(algorithm)
+      let offset = 0
+      let totalChunkSize = 0
+      let chunkCount = 0
 
-    //calculates progress after every 20th chunk
-    const _reportProgress = new Transform({
-      transform(chunk, encoding, callback) {
-        if (chunkCount % 20 == 0) {
-          const runningTotal = totalChunkSize + offset
-          const percentComplete = Math.round((runningTotal / fileSize) * 100)
-          if (typeof progress === 'function') {
-            progress(percentComplete) //callback with progress
+      //calculates progress after every 20th chunk
+      const _reportProgress = new Transform({
+        transform(chunk, encoding, callback) {
+          if (chunkCount % 20 == 0) {
+            const runningTotal = totalChunkSize + offset
+            const percentComplete = Math.round((runningTotal / fileSize) * 100)
+            if (typeof progress === 'function') {
+              progress(percentComplete) //callback with progress
+            }
           }
-        }
-        callback(null, chunk)
-      },
-    })
+          callback(null, chunk)
+        },
+      })
 
-    fileStream
-      .pipe(_reportProgress)
-      .on('error', function (err) {
-        reject(err)
-      })
-      .on('data', function (chunk) {
-        offset += chunk.length
-        chunkCount += 1
-        hash.update(chunk)
-      })
-      .on('end', function () {
-        hash = hash.digest('hex')
-        if (typeof progress === 'function') {
-          progress(100)
-        }
-        resolve(hash)
-      })
+      fileStream
+        .pipe(_reportProgress)
+        .on('error', function (err) {
+          reject(err)
+        })
+        .on('data', function (chunk) {
+          offset += chunk.length
+          chunkCount += 1
+          hash.update(chunk)
+        })
+        .on('end', function () {
+          hash = hash.digest('hex')
+          if (typeof progress === 'function') {
+            progress(100)
+          }
+          if (file != null) {
+            file._computedHashes[algorithm] = hash //save the hash to cache
+          }
+          resolve(hash)
+        })
+    }
   })
 }

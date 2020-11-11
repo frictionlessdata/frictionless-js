@@ -119,3 +119,27 @@ describe('hashSha256', () => {
     )
   })
 })
+
+describe('cached Hash', () => {
+  it('hash is cache to file', async () => {
+    const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
+    const file = data.open(path_)
+
+    let hash = await file.hash()
+    assert.strictEqual(
+      file._computedHashes['md5'],
+      '37d3a5159433f0977afb03d01d4bde6e'
+    )
+
+    let cachedhash = await file.hash()
+    assert.strictEqual(cachedhash, '37d3a5159433f0977afb03d01d4bde6e')
+
+    let hash256 = await file.hash('sha256')
+    assert.strictEqual(
+      file._computedHashes['sha256'],
+      '8eff5a7815864615309d48035b461b79aa1bdc4402924e97fc66e123725214fd'
+    )
+    assert.strictEqual(hash256, file._computedHashes['sha256'])
+    assert.strictEqual(hash, file._computedHashes['md5'])
+  })
+})
