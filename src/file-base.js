@@ -188,7 +188,7 @@ export class File {
 
 /**
  * Computes the streaming hash of a file
- * @param {Readerable Stream} fileStream A node like stream
+ * @param {object} fileStream A node like stream
  * @param {number} fileSize Total size of the file
  * @param {string} algorithm sha256/md5 hashing algorithm to use
  * @param {func} progress Callback function with progress

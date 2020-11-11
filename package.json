@@ -16,7 +16,8 @@
     "build": "yarn run build:node && yarn run build:browser",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
-    "lint": "eslint ./src"
+    "lint": "eslint ./src",
+    "docs": "jsdoc2md src/**.js > docs/API.md"
   },
   "repository": {
     "type": "git",
@@ -75,7 +76,8 @@
     "watchify": "3.11.1",
     "webpack": "4.44.2",
     "webpack-cli": "3.3.12",
-    "xo": "0.33.1"
+    "xo": "0.33.1",
+    "jsdoc-to-markdown": "^6.0.1"
   },
   "nyc": {
     "reporter": [
