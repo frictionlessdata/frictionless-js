@@ -1,7 +1,7 @@
 import assert from 'assert'
 import * as data from '../src/data'
 import toArray from 'stream-to-array'
-import { File } from '../src/file-base'
+import { File, computeHash } from '../src/file-base'
 // common method to test all the functionality which we can use for all types
 // of files
 export const testFile = async (assert, file) => {
@@ -91,12 +91,31 @@ describe('bufferInChunks', () => {
   })
 })
 
+describe('computeHash', () => {
+  it('compute hash256 of a file stream', async () => {
+    const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
+    const file = data.open(path_)
+
+    let hash256 = await computeHash(file.stream(), file.size, 'sha256')
+    let hashmd5 = await computeHash(file.stream(), file.size, 'md5')
+
+    assert.strictEqual(
+      hash256,
+      '8eff5a7815864615309d48035b461b79aa1bdc4402924e97fc66e123725214fd'
+    )
+    assert.strictEqual(hashmd5, '37d3a5159433f0977afb03d01d4bde6e')
+  })
+})
+
 describe('hashSha256', () => {
   it('hashSha256 returns right hash', async () => {
     const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
     const file = data.open(path_)
 
     let hash = await file.hashSha256()
-    assert.strictEqual(hash, '8eff5a7815864615309d48035b461b79aa1bdc4402924e97fc66e123725214fd')
+    assert.strictEqual(
+      hash,
+      '8eff5a7815864615309d48035b461b79aa1bdc4402924e97fc66e123725214fd'
+    )
   })
 })
