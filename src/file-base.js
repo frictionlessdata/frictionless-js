@@ -113,14 +113,22 @@ export class File {
    * @param {func} progress - Callback that returns current progress
    * @returns {string} hash of file
    */
-  async hash(hashType = 'md5', progress) {
-    return computeHash(
-      await this.stream(),
-      this.size,
-      hashType,
-      progress,
-      this
-    )
+  async hash(hashType = 'md5', progress, cache = true) {
+    if (cache && hashType in this._computedHashes) {
+      if (typeof progress === 'function') {
+        progress(100)
+      }
+      return this._computedHashes[hashType]
+    } else {
+      return computeHash(
+        await this.stream(),
+        this.size,
+        hashType,
+        progress,
+        cache,
+        this
+      )
+    }
   }
 
   /**
@@ -199,55 +207,58 @@ export class File {
  * @param {number} fileSize Total size of the file
  * @param {string} algorithm sha256/md5 hashing algorithm to use
  * @param {func} progress Callback function with progress
+ * @param {boolean} cache Whether to cache the computed hash or not
  * @param {object} file File object
+ * 
+ * @returns {string} Computed hash of file
  */
-export function computeHash(fileStream, fileSize, algorithm, progress, file) {
+export function computeHash(
+  fileStream,
+  fileSize,
+  algorithm,
+  progress,
+  cache,
+  file
+) {
   return new Promise((resolve, reject) => {
-    if (file != null && algorithm in file._computedHashes) {
-      if (typeof progress === 'function') {
-        progress(100)
-      }
-      resolve(file._computedHashes[algorithm])
-    } else {
-      let hash = crypto.createHash(algorithm)
-      let offset = 0
-      let totalChunkSize = 0
-      let chunkCount = 0
+    let hash = crypto.createHash(algorithm)
+    let offset = 0
+    let totalChunkSize = 0
+    let chunkCount = 0
 
-      //calculates progress after every 20th chunk
-      const _reportProgress = new Transform({
-        transform(chunk, encoding, callback) {
-          if (chunkCount % 20 == 0) {
-            const runningTotal = totalChunkSize + offset
-            const percentComplete = Math.round((runningTotal / fileSize) * 100)
-            if (typeof progress === 'function') {
-              progress(percentComplete) //callback with progress
-            }
-          }
-          callback(null, chunk)
-        },
-      })
-
-      fileStream
-        .pipe(_reportProgress)
-        .on('error', function (err) {
-          reject(err)
-        })
-        .on('data', function (chunk) {
-          offset += chunk.length
-          chunkCount += 1
-          hash.update(chunk)
-        })
-        .on('end', function () {
-          hash = hash.digest('hex')
+    //calculates progress after every 20th chunk
+    const _reportProgress = new Transform({
+      transform(chunk, encoding, callback) {
+        if (chunkCount % 20 == 0) {
+          const runningTotal = totalChunkSize + offset
+          const percentComplete = Math.round((runningTotal / fileSize) * 100)
           if (typeof progress === 'function') {
-            progress(100)
+            progress(percentComplete) //callback with progress
           }
-          if (file != null) {
-            file._computedHashes[algorithm] = hash //save the hash to cache
-          }
-          resolve(hash)
-        })
-    }
+        }
+        callback(null, chunk)
+      },
+    })
+
+    fileStream
+      .pipe(_reportProgress)
+      .on('error', function (err) {
+        reject(err)
+      })
+      .on('data', function (chunk) {
+        offset += chunk.length
+        chunkCount += 1
+        hash.update(chunk)
+      })
+      .on('end', function () {
+        hash = hash.digest('hex')
+        if (typeof progress === 'function') {
+          progress(100)
+        }
+        if (cache && file != null) {
+          file._computedHashes[algorithm] = hash
+        }
+        resolve(hash)
+      })
   })
 }
