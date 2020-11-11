@@ -114,7 +114,6 @@ export class File {
    * @returns {string} hash of file
    */
   async hash(hashType = 'md5', progress) {
-    console.log(this);
     return computeHash(
       await this.stream(),
       this.size,
