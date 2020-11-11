@@ -113,7 +113,7 @@ export class File {
    * @returns {string} hash of file
    */
   async hash(hashType = 'md5', progress) {
-    return _computeHash(await this.stream(), this.size, hashType, progress)
+    return computeHash(await this.stream(), this.size, hashType, progress)
   }
 
   /**
@@ -193,7 +193,7 @@ export class File {
  * @param {string} algorithm sha256/md5 hashing algorithm to use
  * @param {func} progress Callback function with progress
  */
-function _computeHash(fileStream, fileSize, algorithm, progress) {
+export function computeHash(fileStream, fileSize, algorithm, progress) {
   return new Promise((resolve, reject) => {
     let hash = crypto.createHash(algorithm)
     let offset = 0
