@@ -120,14 +120,16 @@ export class File {
       }
       return this._computedHashes[hashType]
     } else {
-      return computeHash(
+      let hash = await computeHash(
         await this.stream(),
         this.size,
         hashType,
-        progress,
-        cache,
-        this
+        progress
       )
+      if (cache && this != null) {
+        this._computedHashes[hashType] = hash
+      }
+      return hash
     }
   }
 
@@ -209,17 +211,10 @@ export class File {
  * @param {func} progress Callback function with progress
  * @param {boolean} cache Whether to cache the computed hash or not
  * @param {object} file File object
- * 
+ *
  * @returns {string} Computed hash of file
  */
-export function computeHash(
-  fileStream,
-  fileSize,
-  algorithm,
-  progress,
-  cache,
-  file
-) {
+export function computeHash(fileStream, fileSize, algorithm, progress) {
   return new Promise((resolve, reject) => {
     let hash = crypto.createHash(algorithm)
     let offset = 0
@@ -254,9 +249,6 @@ export function computeHash(
         hash = hash.digest('hex')
         if (typeof progress === 'function') {
           progress(100)
-        }
-        if (cache && file != null) {
-          file._computedHashes[algorithm] = hash
         }
         resolve(hash)
       })
