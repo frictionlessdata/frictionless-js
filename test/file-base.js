@@ -119,3 +119,15 @@ describe('hashSha256', () => {
     )
   })
 })
+
+describe('cached Hash', () => {
+  it('hash is cache to file', async () => {
+    const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
+    const file = data.open(path_)
+
+    let hash = await file.hash()
+    let cachedHash = await file.hash()
+
+    assert.strictEqual(hash, cachedHash)
+  })
+})

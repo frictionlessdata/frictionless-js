@@ -11,6 +11,13 @@ import crypto from 'crypto'
  * Abstract Base instance of File
  */
 export class File {
+  constructor(descriptor, { basePath } = {}) {
+    this._descriptor = descriptor
+    this._basePath = basePath
+    this._descriptor.encoding = this.encoding || DEFAULT_ENCODING
+    this._computedHashes = {}
+  }
+
   /**
    * @deprecated Use "open" instead
    * 2019-02-05 kept for backwards compatibility
@@ -20,12 +27,6 @@ export class File {
       "WARNING! Depreciated function called. Function 'load' has been deprecated, please use the 'open' function instead!"
     )
     return open(pathOrDescriptor, { basePath, format })
-  }
-
-  constructor(descriptor, { basePath } = {}) {
-    this._descriptor = descriptor
-    this._basePath = basePath
-    this._descriptor.encoding = this.encoding || DEFAULT_ENCODING
   }
 
   get descriptor() {
@@ -112,8 +113,24 @@ export class File {
    * @param {func} progress - Callback that returns current progress
    * @returns {string} hash of file
    */
-  async hash(hashType = 'md5', progress) {
-    return computeHash(await this.stream(), this.size, hashType, progress)
+  async hash(hashType = 'md5', progress, cache = true) {
+    if (cache && hashType in this._computedHashes) {
+      if (typeof progress === 'function') {
+        progress(100)
+      }
+      return this._computedHashes[hashType]
+    } else {
+      let hash = await computeHash(
+        await this.stream(),
+        this.size,
+        hashType,
+        progress
+      )
+      if (cache && this != null) {
+        this._computedHashes[hashType] = hash
+      }
+      return hash
+    }
   }
 
   /**
@@ -192,6 +209,10 @@ export class File {
  * @param {number} fileSize Total size of the file
  * @param {string} algorithm sha256/md5 hashing algorithm to use
  * @param {func} progress Callback function with progress
+ * @param {boolean} cache Whether to cache the computed hash or not
+ * @param {object} file File object
+ *
+ * @returns {string} Computed hash of file
  */
 export function computeHash(fileStream, fileSize, algorithm, progress) {
   return new Promise((resolve, reject) => {

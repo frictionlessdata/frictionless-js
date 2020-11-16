@@ -15,9 +15,9 @@
     </div>
 
 </body>
-<script src="./lib/bundle.js"></script>
+<script src="./dist/browser/bundle.js"></script>
 <script>
-    
+
 
     var inputElement = document.getElementById("inputField");
     inputElement.addEventListener("change", handleFiles, false);
@@ -41,6 +41,12 @@
             console.log(percent);
         })
         console.log(hash);
+        //test if hash is cached
+        let cachehash = await file.hash("sha256", (percent) => {
+            console.log(percent);
+        })
+        console.log(cachehash);
+
 
         // console.log("lenght", Buffer.byteLength(contentBuffer));
     }
