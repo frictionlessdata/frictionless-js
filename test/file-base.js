@@ -105,6 +105,18 @@ describe('computeHash', () => {
     )
     assert.strictEqual(hashmd5, '37d3a5159433f0977afb03d01d4bde6e')
   })
+
+  it('encodes the hash using base64', async () => {
+    const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
+    const file = data.open(path_)
+
+    let hash256 = await computeHash(file.stream(), file.size, 'sha256', null, 'base64')
+
+    assert.strictEqual(
+      hash256,
+      'jv9aeBWGRhUwnUgDW0Ybeaob3EQCkk6X/GbhI3JSFP0='
+    )
+  })
 })
 
 describe('hashSha256', () => {
@@ -120,14 +132,14 @@ describe('hashSha256', () => {
   })
 })
 
-describe('cached Hash', () => {
-  it('hash is cache to file', async () => {
+describe('cached hash', () => {
+  it('hashing the same file twice generates the same result', async () => {
     const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
     const file = data.open(path_)
 
-    let hash = await file.hash()
-    let cachedHash = await file.hash()
+    let hash1 = await file.hash()
+    let hash2 = await file.hash()
 
-    assert.strictEqual(hash, cachedHash)
+    assert.strictEqual(hash1, hash2)
   })
 })
