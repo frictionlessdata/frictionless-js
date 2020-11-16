@@ -131,3 +131,15 @@ describe('hashSha256', () => {
     )
   })
 })
+
+describe('cached hash', () => {
+  it('hashing the same file twice generates the same result', async () => {
+    const path_ = 'test/fixtures/sample-cyrillic-encoding.csv'
+    const file = data.open(path_)
+
+    let hash1 = await file.hash()
+    let hash2 = await file.hash()
+
+    assert.strictEqual(hash1, hash2)
+  })
+})
