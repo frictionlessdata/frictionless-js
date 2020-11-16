@@ -188,17 +188,29 @@ export class File {
 
 /**
  * Computes the streaming hash of a file
- * @param {Readerable Stream} fileStream A node like stream
+ * @param {ReadableStream} fileStream A node like stream
  * @param {number} fileSize Total size of the file
  * @param {string} algorithm sha256/md5 hashing algorithm to use
  * @param {func} progress Callback function with progress
+ * @param {"hex"|"base64"|"latin1"} encoding of resulting hash; Default is 'hex', other possible
+ *   values are 'base64' or 'binary'.
+ *
+ * @returns {Promise<String>} the encoded digest value
  */
-export function computeHash(fileStream, fileSize, algorithm, progress) {
+export function computeHash(fileStream, fileSize, algorithm, progress, encoding) {
   return new Promise((resolve, reject) => {
     let hash = crypto.createHash(algorithm)
     let offset = 0
     let totalChunkSize = 0
     let chunkCount = 0
+
+    if (! encoding) {
+      encoding = 'hex'
+    } else {
+      if (! ['hex', 'latin1', 'binary', 'base64'].includes(encoding)) {
+        throw new Error(`Invalid encoding value: ${encoding}; Expecting 'hex', 'latin1', 'binary' or 'base64'`)
+      }
+    }
 
     //calculates progress after every 20th chunk
     const _reportProgress = new Transform({
@@ -225,7 +237,7 @@ export function computeHash(fileStream, fileSize, algorithm, progress) {
         hash.update(chunk)
       })
       .on('end', function () {
-        hash = hash.digest('hex')
+        hash = hash.digest(encoding)
         if (typeof progress === 'function') {
           progress(100)
         }
