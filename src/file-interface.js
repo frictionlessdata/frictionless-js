@@ -25,7 +25,7 @@ export class FileInterface extends File {
    * Return the stream to a file
    * If the size is -1 then will read whole file
    */
-  async stream(size) {
+  async stream({ size } = {}) {
     return webToNodeStream(await this.descriptor.stream(), size)
   }
 
