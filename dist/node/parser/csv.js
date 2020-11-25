@@ -23,7 +23,9 @@ async function csvParser(file, {
   size
 } = {}) {
   const parseOptions = await getParseOptions(file, keyed);
-  let stream = await file.stream(size);
+  let stream = await file.stream({
+    size
+  });
 
   if (file.descriptor.encoding.toLowerCase().replace('-', '') === 'utf8') {
     return stream.pipe((0, _csvParse.default)(parseOptions));
@@ -39,11 +41,13 @@ async function guessParseOptions(file) {
 
   if (file.displayName === 'FileLocal') {
     const stream = await file.stream({
-      end: 50000
+      size: 50000
     });
     text = await (0, _streamToString.default)(stream);
   } else if (file.displayName === 'FileInterface') {
-    let stream = await file.stream(10);
+    let stream = await file.stream({
+      size: 10
+    });
     text = await (0, _streamToString.default)(stream);
   } else if (file.displayName === 'FileRemote') {
     const stream = await file.stream({

@@ -11,7 +11,7 @@ var _stream = require("stream");
 var _readableWebToNodeStream = require("readable-web-to-node-stream");
 
 async function webToNodeStream(stream, size) {
-  if (size == undefined || size == -1) {
+  if (size === undefined || size === -1) {
     return new _readableWebToNodeStream.ReadableWebToNodeStream(stream);
   } else {
     const nodeStream = new _stream.Readable({

@@ -25,8 +25,9 @@ class FileLocal extends _fileBase.File {
   }
 
   stream({
-    end
+    size
   } = {}) {
+    let end = size;
     return _fs.default.createReadStream(this.path, {
       start: 0,
       end

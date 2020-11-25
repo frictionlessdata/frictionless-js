@@ -39,6 +39,12 @@ Object.defineProperty(exports, "File", {
     return _fileBase.File;
   }
 });
+Object.defineProperty(exports, "computeHash", {
+  enumerable: true,
+  get: function () {
+    return _fileBase.computeHash;
+  }
+});
 Object.defineProperty(exports, "FileInterface", {
   enumerable: true,
   get: function () {

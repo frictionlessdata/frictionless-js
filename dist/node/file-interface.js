@@ -33,7 +33,9 @@ class FileInterface extends _fileBase.File {
     return this._encoding || _data.DEFAULT_ENCODING;
   }
 
-  async stream(size) {
+  async stream({
+    size
+  } = {}) {
     return (0, _index.webToNodeStream)(await this.descriptor.stream(), size);
   }
 

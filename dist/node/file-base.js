@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.computeHash = computeHash;
 exports.File = void 0;
 
 var _data = require("./data");
@@ -26,6 +27,15 @@ const {
 } = require('stream');
 
 class File {
+  constructor(descriptor, {
+    basePath
+  } = {}) {
+    this._descriptor = descriptor;
+    this._basePath = basePath;
+    this._descriptor.encoding = this.encoding || _data.DEFAULT_ENCODING;
+    this._computedHashes = {};
+  }
+
   static load(pathOrDescriptor, {
     basePath,
     format
@@ -35,14 +45,6 @@ class File {
       basePath,
       format
     });
-  }
-
-  constructor(descriptor, {
-    basePath
-  } = {}) {
-    this._descriptor = descriptor;
-    this._basePath = basePath;
-    this._descriptor.encoding = this.encoding || _data.DEFAULT_ENCODING;
   }
 
   get descriptor() {
@@ -99,8 +101,22 @@ class File {
     })();
   }
 
-  async hash(hashType = 'md5', progress) {
-    return _computeHash(await this.stream(), this.size, hashType, progress);
+  async hash(hashType = 'md5', progress, cache = true) {
+    if (cache && hashType in this._computedHashes) {
+      if (typeof progress === 'function') {
+        progress(100);
+      }
+
+      return this._computedHashes[hashType];
+    } else {
+      let hash = await computeHash(await this.stream(), this.size, hashType, progress);
+
+      if (cache && this != null) {
+        this._computedHashes[hashType] = hash;
+      }
+
+      return hash;
+    }
   }
 
   async hashSha256(progress) {
@@ -137,20 +153,31 @@ class File {
     throw new Error(`We do not have a parser for that format: ${this.descriptor.format}`);
   }
 
+  getSample() {
+    return new Promise(async (resolve, reject) => {
+      let smallStream = await this.rows({
+        size: 100
+      });
+      resolve(await (0, _streamToArray.default)(smallStream));
+    });
+  }
+
   async addSchema() {
     if (this.displayName === 'FileInline') {
       this.descriptor.schema = await (0, _tableschema.infer)(this.descriptor.data);
       return;
     }
 
-    if (this.descriptor.format === 'xlsx' && this.descriptor.sample) {
+    let sample = await this.getSample();
+
+    if (this.descriptor.format === 'xlsx' && sample) {
       let headers = 1;
 
-      if ((0, _lodash.isPlainObject)(this.descriptor.sample[0])) {
-        headers = Object.keys(this.descriptor.sample[0]);
+      if ((0, _lodash.isPlainObject)(sample[0])) {
+        headers = Object.keys(sample[0]);
       }
 
-      this.descriptor.schema = await (0, _tableschema.infer)(this.descriptor.sample, {
+      this.descriptor.schema = await (0, _tableschema.infer)(sample, {
         headers
       });
       return;
@@ -175,13 +202,17 @@ class File {
 
 exports.File = File;
 
-function _computeHash(fileStream, fileSize, algorithm, progress) {
+function computeHash(fileStream, fileSize, algorithm, progress, encoding = 'hex') {
   return new Promise((resolve, reject) => {
     let hash = _crypto.default.createHash(algorithm);
 
     let offset = 0;
     let totalChunkSize = 0;
     let chunkCount = 0;
+
+    if (!['hex', 'latin1', 'binary', 'base64'].includes(encoding)) {
+      throw new Error(`Invalid encoding value: ${encoding}; Expecting 'hex', 'latin1', 'binary' or 'base64'`);
+    }
 
     const _reportProgress = new Transform({
       transform(chunk, encoding, callback) {
@@ -206,7 +237,7 @@ function _computeHash(fileStream, fileSize, algorithm, progress) {
       chunkCount += 1;
       hash.update(chunk);
     }).on('end', function () {
-      hash = hash.digest('hex');
+      hash = hash.digest(encoding);
 
       if (typeof progress === 'function') {
         progress(100);
