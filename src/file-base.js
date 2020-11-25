@@ -11,6 +11,13 @@ import crypto from 'crypto'
  * Abstract Base instance of File
  */
 export class File {
+  constructor(descriptor, { basePath } = {}) {
+    this._descriptor = descriptor
+    this._basePath = basePath
+    this._descriptor.encoding = this.encoding || DEFAULT_ENCODING
+    this._computedHashes = {}
+  }
+
   /**
    * @deprecated Use "open" instead
    * 2019-02-05 kept for backwards compatibility
@@ -20,12 +27,6 @@ export class File {
       "WARNING! Depreciated function called. Function 'load' has been deprecated, please use the 'open' function instead!"
     )
     return open(pathOrDescriptor, { basePath, format })
-  }
-
-  constructor(descriptor, { basePath } = {}) {
-    this._descriptor = descriptor
-    this._basePath = basePath
-    this._descriptor.encoding = this.encoding || DEFAULT_ENCODING
   }
 
   get descriptor() {
@@ -110,10 +111,27 @@ export class File {
    * Calculates the hash of a file
    * @param {string} hashType - md5/sha256 type of hash algorithm to use
    * @param {func} progress - Callback that returns current progress
+   * @param {boolean} cache - Set to false to disable hash caching
    * @returns {string} hash of file
    */
-  async hash(hashType = 'md5', progress) {
-    return computeHash(await this.stream(), this.size, hashType, progress)
+  async hash(hashType = 'md5', progress, cache = true) {
+    if (cache && hashType in this._computedHashes) {
+      if (typeof progress === 'function') {
+        progress(100)
+      }
+      return this._computedHashes[hashType]
+    } else {
+      let hash = await computeHash(
+        await this.stream(),
+        this.size,
+        hashType,
+        progress
+      )
+      if (cache && this != null) {
+        this._computedHashes[hashType] = hash
+      }
+      return hash
+    }
   }
 
   /**
@@ -152,19 +170,30 @@ export class File {
     )
   }
 
+  /**
+   * Returns a small portion of a file stream as Objects
+   */
+  getSample() {
+    return new Promise(async (resolve, reject) => {
+      let smallStream = await this.rows({ size: 100 })
+      resolve(await toArray(smallStream))
+    })
+  }
+
   async addSchema() {
     if (this.displayName === 'FileInline') {
       this.descriptor.schema = await infer(this.descriptor.data)
       return
     }
+    let sample = await this.getSample()
 
     // Try to infer schema from sample data if given file is xlsx
-    if (this.descriptor.format === 'xlsx' && this.descriptor.sample) {
+    if (this.descriptor.format === 'xlsx' && sample) {
       let headers = 1
-      if (isPlainObject(this.descriptor.sample[0])) {
-        headers = Object.keys(this.descriptor.sample[0])
+      if (isPlainObject(sample[0])) {
+        headers = Object.keys(sample[0])
       }
-      this.descriptor.schema = await infer(this.descriptor.sample, { headers })
+      this.descriptor.schema = await infer(sample, { headers })
       return
     }
 
@@ -188,17 +217,33 @@ export class File {
 
 /**
  * Computes the streaming hash of a file
- * @param {object} fileStream A node like stream
+ * @param {ReadableStream} fileStream A node like stream
  * @param {number} fileSize Total size of the file
  * @param {string} algorithm sha256/md5 hashing algorithm to use
  * @param {func} progress Callback function with progress
+ * @param {"hex"|"base64"|"latin1"} encoding of resulting hash; Default is 'hex', other possible
+ *   values are 'base64' or 'binary'.
+ *
+ * @returns {Promise<String>} the encoded digest value
  */
-export function computeHash(fileStream, fileSize, algorithm, progress) {
+export function computeHash(
+  fileStream,
+  fileSize,
+  algorithm,
+  progress,
+  encoding = 'hex'
+) {
   return new Promise((resolve, reject) => {
     let hash = crypto.createHash(algorithm)
     let offset = 0
     let totalChunkSize = 0
     let chunkCount = 0
+
+    if (!['hex', 'latin1', 'binary', 'base64'].includes(encoding)) {
+      throw new Error(
+        `Invalid encoding value: ${encoding}; Expecting 'hex', 'latin1', 'binary' or 'base64'`
+      )
+    }
 
     //calculates progress after every 20th chunk
     const _reportProgress = new Transform({
@@ -225,7 +270,7 @@ export function computeHash(fileStream, fileSize, algorithm, progress) {
         hash.update(chunk)
       })
       .on('end', function () {
-        hash = hash.digest('hex')
+        hash = hash.digest(encoding)
         if (typeof progress === 'function') {
           progress(100)
         }

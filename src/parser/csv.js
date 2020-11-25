@@ -5,7 +5,7 @@ import { decodeStream } from 'iconv-lite'
 
 export async function csvParser(file, { keyed = false, size } = {}) {
   const parseOptions = await getParseOptions(file, keyed)
-  let stream = await file.stream(size)
+  let stream = await file.stream({size})
   if (file.descriptor.encoding.toLowerCase().replace('-', '') === 'utf8') {
     return stream.pipe(parse(parseOptions))
   } else {
@@ -23,10 +23,10 @@ export async function guessParseOptions(file) {
 
   // We assume that reading first 50K bytes is enough to detect delimiter, line terminator etc.:
   if (file.displayName === 'FileLocal') {
-    const stream = await file.stream({ end: 50000 })
+    const stream = await file.stream({ size: 50000 })
     text = await toString(stream)
   } else if (file.displayName === 'FileInterface') {
-    let stream = await file.stream(10)
+    let stream = await file.stream({size: 10})
     text = await toString(stream)
   } else if (file.displayName === 'FileRemote') {
     const stream = await file.stream({ size: 100 })

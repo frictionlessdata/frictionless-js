@@ -8,7 +8,7 @@ import { ReadableWebToNodeStream } from 'readable-web-to-node-stream'
  * @param {number} size size of file to return
  */
 export async function webToNodeStream(stream, size) {
-  if (size == undefined || size == -1) {
+  if (size === undefined || size === -1) {
     return new ReadableWebToNodeStream(stream)
   } else {
     const nodeStream = new Readable({
