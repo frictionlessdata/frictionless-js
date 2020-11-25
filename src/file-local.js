@@ -14,7 +14,8 @@ export class FileLocal extends File {
       : this.descriptor.path
   }
 
-  stream({ end } = {}) {
+  stream({ size } = {}) {
+    let end = size
     return fs.createReadStream(this.path, { start: 0, end })
   }
 

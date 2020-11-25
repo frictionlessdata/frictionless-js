@@ -143,3 +143,14 @@ describe('cached hash', () => {
     assert.strictEqual(hash1, hash2)
   })
 })
+
+
+describe('getSample', () => {
+  it('returns in object for a stream', async () => {
+    const path_ = 'test/fixtures/sample.xlsx'
+    const file = data.open(path_)
+
+    let rows = await file.getSample()
+    assert.strictEqual(rows.length, 2)
+  })
+})
