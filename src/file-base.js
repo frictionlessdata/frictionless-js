@@ -170,19 +170,30 @@ export class File {
     )
   }
 
+  /**
+   * Returns a small portion of a file stream as Objects
+   */
+  getSample() {
+    return new Promise(async (resolve, reject) => {
+      let smallStream = await this.rows({ size: 100 })
+      resolve(await toArray(smallStream))
+    })
+  }
+
   async addSchema() {
     if (this.displayName === 'FileInline') {
       this.descriptor.schema = await infer(this.descriptor.data)
       return
     }
+    let sample = await this.getSample()
 
     // Try to infer schema from sample data if given file is xlsx
-    if (this.descriptor.format === 'xlsx' && this.descriptor.sample) {
+    if (this.descriptor.format === 'xlsx' && sample) {
       let headers = 1
-      if (isPlainObject(this.descriptor.sample[0])) {
-        headers = Object.keys(this.descriptor.sample[0])
+      if (isPlainObject(sample[0])) {
+        headers = Object.keys(sample[0])
       }
-      this.descriptor.schema = await infer(this.descriptor.sample, { headers })
+      this.descriptor.schema = await infer(sample, { headers })
       return
     }
 
@@ -215,15 +226,23 @@ export class File {
  *
  * @returns {Promise<String>} the encoded digest value
  */
-export function computeHash(fileStream, fileSize, algorithm, progress, encoding = 'hex') {
+export function computeHash(
+  fileStream,
+  fileSize,
+  algorithm,
+  progress,
+  encoding = 'hex'
+) {
   return new Promise((resolve, reject) => {
     let hash = crypto.createHash(algorithm)
     let offset = 0
     let totalChunkSize = 0
     let chunkCount = 0
 
-    if (! ['hex', 'latin1', 'binary', 'base64'].includes(encoding)) {
-      throw new Error(`Invalid encoding value: ${encoding}; Expecting 'hex', 'latin1', 'binary' or 'base64'`)
+    if (!['hex', 'latin1', 'binary', 'base64'].includes(encoding)) {
+      throw new Error(
+        `Invalid encoding value: ${encoding}; Expecting 'hex', 'latin1', 'binary' or 'base64'`
+      )
     }
 
     //calculates progress after every 20th chunk
