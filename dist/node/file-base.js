@@ -3,7 +3,6 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.computeHash = computeHash;
 exports.File = void 0;
 
 var _data = require("./data");
@@ -27,15 +26,6 @@ const {
 } = require('stream');
 
 class File {
-  constructor(descriptor, {
-    basePath
-  } = {}) {
-    this._descriptor = descriptor;
-    this._basePath = basePath;
-    this._descriptor.encoding = this.encoding || _data.DEFAULT_ENCODING;
-    this._computedHashes = {};
-  }
-
   static load(pathOrDescriptor, {
     basePath,
     format
@@ -45,6 +35,14 @@ class File {
       basePath,
       format
     });
+  }
+
+  constructor(descriptor, {
+    basePath
+  } = {}) {
+    this._descriptor = descriptor;
+    this._basePath = basePath;
+    this._descriptor.encoding = this.encoding || _data.DEFAULT_ENCODING;
   }
 
   get descriptor() {
@@ -101,22 +99,8 @@ class File {
     })();
   }
 
-  async hash(hashType = 'md5', progress, cache = true) {
-    if (cache && hashType in this._computedHashes) {
-      if (typeof progress === 'function') {
-        progress(100);
-      }
-
-      return this._computedHashes[hashType];
-    } else {
-      let hash = await computeHash(await this.stream(), this.size, hashType, progress);
-
-      if (cache && this != null) {
-        this._computedHashes[hashType] = hash;
-      }
-
-      return hash;
-    }
+  async hash(hashType = 'md5', progress) {
+    return _computeHash(await this.stream(), this.size, hashType, progress);
   }
 
   async hashSha256(progress) {
@@ -191,17 +175,13 @@ class File {
 
 exports.File = File;
 
-function computeHash(fileStream, fileSize, algorithm, progress, encoding = 'hex') {
+function _computeHash(fileStream, fileSize, algorithm, progress) {
   return new Promise((resolve, reject) => {
     let hash = _crypto.default.createHash(algorithm);
 
     let offset = 0;
     let totalChunkSize = 0;
     let chunkCount = 0;
-
-    if (!['hex', 'latin1', 'binary', 'base64'].includes(encoding)) {
-      throw new Error(`Invalid encoding value: ${encoding}; Expecting 'hex', 'latin1', 'binary' or 'base64'`);
-    }
 
     const _reportProgress = new Transform({
       transform(chunk, encoding, callback) {
@@ -226,7 +206,7 @@ function computeHash(fileStream, fileSize, algorithm, progress, encoding = 'hex'
       chunkCount += 1;
       hash.update(chunk);
     }).on('end', function () {
-      hash = hash.digest(encoding);
+      hash = hash.digest('hex');
 
       if (typeof progress === 'function') {
         progress(100);
