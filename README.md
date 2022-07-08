@@ -81,7 +81,7 @@ file.rows() => stream object for rows
 * Micro: The whole project is ~400 lines of code
 * Simple: Oriented for single purpose
 * Explicit: No hidden behaviours, no extra magic
-* Frictionlesss: uses and supports (but does not require) [Frictionless Data][fd] specs such as [Data Package][dp] so you can leverage Frictionless tooling
+* Frictionlesss: uses and supports (but does not require) [Frictionless Data][fd] specs such as [Data Package][https://specs.frictionlessdata.io/data-package/] so you can leverage Frictionless tooling
 * Minimal glue: Use on its own or as a building block for more complex data tooling (thanks to its common minimal metadata)
 
 [fd]: https://frictionlessdata.io/
